@@ -1,0 +1,71 @@
+﻿using System.IO;
+using FluentAssertions;
+using Xunit;
+
+namespace Audacia.Templating.Typescript.Tests
+{
+    public class ClassTests
+    {
+        [Fact]
+        public void Returns_a_correctly_formed_class()
+        {
+            var expected = File.ReadAllText("class.ts");
+            var @class = new Class("College")
+            {
+                new Property("city", "string"),
+                new Property("name", "string"),
+                new Constructor
+                {
+                    { "name", "string" },
+                    { "city", "string" },
+                    "this.city = city;",
+                    "this.name = name;"
+                },
+
+                new Function("address")
+                {
+                    Modifiers = { Modifier.Public },
+                    Arguments = { { "streetName", "string" } },
+                    Statements = { "return ('College Name:' + this.name + ' City: ' + this.city + ' Street Name: ' + streetName);" }
+                }
+            };
+
+            @class.ToString().Should().Be(expected);
+        }
+
+        [Fact]
+        public void Returns_a_correctly_formed_abstract_class()
+        {
+            var expected = File.ReadAllText("abstractClass.ts");
+            var @class = new Class("University")
+            {
+                Modifiers = { Modifier.Abstract },
+                Members =
+                {
+                    new Property("city", "string"),
+                    new Property("name", "string"),
+                    new Constructor
+                    {
+                        { "name", "string" },
+                        { "city", "string" },
+                        "this.city = city;",
+                        "this.name = name;"
+                    },
+
+                    new Function("thing", "string") {Modifiers = { Modifier.Abstract }},
+                    new Function("address")
+                    {
+                        Modifiers = { Modifier.Public, Modifier.Abstract },
+                        Arguments = { { "streetName", "string" } }
+                    },
+
+                    new Function("age", "number")
+                    {
+                        "return 12;"
+                    }}
+            };
+
+            @class.ToString().Should().Be(expected);
+        }
+    }
+}
