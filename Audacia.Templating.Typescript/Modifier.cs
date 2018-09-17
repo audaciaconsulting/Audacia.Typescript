@@ -19,7 +19,7 @@
             public override string ToString() => Name;
         }
 
-        public class ExportModifier : IModifier<Class>, IModifier<Function>
+        public class ExportModifier : IModifier<Class>, IModifier<Function>, IModifier<Enum>
         {
             internal ExportModifier() { }
 
