@@ -1,0 +1,11 @@
+{
+    "Jasper.Core": { 
+      "namespaces": [ "Jasper", "Jasper.Interfaces", "Jasper.ComputedFields" ],
+      "output": [ "ClientApp/App/entities.ts" ]
+    },
+      
+    "Jasper.Common": { 
+      "namespaces": [ "Jasper.Common" ],
+      "output": [ "ClientApp/App/entities.ts" ]
+    }
+}

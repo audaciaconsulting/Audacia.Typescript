@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audacia.Templating.Typescri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audacia.Templating.Typescript.Tests", "Audacia.Templating.Typescript.Tests\Audacia.Templating.Typescript.Tests.csproj", "{3402104B-1428-4872-82C1-2C2CBFF20989}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audacia.Templating.Typescript.Build", "Audacia.Templating.Typescript.Build\Audacia.Templating.Typescript.Build.csproj", "{5375CDA7-C38C-43D9-AEA1-F21835738F36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{3402104B-1428-4872-82C1-2C2CBFF20989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3402104B-1428-4872-82C1-2C2CBFF20989}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3402104B-1428-4872-82C1-2C2CBFF20989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5375CDA7-C38C-43D9-AEA1-F21835738F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5375CDA7-C38C-43D9-AEA1-F21835738F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5375CDA7-C38C-43D9-AEA1-F21835738F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5375CDA7-C38C-43D9-AEA1-F21835738F36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -8,11 +8,11 @@ namespace Audacia.Templating.Typescript
 {
     public class Class : Element, IEnumerable<IMemberOf<Class>>
     {
-        public string Name { get; set; }
+        public string Name { get; }
 
         public IList<string> Implements { get; } = new List<string>();
 
-        public string Extends { get;set; }
+        public string Extends { get; set; }
 
         public Class(string name)
         {
