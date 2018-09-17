@@ -13,6 +13,7 @@ namespace Audacia.Templating.Typescript.Build.Templates
         public override IEnumerable<Type> Dependencies => _properties
             .Select(p => p.PropertyType)
             .Concat(_interfaces)
+            .Where(t => !t.Namespace.StartsWith(nameof(System)))
             .Where(t => t.Assembly != Type.Assembly);
         
         public ClassTemplate(Type type, IEnumerable<Settings> settings) : base(type, settings)

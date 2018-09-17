@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,10 +11,8 @@ namespace Audacia.Templating.Typescript.Build
         public OutputFile(string path) => Path = path;
 
         public string Path { get; }
-        
-        public IList<string> References { get; } = new List<string>();
-        
-        //public TypescriptFile File { get; } = new TypescriptFile();
+
+        public IEnumerable<Type> Dependencies => Templates.SelectMany(t => t.Dependencies);
         
         public IList<Template> Templates { get; } = new List<Template>();
 
