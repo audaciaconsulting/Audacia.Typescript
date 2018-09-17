@@ -31,7 +31,7 @@ namespace Audacia.Templating.Typescript
 
             foreach (var element in Elements)
             {
-                if (element == null) continue;//throw new InvalidDataException("BUT HOW: " + this.Elements.Count);
+                if (element == null) continue;
                 element.Build(builder, null);
 
                 if (element != Elements.LastOrDefault())
