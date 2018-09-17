@@ -5,8 +5,10 @@ using System.Linq;
 namespace Audacia.Templating.Typescript.Build.Templates {
     public class EnumTemplate : Template
     {
-        public EnumTemplate(Type type) : base(type) { }
-        
+        public EnumTemplate(Type type, IEnumerable<Settings> settings) : base(type, settings) { }
+
+        public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
+
         public override Element Build(IEnumerable<Template> context)
         {
             var @enum = new Enum<string>(Type.Name){Modifiers = { Modifier.Export }};
@@ -29,7 +31,7 @@ namespace Audacia.Templating.Typescript.Build.Templates {
                 @enum.Members.Add(name, label ?? name);				
             }
 			
-            Console.WriteLine($"Enum \"{@enum.Name}\" generated.");
+            Output(ConsoleColor.DarkYellow, "enum", @enum.Name);
             return @enum;
         }
     }

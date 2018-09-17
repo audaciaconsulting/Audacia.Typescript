@@ -1,30 +1,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Audacia.Templating.Typescript.Build.Templates
 {
     public class ClassTemplate : Template
     {
-        public ClassTemplate(Type type) : base(type) { }
+        private readonly IEnumerable<Type> _interfaces;
+        private readonly IEnumerable<PropertyInfo> _properties;
+
+        public override IEnumerable<Type> Dependencies => _properties
+            .Select(p => p.PropertyType)
+            .Concat(_interfaces)
+            .Where(t => t.Assembly != Type.Assembly);
         
+        public ClassTemplate(Type type, IEnumerable<Settings> settings) : base(type, settings)
+        {
+            var namespaces = Settings.SelectMany(x => x.Namespaces);
+            
+            _interfaces = Type.GetInterfaces().Where(i => namespaces.Contains(i.Namespace));
+            _properties = type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                .Where(mi => mi.MemberType == MemberTypes.Property)
+                .Cast<PropertyInfo>();
+        }
+
         public override Element Build(IEnumerable<Template> context)
         {
             var @class = new Class(Type.Name) { Modifiers = { Modifier.Export } };
 
-            var interfaces = Type.GetInterfaces()
-                .Where(i => context.Select(x => x.Type.Namespace).Contains(i.Namespace))
-                .Select(x => x.Name);
+            foreach(var @interface in _interfaces)
+                @class.Implements.Add(@interface.Name);
 			
-            var members = Members(Type);
-			
-            foreach(var @interface in interfaces)
-                @class.Implements.Add(@interface);
-			
-            foreach(var member in members)
-                @class.Members.Add(member);
-			
-            Console.WriteLine($"Class \"{@class.Name}\" generated.");
+            foreach(var property in _properties)
+                @class.Members.Add(new Property(ToCamelCase(property.Name), GetTypeName(property.PropertyType)));
+            
+            Output(ConsoleColor.Green, "class", @class.Name);
             return @class;
         }
     }

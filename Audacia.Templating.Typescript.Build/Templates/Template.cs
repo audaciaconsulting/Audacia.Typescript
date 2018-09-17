@@ -7,11 +7,26 @@ namespace Audacia.Templating.Typescript.Build.Templates {
     public abstract class Template
     {
         public Type Type { get; }
+        public IEnumerable<Settings> Settings { get; }
 
-        public Template(Type type) => Type = type;
+        public Template(Type type, IEnumerable<Settings> settings)
+        {
+            Type = type;
+            Settings = settings;
+        }
 
+        public abstract IEnumerable<Type> Dependencies { get; }
+        
         public abstract Element Build(IEnumerable<Template> context);
 
+        protected void Output(ConsoleColor color, string type, string name)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(type + ' ');
+            Console.ResetColor();
+            Console.WriteLine(name);
+        }
+        
         protected static IEnumerable<Property> Members(Type type)
         {
             return type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
@@ -19,15 +34,15 @@ namespace Audacia.Templating.Typescript.Build.Templates {
                 .Select(m => m as PropertyInfo)
                 .Select(m => new Property(ToCamelCase(m.Name), GetTypeName(m.PropertyType)));
         }
-        
-        private static string ToCamelCase(string s)
+
+        protected static string ToCamelCase(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
             if (s.Length < 2) return s.ToLowerInvariant();
             return char.ToLowerInvariant(s[0]) + s.Substring(1);
         }
 
-        private static string GetTypeName(Type t)
+        protected static string GetTypeName(Type t)
         {
             if (t.IsPrimitive)
             {

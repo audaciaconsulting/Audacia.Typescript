@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using Audacia.Templating.Typescript.Build.Templates;
 
 namespace Audacia.Templating.Typescript.Build
@@ -26,7 +25,7 @@ namespace Audacia.Templating.Typescript.Build
             foreach (var setting in Settings)
             {
                 var assembly = Assembly.LoadFrom(setting.Key);
-                var templates = Reflect(assembly, setting.Value).ToArray();
+                var templates = BuildTemplates(assembly, setting.Value).ToArray();
                 
                 foreach (var output in setting.Value.Output)
                 {
@@ -51,7 +50,7 @@ namespace Audacia.Templating.Typescript.Build
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static IEnumerable<Template> Reflect(Assembly assembly, Settings settings)
+        private static IEnumerable<Template> BuildTemplates(Assembly assembly, Settings settings)
         {
             var types = assembly.GetTypes()
                 .Where(t => settings.Namespaces.Contains(t.Namespace))
@@ -60,9 +59,11 @@ namespace Audacia.Templating.Typescript.Build
 
             foreach (var type in types)
             {
-                if (type.IsClass) yield return new ClassTemplate(type);
-                else if (type.IsInterface) yield return new InterfaceTemplate(type);
-                else if (type.IsEnum) yield return new EnumTemplate(type);
+                var assemblySettings = Settings.Select(s => s.Value);
+                
+                if (type.IsClass) yield return new ClassTemplate(type, assemblySettings);
+                else if (type.IsInterface) yield return new InterfaceTemplate(type, assemblySettings);
+                else if (type.IsEnum) yield return new EnumTemplate(type, assemblySettings);
             }
         }
     }
