@@ -35,7 +35,7 @@ namespace Audacia.Templating.Typescript.Build.Templates {
             foreach(var member in _properties)
                 @interface.Members.Add(new Property(ToCamelCase(member.Name), GetTypeName(member.PropertyType)));
 			
-            Output(ConsoleColor.Magenta, "interface", @interface.Name);
+            ReportProgress(ConsoleColor.Magenta, "interface", @interface.Name);
             return @interface;
         }
     }

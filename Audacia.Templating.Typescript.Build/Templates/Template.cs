@@ -19,7 +19,7 @@ namespace Audacia.Templating.Typescript.Build.Templates {
         
         public abstract Element Build(IEnumerable<Template> context);
 
-        protected void Output(ConsoleColor color, string type, string name)
+        protected void ReportProgress(ConsoleColor color, string type, string name)
         {
             Console.ForegroundColor = color;
             Console.Write(type + ' ');

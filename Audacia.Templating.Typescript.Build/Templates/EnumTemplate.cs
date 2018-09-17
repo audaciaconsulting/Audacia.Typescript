@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Audacia.Templating.Typescript.Build.Templates {
+namespace Audacia.Templating.Typescript.Build.Templates 
+{
     public class EnumTemplate : Template
     {
         public EnumTemplate(Type type, IEnumerable<Settings> settings) : base(type, settings) { }
@@ -31,7 +32,7 @@ namespace Audacia.Templating.Typescript.Build.Templates {
                 @enum.Members.Add(name, label ?? name);				
             }
 			
-            Output(ConsoleColor.DarkYellow, "enum", @enum.Name);
+            ReportProgress(ConsoleColor.DarkYellow, "enum", @enum.Name);
             return @enum;
         }
     }

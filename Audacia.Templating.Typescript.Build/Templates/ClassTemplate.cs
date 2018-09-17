@@ -36,7 +36,7 @@ namespace Audacia.Templating.Typescript.Build.Templates
             foreach(var property in _properties)
                 @class.Members.Add(new Property(ToCamelCase(property.Name), GetTypeName(property.PropertyType)));
             
-            Output(ConsoleColor.Green, "class", @class.Name);
+            ReportProgress(ConsoleColor.Green, "class", @class.Name);
             return @class;
         }
     }
