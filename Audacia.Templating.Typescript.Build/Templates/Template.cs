@@ -8,7 +8,7 @@ namespace Audacia.Templating.Typescript.Build.Templates {
     {
         public Type Type { get; }
         public IEnumerable<Settings> Settings { get; }
-
+        
         public Template(Type type, IEnumerable<Settings> settings)
         {
             Type = type;

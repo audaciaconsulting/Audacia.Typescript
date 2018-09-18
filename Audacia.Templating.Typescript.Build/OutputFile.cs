@@ -13,6 +13,8 @@ namespace Audacia.Templating.Typescript.Build
         public string Path { get; }
 
         public IEnumerable<Type> Dependencies => Templates.SelectMany(t => t.Dependencies);
+
+        public IEnumerable<Type> IncludedTypes => Templates.Select(t => t.Type);
         
         public IList<Template> Templates { get; } = new List<Template>();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using Audacia.Templating.Typescript.Build.Templates;
 
 namespace Audacia.Templating.Typescript.Build
@@ -14,6 +15,8 @@ namespace Audacia.Templating.Typescript.Build
 
         public static void Main()
         {
+            var rn = Environment.NewLine;
+            
             var files = Settings.Values
                 .Select(s => s.Output)
                 .Distinct()
@@ -33,11 +36,31 @@ namespace Audacia.Templating.Typescript.Build
 
             foreach (var file in Outputs)
             {
-                // TODO: Write dependencies at the top of the file
-                //var dependencies = file.Value.Dependencies
+                // Write dependencies at the top of the file
+                var dependencies = file.Value.Dependencies;
+
+                var references = Outputs.Except(new[] {file})
+                    .Where(o => o.Value.IncludedTypes.Any(t => dependencies.Contains(t)));
+
+                var includes = string.Empty;
+                foreach (var reference in references)
+                {
+                    var source = new Uri(Path.GetFullPath(file.Value.Path));
+                    var target = new Uri(Path.GetFullPath(reference.Value.Path));
+                    var relativePath = source.MakeRelativeUri(target)
+                        .ToString()
+                        .Replace(".ts", string.Empty);
+
+                    var types = file.Value.Dependencies
+                        .Where(d => reference.Value.IncludedTypes.Contains(d))
+                        .Select(d => new string(' ', 4) + d.Name)
+                        .Distinct();
+
+                    includes += $"import {{ {rn}{string.Join(',' + rn, types)}{rn} }} from \"./{relativePath}\"{rn}";
+                }
                 
                 var content = file.Value.Build(Outputs);
-                File.WriteAllText(file.Key, content);
+                File.WriteAllText(file.Key, includes + rn + content);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Typescript file \"{Path.GetFullPath(file.Value.Path)}\" written.");

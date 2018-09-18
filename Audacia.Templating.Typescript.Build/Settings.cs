@@ -20,5 +20,7 @@ namespace Audacia.Templating.Typescript.Build
 		public ICollection<string> Namespaces { get; } = new List<string>();
 
 		public string Output { get; set; }
+		
+		public string Alias { get; set; }
 	}
 }
