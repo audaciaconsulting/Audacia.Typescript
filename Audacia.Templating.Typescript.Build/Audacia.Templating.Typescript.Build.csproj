@@ -7,8 +7,9 @@
 		<Authors>Adam Drewery</Authors>
 		<Company>Audacia</Company>
 		<TargetFramework>netcoreapp2.0</TargetFramework>
+		<NuspecFile>Audacia.Templating.Typescript.Build.nuspec</NuspecFile>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 	</ItemGroup>
