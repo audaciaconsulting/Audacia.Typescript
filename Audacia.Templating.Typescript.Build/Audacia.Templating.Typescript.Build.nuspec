@@ -8,7 +8,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>Copyright 2018</copyright>
-    <tags>Tag1 Tag2</tags>
   </metadata>
   <files>
     <file src="Audacia.Templating.Typescript.Build.dll" target="tools\Audacia.Templating.Typescript.Build.dll" />
