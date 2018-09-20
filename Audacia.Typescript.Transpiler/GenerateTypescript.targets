@@ -1,0 +1,11 @@
+<!-- GenerateTypescript.targets -->
+<Project>
+	<PropertyGroup>
+		<ConfigFileLocation>$(MSBuildProjectDirectory)/transpiler.config.json</ConfigFileLocation>
+		<TsGenFileExe>dotnet "$(MSBuildThisFileDirectory)/netcoreapp2.0/Audacia.Typescript.Transpiler.dll"</TsGenFileExe>
+	</PropertyGroup>
+
+	<Target Name="GenerateTypescript" AfterTargets="CoreCompile">
+		<Exec Command="$(TsGenFileExe) $(ConfigFileLocation)" />
+	</Target>
+</Project>

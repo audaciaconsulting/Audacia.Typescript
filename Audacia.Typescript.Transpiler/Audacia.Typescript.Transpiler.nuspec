@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Audacia.Typescript.Transpiler</id>
+    <version>0.0.0</version>
+    <authors>Adam Drewery</authors>
+    <owners>Audacia</owners>
+    <iconUrl>https://girnka-dm2305.files.1drv.com/y4mUfw_5APiy6YhvPidloaNkO5IMUh4GTX222ecazimKACSrlsUoptXi3WHjmHmPtDIxhjfcG0AJHcQ4NDxm4tA13PEBjzjoEnKm5hcoNzxS1i6um3cBaB0o9AMT3PXAULs9utk0wG6YP7tmUmQ_UTSaiG9mNEcXM_t1_Eiguvs1XeaIKBjbb_WF8hTUMzmwY_pGG8BuM9CDcu7tpW2oxK7fw</iconUrl>
+    <copyright>Copyright � Audacia 2017</copyright>
+    <description>Generates typescript from .NET Types</description>
+  </metadata>
+  <files>
+    <file src="_._" target="lib/netcoreapp2.0/" />
+    <file src="Audacia.Typescript.Transpiler.targets" target="build/netcoreapp2.0/Audacia.Typescript.Transpiler.targets" />
+    <file src="GenerateTypescript.targets" target="tools/" />
+    <file src="$publishdir$\netcoreapp2.0\**\*" target="tools/netcoreapp2.0/" />
+  </files>
+</package>

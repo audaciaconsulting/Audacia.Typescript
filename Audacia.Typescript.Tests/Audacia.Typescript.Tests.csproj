@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netcoreapp2.1</TargetFramework>
+		<Version>2.1.0.0</Version>
+		<AssemblyVersion>2.1.0.0</AssemblyVersion>
+		<AssemblyInformationalVersion>2.1.0.0</AssemblyInformationalVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="FluentAssertions" Version="5.4.1" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+	  <PackageReference Include="xunit" Version="2.4.0" />
+	  <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="abstractClass.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="class.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="function.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="property.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="typescriptFile.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="enum.ts">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Audacia.Typescript\Audacia.Typescript.csproj" />
+	</ItemGroup>
+
+</Project>
