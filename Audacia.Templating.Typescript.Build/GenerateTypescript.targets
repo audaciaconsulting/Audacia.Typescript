@@ -5,6 +5,6 @@
 	</PropertyGroup>
 
 	<Target Name="GenerateTypescript" AfterTargets="CoreCompile">
-		<Exec Command="$(TsGenFileExe) $(TargetPathWithTargetPlatformMoniker) $(TypescriptOutput) --namespace $(NamespaceFilter)" />
+		<Exec Command="$(TsGenFileExe)"/>
 	</Target>
 </Project>
