@@ -33,7 +33,6 @@ namespace Audacia.Templating.Typescript.Build
 				
 				throw new InvalidDataException("Failed to find a config file at: " + path + ". A template config file has been automatically generated for you");
 			}
-				//throw new FileLoadException("Failed to read config file at: " + path);
 			
 			var config = File.ReadAllText(path);
 			return JsonConvert.DeserializeObject<IDictionary<string, Settings>>(config);
