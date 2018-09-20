@@ -10,11 +10,16 @@ namespace Audacia.Templating.Typescript.Build
 {
     public class Program
     {
-        private static IDictionary<string, Settings> Settings { get; } = Build.Settings.Load();
+        private static IDictionary<string, Settings> Settings { get; set; } 
         private static IDictionary<string, OutputFile> Outputs { get; } = new Dictionary<string, OutputFile>();
 
-        public static void Main()
+        public static void Main(string[] args)
         {
+            if (!args.Any()) throw new ArgumentException("Please specify the config file location");
+            
+            var configFileLocation = args.First();
+            Settings = Build.Settings.Load(configFileLocation);
+            
             var rn = Environment.NewLine;
             
             var files = Settings.Values
