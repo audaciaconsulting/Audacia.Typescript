@@ -8,7 +8,7 @@
   </metadata>
   <files>
     <file src="_._" target="lib/netcoreapp2.0/" />
-    <file src="MyTypescriptGenerator.targets" target="build/netcoreapp2.0/Audacia.Templating.Typescript.Build.targets" />
+    <file src="Audacia.Templating.Typescript.Build.targets" target="build/netcoreapp2.0/Audacia.Templating.Typescript.Build.targets" />
     <file src="GenerateTypescript.targets" target="tools/" />
     <file src="$publishdir$\netcoreapp2.0\**\*" target="tools/netcoreapp2.0/" />
   </files>
