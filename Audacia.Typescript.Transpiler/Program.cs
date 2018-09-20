@@ -35,10 +35,10 @@ namespace Audacia.Typescript.Transpiler
             foreach (var setting in Settings)
             {
                 var assembly = Assembly.LoadFrom(setting.Key);
-                var templates = BuildTemplates(assembly, setting.Value).ToArray();
+                var builders = CreateBuilders(assembly, setting.Value).ToArray();
                 
-                foreach (var template in templates)
-                    Outputs[setting.Value.Output].Templates.Add(template);
+                foreach (var builder in builders)
+                    Outputs[setting.Value.Output].Builders.Add(builder);
             }
 
             foreach (var file in Outputs)
@@ -84,7 +84,7 @@ namespace Audacia.Typescript.Transpiler
             
         }
 
-        private static IEnumerable<Builder> BuildTemplates(Assembly assembly, Settings settings)
+        private static IEnumerable<Builder> CreateBuilders(Assembly assembly, Settings settings)
         {
             var types = assembly.GetTypes()
                 .Where(t => settings.Namespaces.Contains(t.Namespace))
