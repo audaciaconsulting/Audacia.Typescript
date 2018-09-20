@@ -1,19 +1,15 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
     <id>Audacia.Templating.Typescript.Build</id>
     <version>0.0.0</version>
-    <title>Audacia.Templating.Typescript.Build</title>
-    <owners>Audacia</owners>
     <authors>Adam Drewery</authors>
-    <iconUrl>https://girnka-dm2305.files.1drv.com/y4mUfw_5APiy6YhvPidloaNkO5IMUh4GTX222ecazimKACSrlsUoptXi3WHjmHmPtDIxhjfcG0AJHcQ4NDxm4tA13PEBjzjoEnKm5hcoNzxS1i6um3cBaB0o9AMT3PXAULs9utk0wG6YP7tmUmQ_UTSaiG9mNEcXM_t1_Eiguvs1XeaIKBjbb_WF8hTUMzmwY_pGG8BuM9CDcu7tpW2oxK7fw</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides build-time C#-Typescript transpiling functionality.</description>
-    <copyright>Copyright 2018</copyright>
+    <description>Generates typescript from .NET Types</description>
   </metadata>
   <files>
-    <file src="Audacia.Templating.Typescript.Build.dll" target="tools\Audacia.Templating.Typescript.Build.dll" />
-    <file src="Audacia.Templating.Typescript.dll" target="tools\Audacia.Templating.Typescript.dll" />
-    <file src="config.json" target="tools\config.json" />
+    <file src="_._" target="lib/netcoreapp2.0/" />
+    <file src="MyTypescriptGenerator.targets" target="build/netcoreapp2.0/Audacia.Templating.Typescript.Build.targets" />
+    <file src="GenerateTypescript.targets" target="tools/" />
+    <file src="$publishdir$\netcoreapp2.0\**\*" target="tools/netcoreapp2.0/" />
   </files>
 </package>

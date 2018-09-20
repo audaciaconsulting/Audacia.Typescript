@@ -1,0 +1,4 @@
+<!-- MyTypescriptGenerator.targets -->
+<Project>
+	<Import Project="$(MSBuildThisFileDirectory)/../../tools/GenerateTypescript.targets" />
+</Project>

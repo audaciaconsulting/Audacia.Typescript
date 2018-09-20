@@ -1,0 +1,10 @@
+<!-- GenerateTypescript.targets -->
+<Project>
+	<PropertyGroup>
+		<TsGenFileExe>dotnet "$(MSBuildThisFileDirectory)/Audacia.Templating.Typescript.Build.dll"</TsGenFileExe>
+	</PropertyGroup>
+
+	<Target Name="GenerateTypescript" AfterTargets="CoreCompile">
+		<Exec Command="$(TsGenFileExe) $(TargetPathWithTargetPlatformMoniker) $(TypescriptOutput) --namespace $(NamespaceFilter)" />
+	</Target>
+</Project>
