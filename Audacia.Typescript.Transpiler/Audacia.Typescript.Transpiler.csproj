@@ -13,7 +13,7 @@
 	<!-- Pack settings -->
 	<PropertyGroup>
 		<NoPackageAnalysis>true</NoPackageAnalysis>
-		<NuspecFile>Audacia.Templating.Typescript.Build.nuspec</NuspecFile>
+		<NuspecFile>Audacia.Typescript.Transpiler.nuspec</NuspecFile>
 		<IntermediatePackDir>$(MSBuildProjectDirectory)/bin/$(Configuration)/publish/</IntermediatePackDir>
 		<PublishDir>$(IntermediatePackDir)$(TargetFramework)/</PublishDir>
 		<NuspecProperties>publishDir=$([MSBuild]::NormalizeDirectory($(IntermediatePackDir)))</NuspecProperties>
