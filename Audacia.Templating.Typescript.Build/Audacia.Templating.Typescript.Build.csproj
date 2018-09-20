@@ -22,7 +22,7 @@
 	<!-- Executes /t:Publish for all target frameworks before packing-->
 	<Target Name="PublishAll" BeforeTargets="GenerateNuspec">
 		<ItemGroup>
-			<_TargetFramework Include="$(TargetFrameworks)" />
+			<_TargetFramework Include="$(TargetFramework)" />
 		</ItemGroup>
 		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="TargetFramework=%(_TargetFramework.Identity)" />
 	</Target>
