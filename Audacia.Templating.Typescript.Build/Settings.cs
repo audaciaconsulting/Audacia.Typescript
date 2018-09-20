@@ -28,7 +28,7 @@ namespace Audacia.Templating.Typescript.Build
 					}
 				};
 
-				var json = JsonConvert.SerializeObject(@default);
+				var json = JsonConvert.SerializeObject(@default, new JsonSerializerSettings{ Formatting = Formatting.Indented });
 				File.WriteAllText(path, json);
 				
 				throw new InvalidDataException("Failed to find a config file at: " + path + ". A template config file has been automatically generated for you");
