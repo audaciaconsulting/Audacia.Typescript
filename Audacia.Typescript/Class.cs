@@ -52,7 +52,7 @@ namespace Audacia.Typescript
             return builder
                 .If(!string.IsNullOrWhiteSpace(Comment), b => b
                     .Append(new Comment(Comment), this).NewLine())
-                .JoinDistinct(Modifiers.Select(m => m.ToString()), ' ')
+                .Join(Modifiers.Distinct().Select(m => m.ToString()), " ")
                 .If(Modifiers.Any(), b => b.Append(' '))
                 .Append("class ")
                 .Append(Name)
@@ -61,7 +61,7 @@ namespace Audacia.Typescript
                     .Append(Extends))
                 .If(Implements.Any(), b => b
                     .Append(" implements ")
-                    .JoinDistinct(Implements, ", "))
+                    .Join(Implements.Distinct(), ", "))
                 .Append(" {")
                 .Indent()
                 .NewLine()

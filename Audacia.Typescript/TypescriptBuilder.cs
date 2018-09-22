@@ -44,30 +44,6 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder JoinDistinct(IEnumerable<string> strings, string delimiter)
-        {
-            var d = string.Empty;
-            foreach (var element in strings.Distinct())
-            {
-                Append(d).Append(element);
-                d = delimiter;
-            }
-
-            return this;
-        }
-
-        public TypescriptBuilder JoinDistinct(IEnumerable<string> strings, char delimiter)
-        {
-            var distinct = strings.Distinct().ToList();
-            for (var i = 0; i < distinct.Count; i++)
-            {
-                if (i != 0) Append(delimiter);
-                Append(distinct[i]);
-            }
-
-            return this;
-        }
-
         public TypescriptBuilder Join<T>(IList<IModifier<T>> elements, char delimiter) where T : Element
         {
             for (var i = 0; i < elements.Count; i++)
@@ -91,15 +67,6 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Append(char c)
-        {
-            if(CurrentLine.Blank) _builder.Append(Indentation);
-            CurrentLine.Blank = false;
-            
-            _builder.Append(c);
-            return this;
-        }
-
         public TypescriptBuilder Append(IElement element, Element parent)
         {
             if(CurrentLine.Blank) _builder.Append(Indentation);
@@ -114,6 +81,15 @@ namespace Audacia.Typescript
             
             CurrentLine.Blank = false;
             _builder.Append(s);            
+            return this;
+        }
+        
+        public TypescriptBuilder Append(char c)
+        {
+            if(CurrentLine.Blank) _builder.Append(Indentation);
+            CurrentLine.Blank = false;
+            
+            _builder.Append(c);
             return this;
         }
         
