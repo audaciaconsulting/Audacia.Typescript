@@ -80,7 +80,6 @@ namespace Audacia.Typescript.Transpiler
                 Console.ResetColor();
             }
             
-            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
             Console.ResetColor();

@@ -23,6 +23,8 @@ namespace Audacia.Typescript
 
         public ArgumentList Arguments { get; } = new ArgumentList();
 
+        public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
+        
         public FunctionMemberList Statements { get; } = new FunctionMemberList();
 
         public IList<IModifier<Function>> Modifiers { get; } = new List<IModifier<Function>>();
@@ -51,8 +53,16 @@ namespace Audacia.Typescript
             if (parent == null || parent is Function || parent is Accessor)
                 builder.Append("function ");
 
-            builder.Append(Name)
-                .Append('(')
+            builder.Append(Name);
+
+            if (TypeArguments.Any())
+            {
+                builder.Append('<');
+                builder.Join(TypeArguments, this, ", ");
+                builder.Append('>');
+            }
+            
+            builder.Append('(')
                 .Join(Arguments, this, ", ")
                 .Append(")");
 

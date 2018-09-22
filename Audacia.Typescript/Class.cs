@@ -14,11 +14,10 @@ namespace Audacia.Typescript
 
         public string Extends { get; set; }
 
-        public Class(string name)
-        {
-            Name = name;
-        }
+        public Class(string name) => Name = name;
 
+        public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
+        
         public ClassMemberList Members { get; } = new ClassMemberList();
 
         public IEnumerable<Property> Properties => Members.OfType<Property>()
@@ -37,10 +36,7 @@ namespace Audacia.Typescript
 
         public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
 
-        public void Add(IMemberOf<Class> member)
-        {
-            Members.Add(member);
-        }
+        public void Add(IMemberOf<Class> member) => Members.Add(member);
 
         public IEnumerator<IMemberOf<Class>> GetEnumerator() => Members.GetEnumerator();
 
@@ -56,6 +52,13 @@ namespace Audacia.Typescript
             if (Modifiers.Any()) builder.Append(' ');
 
             builder.Append("class ").Append(Name);
+
+            if (TypeArguments.Any())
+            {
+                builder.Append('<');
+                builder.Join(TypeArguments, this, ", ");
+                builder.Append('>');                
+            }
 
             if (!string.IsNullOrWhiteSpace(Extends)) builder.Append(" extends ").Append(Extends);
 
@@ -85,6 +88,27 @@ namespace Audacia.Typescript
             return builder.Unindent()
                 .NewLine()
                 .Append("}");
+        }
+    }
+
+    public class TypeArgument : Element
+    {
+        public TypeArgument(string name) => Name = name;
+        
+        public TypeArgument(string name, string extends) : this(name) => Extends = extends;
+
+        public string Name { get; }
+
+        public string Extends { get; }
+        
+        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
+        {
+            builder.Append(Name);
+
+            if (Extends != null)
+                builder.Append(" extends ").Append(Extends);
+
+            return builder;
         }
     }
 }

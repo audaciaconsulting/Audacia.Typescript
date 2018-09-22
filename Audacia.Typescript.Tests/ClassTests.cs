@@ -67,5 +67,34 @@ namespace Audacia.Typescript.Tests
 
             @class.ToString().Should().Be(expected);
         }
+
+        [Fact]
+        public void Returns_a_correctly_formed_generic_class()
+        {
+            var expected = File.ReadAllText("generics.ts");
+            var @class = new Class("Wrapper")
+            {
+                TypeArguments = { { "T", "{ length:string, name:string }" }, "T2" },
+                Members =
+                {
+                    new Property("value", "T"),
+                    new Property("otherValue", "T2"),
+                    new Function("longest")
+                    {
+                        Modifiers = { Modifier.Public },
+                        TypeArguments = { { "TOther", "Wrapper<T, T2>" } },
+                        Arguments = { { "input", "TOther" } },
+                        Type = "Wrapper<T, T2>",
+                        Statements =
+                        {
+                            "if (this.value.length > input.value.length) return this;",
+                            "else return input;"
+                        }
+                    }
+                }
+            };
+
+            @class.ToString().Should().Be(expected);
+        }
     }
 }
