@@ -48,8 +48,6 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
-            var memberWritten = false;
-
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
@@ -63,42 +61,27 @@ namespace Audacia.Typescript
 
             if (Implements.Any()) builder.Append(" implements ").Join(Implements.Distinct(), ", ");
 
-            builder.Append(" {")
-                .Indent()
-                .NewLine();
+            builder.Append(" {").Indent().NewLine();
 
-            if (Properties.Any())
-            {
+            if (Properties.Any()) 
                 builder.Join(Properties, this, Environment.NewLine + builder.Indentation);
 
-                memberWritten = true;
-            }
+            var functionMembers = Constructors
+                .Concat<IElement>(Functions)
+                .Concat(PropertyAccessors)
+                .ToArray();
 
-            if (Constructors.Any())
+            if (Properties.Any() && functionMembers.Any())
+                builder.NewLine().NewLine();
+            
+            foreach (var element in functionMembers)
             {
-                if (memberWritten) builder.NewLine().NewLine();
+                builder.Append(element, this);
 
-                builder.Join(Constructors, this, Environment.NewLine);
-
-                memberWritten = true;
+                if (element != functionMembers.Last())
+                    builder.NewLine().NewLine();
             }
-
-            if (Functions.Any())
-            {
-                if (memberWritten) builder.NewLine().NewLine();
-
-                builder.Join(Functions, this, Environment.NewLine + Environment.NewLine + builder.Indentation);
-
-                memberWritten = true;
-            }
-
-            if (PropertyAccessors.Any())
-            {
-                if (memberWritten) builder.NewLine().NewLine();
-
-                builder.Join(PropertyAccessors, this, Environment.NewLine + builder.Indentation);
-            }
-
+            
             return builder.Unindent()
                 .NewLine()
                 .Append("}");
