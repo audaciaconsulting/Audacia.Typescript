@@ -11,10 +11,12 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
-            return builder
-                .Append(Code)
-                .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                    .Append(new Comment(Comment), this));
+            builder.Append(Code);
+
+            if (!string.IsNullOrWhiteSpace(Comment))
+                builder.Append(new Comment(Comment), this);
+
+            return builder;
         }
     }
 }

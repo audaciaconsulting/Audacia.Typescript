@@ -34,9 +34,9 @@ namespace Audacia.Typescript
         public IEnumerable<Function> Functions => Members.OfType<Function>()
             .Where(m => !(m is Constructor))
             .ToArray();
-        
-        public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>(); 
-        
+
+        public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
+
         public void Add(IMemberOf<Class> member)
         {
             Members.Add(member);
@@ -49,48 +49,57 @@ namespace Audacia.Typescript
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
             var memberWritten = false;
-            return builder
-                .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                    .Append(new Comment(Comment), this).NewLine())
-                .Join(Modifiers.Distinct().Select(m => m.ToString()), " ")
-                .If(Modifiers.Any(), b => b.Append(' '))
-                .Append("class ")
-                .Append(Name)
-                .If(!string.IsNullOrWhiteSpace(Extends), b => b
-                    .Append(" extends ")
-                    .Append(Extends))
-                .If(Implements.Any(), b => b
-                    .Append(" implements ")
-                    .Join(Implements.Distinct(), ", "))
-                .Append(" {")
+
+            if (!string.IsNullOrWhiteSpace(Comment))
+                builder.Append(new Comment(Comment), this).NewLine();
+
+            builder.Join(Modifiers.Distinct().Select(m => m.ToString()), " ");
+
+            if (Modifiers.Any()) builder.Append(' ');
+
+            builder.Append("class ").Append(Name);
+
+            if (!string.IsNullOrWhiteSpace(Extends)) builder.Append(" extends ").Append(Extends);
+
+            if (Implements.Any()) builder.Append(" implements ").Join(Implements.Distinct(), ", ");
+
+            builder.Append(" {")
                 .Indent()
-                .NewLine()
-                .If(Properties.Any(), b =>
-                {
-                    b.Join(Properties, this, Environment.NewLine + builder.Indentation);
+                .NewLine();
 
-                    memberWritten = true;
-                })
-                .If(Constructors.Any(), b =>
-                {
-                    b.If(memberWritten, x => x.NewLine().NewLine())
-                        .Join(Constructors, this, Environment.NewLine);
+            if (Properties.Any())
+            {
+                builder.Join(Properties, this, Environment.NewLine + builder.Indentation);
 
-                    memberWritten = true;
-                })
-                .If(Functions.Any(), b =>
-                {
-                    b.If(memberWritten, x => x.NewLine().NewLine())
-                        .Join(Functions, this, Environment.NewLine + Environment.NewLine + builder.Indentation);    
+                memberWritten = true;
+            }
 
-                    memberWritten = true;
-                })
-                .If(PropertyAccessors.Any(), b =>
-                {
-                    b.If(memberWritten, x => x.NewLine().NewLine())
-                        .Join(PropertyAccessors, this, Environment.NewLine + builder.Indentation);
-                })
-                .Unindent()
+            if (Constructors.Any())
+            {
+                if (memberWritten) builder.NewLine().NewLine();
+
+                builder.Join(Constructors, this, Environment.NewLine);
+
+                memberWritten = true;
+            }
+
+            if (Functions.Any())
+            {
+                if (memberWritten) builder.NewLine().NewLine();
+
+                builder.Join(Functions, this, Environment.NewLine + Environment.NewLine + builder.Indentation);
+
+                memberWritten = true;
+            }
+
+            if (PropertyAccessors.Any())
+            {
+                if (memberWritten) builder.NewLine().NewLine();
+
+                builder.Join(PropertyAccessors, this, Environment.NewLine + builder.Indentation);
+            }
+
+            return builder.Unindent()
                 .NewLine()
                 .Append("}");
         }

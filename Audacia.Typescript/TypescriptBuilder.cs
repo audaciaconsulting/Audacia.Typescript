@@ -1,24 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Audacia.Typescript
 {
     public class TypescriptBuilder
     {
-        public Indentation Indentation = Indentation.Spaces(4);
+        public Indentation Indentation { get; } = Indentation.Spaces(4);
         
         public Line CurrentLine { get; } = new Line();
         
         private readonly StringBuilder _builder = new StringBuilder();
     
-        public TypescriptBuilder If(bool value, Action<TypescriptBuilder> action)
-        {
-            if (value) action(this);
-            return this;
-        }
-
         public TypescriptBuilder Join(IEnumerable<IElement> elements, IElement parent, string delimiter)
         {
             var d = string.Empty;

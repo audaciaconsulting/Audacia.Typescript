@@ -27,22 +27,34 @@
 
         public bool HasType => Type != null;
 
-        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => builder
-            .If(parent == null, b => b
-                .Append("var ")
-                .Append(Name)
-                .If(HasType, t => t
-                    .Append(": ")
-                    .Append(Type))
-                .Append(";"))
-            .If(HasGetter && parent is Class, b => b.Append(Get, this))
-            .If(HasGetter && HasSetter, b => b.NewLine())
-            .If(HasSetter && parent is Class, b => b.Append(Set, this))
-            .If(!HasSetter && !HasGetter && parent != null || parent is Interface, b => b
-                .Append(Name)
-                .If(HasType, t => t
-                    .Append(": ")
-                    .Append(Type))
-            .Append(";"));
+        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
+        {
+            if (parent == null)
+            {
+                builder.Append("var ").Append(Name);
+
+                if (HasType) builder.Append(": ").Append(Type);
+
+                builder.Append(";");
+            }
+
+            if (HasGetter && parent is Class)
+                builder.Append(Get, this);
+
+            if (HasGetter && HasSetter) builder.NewLine();
+            
+            if (HasSetter && parent is Class) builder.Append(Set, this);
+
+            if (!HasSetter && !HasGetter && parent != null || parent is Interface)
+            {
+                builder.Append(Name);
+                
+                if (HasType) builder.Append(": ").Append(Type);
+                
+                builder.Append(";");
+            }
+
+            return builder;
+        }
     }
 }

@@ -14,15 +14,15 @@ namespace Audacia.Typescript
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
             var property = (Property) parent;
-            return builder
-                .Append("set ")
+            
+            builder.Append("set ")
                 .Append(property.Name)
                 .Append('(')
-                .Append(ArgumentName)
-                .If(property.HasType, b => b
-                    .Append(": ")
-                    .Append(property.Type))
-                .Append(") {")
+                .Append(ArgumentName);
+
+            if (property.HasType) builder.Append(": ").Append(property.Type);
+                    
+            return builder.Append(") {")
                 .NewLine()
                 .Indent()
                 .Join(Statements, this, Environment.NewLine + builder.Indentation)

@@ -39,28 +39,40 @@ namespace Audacia.Typescript
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => builder
-            .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                .Append(new Comment(Comment), this).NewLine())
-            .Join(Modifiers, ' ')
-            .If(Modifiers.Any(), b => b.Append(' '))
-            .If(parent == null || parent is Function || parent is Accessor, b => b.Append("function "))
-            .Append(Name)
-            .Append('(')
-            .Join(Arguments, this, ", ")
-            .Append(")")
-            .If(!string.IsNullOrWhiteSpace(Type), b => b
-                .Append(": ")
-                .Append(Type))
-            .If(!(parent is Interface) && !Modifiers.Contains(Modifier.Abstract), b => b
-                .Append(" {")
-                .Indent()
-                .NewLine()
-                .Join(Statements, this, Environment.NewLine + builder.Indentation)
-                .Unindent()
-                .NewLine()
-                .Append('}'))
-            .If(parent is Interface || Modifiers.Contains(Modifier.Abstract), b => b
-                .Append(";"));
+        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
+        {
+            if (!string.IsNullOrWhiteSpace(Comment))
+                builder.Append(new Comment(Comment), this).NewLine();
+
+            builder.Join(Modifiers, ' ');
+
+            if (Modifiers.Any()) builder.Append(' ');
+
+            if (parent == null || parent is Function || parent is Accessor)
+                builder.Append("function ");
+
+            builder.Append(Name)
+                .Append('(')
+                .Join(Arguments, this, ", ")
+                .Append(")");
+
+            if (!string.IsNullOrWhiteSpace(Type)) builder.Append(": ").Append(Type);
+
+            if (!(parent is Interface) && !Modifiers.Contains(Modifier.Abstract))
+            {
+                builder.Append(" {")
+                    .Indent()
+                    .NewLine()
+                    .Join(Statements, this, Environment.NewLine + builder.Indentation)
+                    .Unindent()
+                    .NewLine()
+                    .Append('}');
+            }
+
+            if (parent is Interface || Modifiers.Contains(Modifier.Abstract))
+                builder.Append(";");
+
+            return builder;
+        }
     }
 }

@@ -15,8 +15,10 @@ namespace Audacia.Typescript
 		
 		public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
 		{
+			if (Modifiers.Any())
+				builder.Join(Modifiers.Distinct().Select(m => m.ToString()), " ").Append(" ");
+			
 			return builder
-				.If(Modifiers.Any(), b => b.Join(Modifiers.Distinct().Select(m => m.ToString()), " ").Append(" "))
 				.Append("enum ")
 				.Append(Name)
 				.Append(" {")
