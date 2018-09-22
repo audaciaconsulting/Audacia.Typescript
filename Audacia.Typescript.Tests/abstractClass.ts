@@ -8,7 +8,9 @@
     }
 
     abstract thing(): string;
+
     public abstract address(streetName: string);
+
     age(): number {
         return 12;
     }
