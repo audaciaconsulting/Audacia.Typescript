@@ -54,10 +54,8 @@ class Student extends School implements IStudent, IArguments {
             interface IAlsoNested extends IStudent, IArguments {
                 faveColor: string;
             }
-
             return self.firstName;
         }
-
         nested();
     }
 }
