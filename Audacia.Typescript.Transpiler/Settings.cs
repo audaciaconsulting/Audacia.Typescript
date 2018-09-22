@@ -9,8 +9,8 @@ namespace Audacia.Typescript.Transpiler
 	{
 		public string Assembly { get; set; }
 		
-		[XmlArrayItem("Assembly")]
-		public ICollection<string> Namespaces { get; } = new List<string>();
+		[XmlArrayItem("Namespace")]
+		public string[] Namespaces { get; set; }
 
 		public string Output { get; set; }
 	}
@@ -18,12 +18,11 @@ namespace Audacia.Typescript.Transpiler
 	public class Settings
 	{
 		[XmlArrayItem("Assembly")]
-		public AssemblySettings[] Assemblies { get; private set; }
+		public AssemblySettings[] Assemblies { get; set; }
 		
 		public IEnumerable<string> Namespaces => Assemblies.SelectMany(x => x.Namespaces);
 
 		private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
-		private IDictionary<string, AssemblySettings> _lookup;
 
 		public static Settings Load(string path)
 		{
@@ -36,13 +35,13 @@ namespace Audacia.Typescript.Transpiler
 						new AssemblySettings
 						{
 							Assembly = "../../path/to/example/assembly.dll",
-							Namespaces = { "example", "namespace", "specifications " },
+							Namespaces = new[] { "example", "namespace", "specifications " },
 							Output = "../../example/output/file.ts"
 						},
 						new AssemblySettings
 						{
 							Assembly = "../../another/example/assembly.dll",
-							Namespaces = { "example", "namespace", "specifications " },
+							Namespaces = new[] { "example", "namespace", "specifications " },
 							Output = "../../example/output/file.ts"
 						}
 					}
@@ -57,9 +56,7 @@ namespace Audacia.Typescript.Transpiler
 
 			using (var myFileStream = new FileStream(path, FileMode.Open))
 			{
-				var settings = (Settings) Xml.Deserialize(myFileStream);
-				settings._lookup = settings.Assemblies.ToDictionary(x => x.Assembly, x => x);
-				return settings;
+				return (Settings) Xml.Deserialize(myFileStream);
 			}
 		}
 	}
