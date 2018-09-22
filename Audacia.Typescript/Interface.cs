@@ -33,9 +33,7 @@ namespace Audacia.Typescript
         {
             return builder
                 .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                    .Append(new Comment(Comment), this)
-                    .AppendIndentation())
-                .AppendIndentation()
+                    .Append(new Comment(Comment), this).NewLine())
                 .Join(Modifiers, ' ')
                 .If(Modifiers.Any(), b => b
                     .Append(' '))
@@ -44,13 +42,13 @@ namespace Audacia.Typescript
                 .If(Extends.Any(), b => b
                     .Append(" extends ")
                     .Join(Extends, ", "))
-                .AppendLine(" {")
+                .Append(" {")
+                .NewLine()
                 .Indent()
-                .Join(Members, this, Environment.NewLine)
+                .Join(Members, this, Environment.NewLine + builder.Indentation)
                 .Unindent()
-                .AppendLine()
-                .AppendIndentation()
-                .AppendLine("}");
+                .NewLine()
+                .Append("}");
         }
     }
 }

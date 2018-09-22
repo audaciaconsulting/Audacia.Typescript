@@ -7,10 +7,12 @@ namespace Audacia.Typescript
 {
     public class TypescriptBuilder
     {
-        private readonly StringBuilder _builder = new StringBuilder();
-
-        public int Indentation { get; set; }
+        public Indentation Indentation = Indentation.Spaces(4);
         
+        public Line CurrentLine { get; } = new Line();
+        
+        private readonly StringBuilder _builder = new StringBuilder();
+    
         public TypescriptBuilder If(bool value, Action<TypescriptBuilder> action)
         {
             if (value) action(this);
@@ -42,25 +44,6 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Append(string s)
-        {
-            _builder.Append(s);
-            return this;
-        }
-
-        public TypescriptBuilder Join(IList<string> strings, char delimiter)
-        {
-            for (var i = 0; i < strings.Count; i++)
-            {
-                {
-                    if (i != 0) Append(delimiter);
-                    Append(strings[i]);
-                }
-            }
-
-            return this;
-        }
-
         public TypescriptBuilder JoinDistinct(IEnumerable<string> strings, string delimiter)
         {
             var d = string.Empty;
@@ -80,23 +63,6 @@ namespace Audacia.Typescript
             {
                 if (i != 0) Append(delimiter);
                 Append(distinct[i]);
-            }
-
-            return this;
-        }
-
-        public TypescriptBuilder Append(IElement element, Element parent)
-        {
-            return element.Build(this, parent);
-        }
-
-        public TypescriptBuilder Join<T>(IEnumerable<IModifier<T>> elements, string delimiter) where T : Element
-        {
-            var d = string.Empty;
-            foreach (var element in elements)
-            {
-                Append(d).Append(element.Name);
-                d = delimiter;
             }
 
             return this;
@@ -125,69 +91,47 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Join<T>(IList<IMemberOf<T>> elements, Element parent, char delimiter) where T : Element
-        {
-            for (var i = 0; i < elements.Count; i++)
-            {
-                if (i != 0) Append(delimiter);
-                Append(elements[i], parent);
-            }
-
-            return this;
-        }
-
         public TypescriptBuilder Append(char c)
         {
+            if(CurrentLine.Blank) _builder.Append(Indentation);
+            CurrentLine.Blank = false;
+            
             _builder.Append(c);
             return this;
         }
 
-        public TypescriptBuilder Join(IList<Element> elements, Element parent, char delimiter)
+        public TypescriptBuilder Append(IElement element, Element parent)
         {
-            for (var i = 0; i < elements.Count - 1; i++)
-            {
-                if (i != 0) Append(delimiter);
-                elements[i].Build(this, parent);
-            }
-
-            return this;
+            if(CurrentLine.Blank) _builder.Append(Indentation);
+            
+            CurrentLine.Blank = false;
+            return element.Build(this, parent);    
         }
-
-        public TypescriptBuilder AppendLine()
+        
+        public TypescriptBuilder Append(string s)
         {
-            _builder.AppendLine();
-            return this;
-        }
-
-        public TypescriptBuilder AppendLine(string line)
-        {
-            _builder.AppendLine(line);
+            if(CurrentLine.Blank) _builder.Append(Indentation);
+            
+            CurrentLine.Blank = false;
+            _builder.Append(s);            
             return this;
         }
         
-        public TypescriptBuilder AppendLine(char c)
+        public TypescriptBuilder NewLine()
         {
-            _builder.Append(c);
             _builder.AppendLine();
+            CurrentLine.Blank = true;
             return this;
         }
         
-        public TypescriptBuilder AppendIndentation()
-        {
-            for (var i = 0; i < Indentation; i++)
-                _builder.Append(' ').Append(' ').Append(' ').Append(' ');
-
-            return this;
-        }
-
         public TypescriptBuilder Indent()
         {
-            Indentation++;
+            Indentation.Level++;
             return this;
         }
         public TypescriptBuilder Unindent()
         {
-            if (Indentation != 0) Indentation--;
+            if (Indentation.Level != 0) Indentation.Level--;
             return this;
         }
 
@@ -195,5 +139,7 @@ namespace Audacia.Typescript
         {
             return _builder.ToString();
         }
+        
+        public class Line { public bool Blank { get; set; } }
     }
 }

@@ -9,20 +9,19 @@ namespace Audacia.Typescript
             var property = (Property)parent;
 
             return builder
-                .AppendIndentation()
                 .Append("get ")
                 .Append(property.Name)
                 .Append("()")
                 .If(property.HasType, b => b
                     .Append(": ")
                     .Append(property.Type))
-                .AppendLine(" {")
+                .Append(" {")
                 .Indent()
-                .Join(Statements, this, Environment.NewLine)
+                .NewLine()
+                .Join(Statements, this, Environment.NewLine+ builder.Indentation)
                 .Unindent()
-                .AppendLine()
-                .AppendIndentation()
-                .AppendLine('}');
+                .NewLine()
+                .Append('}');
         }
     }
 }

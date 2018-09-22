@@ -15,7 +15,6 @@ namespace Audacia.Typescript
         {
             var property = (Property) parent;
             return builder
-                .AppendIndentation()
                 .Append("set ")
                 .Append(property.Name)
                 .Append('(')
@@ -23,13 +22,13 @@ namespace Audacia.Typescript
                 .If(property.HasType, b => b
                     .Append(": ")
                     .Append(property.Type))
-                .AppendLine(") {")
+                .Append(") {")
+                .NewLine()
                 .Indent()
-                .Join(Statements, this, Environment.NewLine)
+                .Join(Statements, this, Environment.NewLine + builder.Indentation)
                 .Unindent()
-                .AppendLine()
-                .AppendIndentation()
-                .AppendLine('}');
+                .NewLine()
+                .Append('}');
         }
     }
 }

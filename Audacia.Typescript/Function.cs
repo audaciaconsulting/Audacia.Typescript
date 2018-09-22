@@ -41,28 +41,26 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => builder
             .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                .Append(new Comment(Comment), this))
-            .AppendIndentation()
+                .Append(new Comment(Comment), this).NewLine())
             .Join(Modifiers, ' ')
             .If(Modifiers.Any(), b => b.Append(' '))
             .If(parent == null || parent is Function || parent is Accessor, b => b.Append("function "))
             .Append(Name)
             .Append('(')
             .Join(Arguments, this, ", ")
-            .Indent()
             .Append(")")
             .If(!string.IsNullOrWhiteSpace(Type), b => b
                 .Append(": ")
                 .Append(Type))
             .If(!(parent is Interface) && !Modifiers.Contains(Modifier.Abstract), b => b
-                .AppendLine(" {")
-                .Join(Statements, this, Environment.NewLine)
-                .AppendLine()
+                .Append(" {")
+                .Indent()
+                .NewLine()
+                .Join(Statements, this, Environment.NewLine + builder.Indentation)
                 .Unindent()
-                .AppendIndentation()
-                .AppendLine('}'))
+                .NewLine()
+                .Append('}'))
             .If(parent is Interface || Modifiers.Contains(Modifier.Abstract), b => b
-                .Append(";")
-                .Unindent());
+                .Append(";"));
     }
 }

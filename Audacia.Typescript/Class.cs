@@ -21,17 +21,17 @@ namespace Audacia.Typescript
 
         public ClassMemberList Members { get; } = new ClassMemberList();
 
-        public Property[] Properties => Members.OfType<Property>()
+        public IEnumerable<Property> Properties => Members.OfType<Property>()
             .Where(p => !p.HasGetter && !p.HasSetter)
             .ToArray();
 
-        public Property[] PropertyAccessors => Members.OfType<Property>()
+        public IEnumerable<Property> PropertyAccessors => Members.OfType<Property>()
             .Where(p => p.HasGetter || p.HasSetter)
             .ToArray();
 
-        public Constructor[] Constructors => Members.OfType<Constructor>().ToArray();
+        public IEnumerable<Constructor> Constructors => Members.OfType<Constructor>().ToArray();
 
-        public Function[] Functions => Members.OfType<Function>()
+        public IEnumerable<Function> Functions => Members.OfType<Function>()
             .Where(m => !(m is Constructor))
             .ToArray();
         
@@ -50,10 +50,8 @@ namespace Audacia.Typescript
         {
             var memberWritten = false;
             return builder
-                .AppendIndentation()
                 .If(!string.IsNullOrWhiteSpace(Comment), b => b
-                    .Append(new Comment(Comment), this)
-                    .AppendIndentation())
+                    .Append(new Comment(Comment), this).NewLine())
                 .JoinDistinct(Modifiers.Select(m => m.ToString()), ' ')
                 .If(Modifiers.Any(), b => b.Append(' '))
                 .Append("class ")
@@ -65,37 +63,36 @@ namespace Audacia.Typescript
                     .Append(" implements ")
                     .JoinDistinct(Implements, ", "))
                 .Append(" {")
-                .AppendLine()
                 .Indent()
+                .NewLine()
                 .If(Properties.Any(), b =>
                 {
-                    b.Join(Properties, this, Environment.NewLine)
-                        .AppendLine();
+                    b.Join(Properties, this, Environment.NewLine + builder.Indentation);
 
                     memberWritten = true;
                 })
                 .If(Constructors.Any(), b =>
                 {
-                    b.If(memberWritten, x => x.AppendLine())
-                        .Join(Constructors, this, Environment.NewLine + Environment.NewLine);
+                    b.If(memberWritten, x => x.NewLine().NewLine())
+                        .Join(Constructors, this, Environment.NewLine);
 
                     memberWritten = true;
                 })
                 .If(Functions.Any(), b =>
                 {
-                    b.If(memberWritten, x => x.AppendLine())
-                        .Join(Functions, this, Environment.NewLine);    
+                    b.If(memberWritten, x => x.NewLine().NewLine())
+                        .Join(Functions, this, Environment.NewLine + Environment.NewLine + builder.Indentation);    
 
                     memberWritten = true;
                 })
                 .If(PropertyAccessors.Any(), b =>
                 {
-                    b.If(memberWritten, x => x.AppendLine())
-                        .Join(PropertyAccessors, this, Environment.NewLine + Environment.NewLine);
+                    b.If(memberWritten, x => x.NewLine().NewLine())
+                        .Join(PropertyAccessors, this, Environment.NewLine + builder.Indentation);
                 })
                 .Unindent()
-                .AppendIndentation()
-                .AppendLine("}");
+                .NewLine()
+                .Append("}");
         }
     }
 }

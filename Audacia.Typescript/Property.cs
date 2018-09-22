@@ -29,7 +29,6 @@
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => builder
             .If(parent == null, b => b
-                .AppendIndentation()
                 .Append("var ")
                 .Append(Name)
                 .If(HasType, t => t
@@ -37,9 +36,9 @@
                     .Append(Type))
                 .Append(";"))
             .If(HasGetter && parent is Class, b => b.Append(Get, this))
+            .If(HasGetter && HasSetter, b => b.NewLine())
             .If(HasSetter && parent is Class, b => b.Append(Set, this))
             .If(!HasSetter && !HasGetter && parent != null || parent is Interface, b => b
-                .AppendIndentation()
                 .Append(Name)
                 .If(HasType, t => t
                     .Append(": ")

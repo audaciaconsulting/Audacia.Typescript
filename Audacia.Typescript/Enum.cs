@@ -16,18 +16,16 @@ namespace Audacia.Typescript
 		public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
 		{
 			return builder
-				.AppendIndentation()
 				.If(Modifiers.Any(), b => b.JoinDistinct(Modifiers.Select(m => m.ToString()), ' ').Append(' '))
 				.Append("enum ")
 				.Append(Name)
 				.Append(" {")
-				.AppendLine()
 				.Indent() // TODO: Implement generic, also remove hard-coded indent here
-				.Join(Members.Select(m => "    " + (m.Key + " = \"" + m.Value + "\",")), Environment.NewLine)
-				.AppendLine()
+				.NewLine()
+				.Join(Members.Select(m => m.Key + " = \"" + m.Value + "\","), Environment.NewLine + builder.Indentation)
 				.Unindent()
-				.AppendIndentation()
-				.AppendLine("}");
+				.NewLine()
+				.Append("}");
 		}
 
 		public IEnumerator GetEnumerator() => ((IEnumerable) Members).GetEnumerator();

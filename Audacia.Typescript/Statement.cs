@@ -12,7 +12,6 @@ namespace Audacia.Typescript
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
             return builder
-                .AppendIndentation()
                 .Append(Code)
                 .If(!string.IsNullOrWhiteSpace(Comment), b => b
                     .Append(new Comment(Comment), this));

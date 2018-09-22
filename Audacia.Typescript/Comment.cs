@@ -15,8 +15,7 @@
         public string Text { get; set; }
         
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => builder
-            .AppendIndentation()
             .Append("// ")
-            .AppendLine(Text);
+            .Append(Text);
     }
 }

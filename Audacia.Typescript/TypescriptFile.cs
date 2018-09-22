@@ -32,10 +32,11 @@ namespace Audacia.Typescript
             foreach (var element in Elements)
             {
                 if (element == null) continue;
+                
                 element.Build(builder, null);
 
                 if (element != Elements.LastOrDefault())
-                    builder.AppendLine();
+                    builder.NewLine().NewLine();
             }
 
             return builder.ToString();
