@@ -25,9 +25,9 @@ namespace Audacia.Typescript.Transpiler
             var rn = Environment.NewLine;
             
             var files = Settings.Assemblies
-                .Select(s => s.Output)
+                .SelectMany(s => s.Outputs)
                 .Distinct()
-                .Select(path => new OutputFile(path));
+                .Select(outputSettings => new OutputFile(outputSettings.Path));
 
             foreach (var file in files)
                 Outputs.Add(file.Path, file);
@@ -36,9 +36,12 @@ namespace Audacia.Typescript.Transpiler
             {
                 var assembly = Assembly.LoadFrom(setting.Assembly);
                 var builders = CreateBuilders(assembly, setting).ToArray();
-                
+
                 foreach (var builder in builders)
-                    Outputs[setting.Output].Builders.Add(builder);
+                {
+                    foreach(var output in setting.Outputs)
+                        Outputs[output.Path].Builders.Add(builder);
+                }
             }
 
             foreach (var file in Outputs)
@@ -87,7 +90,7 @@ namespace Audacia.Typescript.Transpiler
         private static IEnumerable<Builder> CreateBuilders(Assembly assembly, AssemblySettings settings)
         {
             var types = assembly.GetTypes()
-                .Where(t => settings.Namespaces.Contains(t.Namespace))
+                .Where(t => settings.Namespaces.Any(n => n.Name == t.Namespace))
                 .Where(t => t.IsClass || t.IsInterface || t.IsEnum)
                 .Where(t => t.IsPublic && !t.IsNested);
 
