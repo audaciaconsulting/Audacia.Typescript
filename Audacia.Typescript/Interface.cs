@@ -28,7 +28,7 @@ namespace Audacia.Typescript
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
-            builder.Join(Modifiers, ' ');
+            builder.Join(Modifiers.Select(m => m.ToString()), " ");
 
             if (Modifiers.Any()) builder.Append(' ');
             

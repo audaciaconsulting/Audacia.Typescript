@@ -37,29 +37,6 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Join<T>(IList<IModifier<T>> elements, char delimiter) where T : Element
-        {
-            for (var i = 0; i < elements.Count; i++)
-            {
-                if (i != 0) Append(delimiter);
-                Append(elements[i].Name);
-            }
-
-            return this;
-        }
-
-        public TypescriptBuilder Join<T>(IEnumerable<IMemberOf<T>> elements, Element parent, string delimiter) where T : Element
-        {
-            var d = string.Empty;
-            foreach (var element in elements)
-            {
-                Append(d).Append(element, parent);
-                d = delimiter;
-            }
-
-            return this;
-        }
-
         public TypescriptBuilder Append(IElement element, Element parent)
         {
             if(CurrentLine.Blank) _builder.Append(Indentation);
