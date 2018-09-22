@@ -4,6 +4,7 @@ namespace Audacia.Typescript.Transpiler
 {
     public class AssemblySettings
     {
+        [XmlAttribute("name")]
         public string Assembly { get; set; }
 		
         [XmlArrayItem("Namespace")]
