@@ -70,17 +70,19 @@ namespace Audacia.Typescript
 
             if (!(parent is Interface) && !Modifiers.Contains(Modifier.Abstract))
             {
-                builder.Append(" {")
-                    .Indent()
-                    .NewLine()
-                    .Join(Statements, this, Environment.NewLine + builder.Indentation)
-                    .Unindent()
-                    .NewLine()
-                    .Append('}');
+                if (Statements.Any())
+                {
+                    builder.Append(" {")
+                        .Indent()
+                        .NewLine()
+                        .Join(Statements, this, Environment.NewLine + builder.Indentation)
+                        .Unindent()
+                        .NewLine()
+                        .Append('}');
+                }
+                else builder.Append(" { }");
             }
-
-            if (parent is Interface || Modifiers.Contains(Modifier.Abstract))
-                builder.Append(";");
+            else builder.Append(";");
 
             return builder;
         }

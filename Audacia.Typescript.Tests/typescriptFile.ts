@@ -10,9 +10,7 @@ class School {
     name: string;
     city: string;
 
-    constructor(name: string, city: string) {
-
-    }
+    constructor(name: string, city: string) { }
 
     public address(streetName: string) {
         return ('College Name:' + this.name + ' City: ' + this.city + ' Street Name: ' + streetName);
