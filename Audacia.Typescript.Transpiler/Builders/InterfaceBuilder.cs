@@ -15,11 +15,9 @@ namespace Audacia.Typescript.Transpiler.Builders {
             .Where(t => !t.Namespace.StartsWith(nameof(System)))
             .Where(t => t.Assembly != Type.Assembly);
         
-        public InterfaceBuilder(Type type, IEnumerable<Settings> settings) : base(type, settings)
+        public InterfaceBuilder(Type type, Settings settings) : base(type, settings)
         {
-            var namespaces = Settings.SelectMany(x => x.Namespaces);
-            
-            _interfaces = Type.GetInterfaces().Where(i => namespaces.Contains(i.Namespace));
+            _interfaces = Type.GetInterfaces().Where(i => settings.Namespaces.Contains(i.Namespace));
             _properties = type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.MemberType == MemberTypes.Property)
                 .Cast<PropertyInfo>();

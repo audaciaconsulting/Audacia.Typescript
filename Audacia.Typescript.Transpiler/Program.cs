@@ -11,7 +11,7 @@ namespace Audacia.Typescript.Transpiler
     public class Program
     {
         private static readonly Stopwatch Stopwatch = new Stopwatch();
-        private static IDictionary<string, Settings> Settings { get; set; } 
+        private static Settings Settings { get; set; } 
         private static IDictionary<string, OutputFile> Outputs { get; } = new Dictionary<string, OutputFile>();
 
         public static void Main(string[] args)
@@ -20,11 +20,11 @@ namespace Audacia.Typescript.Transpiler
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
             
             var configFileLocation = args.First();
-            Settings = Transpiler.Settings.Load(configFileLocation);
+            Settings = Settings.Load(configFileLocation);
             
             var rn = Environment.NewLine;
             
-            var files = Settings.Values
+            var files = Settings.Assemblies
                 .Select(s => s.Output)
                 .Distinct()
                 .Select(path => new OutputFile(path));
@@ -32,13 +32,13 @@ namespace Audacia.Typescript.Transpiler
             foreach (var file in files)
                 Outputs.Add(file.Path, file);
 
-            foreach (var setting in Settings)
+            foreach (var setting in Settings.Assemblies)
             {
-                var assembly = Assembly.LoadFrom(setting.Key);
-                var builders = CreateBuilders(assembly, setting.Value).ToArray();
+                var assembly = Assembly.LoadFrom(setting.Assembly);
+                var builders = CreateBuilders(assembly, setting).ToArray();
                 
                 foreach (var builder in builders)
-                    Outputs[setting.Value.Output].Builders.Add(builder);
+                    Outputs[setting.Output].Builders.Add(builder);
             }
 
             foreach (var file in Outputs)
@@ -84,7 +84,7 @@ namespace Audacia.Typescript.Transpiler
             
         }
 
-        private static IEnumerable<Builder> CreateBuilders(Assembly assembly, Settings settings)
+        private static IEnumerable<Builder> CreateBuilders(Assembly assembly, AssemblySettings settings)
         {
             var types = assembly.GetTypes()
                 .Where(t => settings.Namespaces.Contains(t.Namespace))
@@ -93,11 +93,9 @@ namespace Audacia.Typescript.Transpiler
 
             foreach (var type in types)
             {
-                var assemblySettings = Settings.Select(s => s.Value);
-                
-                if (type.IsClass) yield return new ClassBuilder(type, assemblySettings);
-                else if (type.IsInterface) yield return new InterfaceBuilder(type, assemblySettings);
-                else if (type.IsEnum) yield return new EnumBuilder(type, assemblySettings);
+                if (type.IsClass) yield return new ClassBuilder(type, Settings);
+                else if (type.IsInterface) yield return new InterfaceBuilder(type, Settings);
+                else if (type.IsEnum) yield return new EnumBuilder(type, Settings);
             }
         }
     }

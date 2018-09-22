@@ -7,9 +7,9 @@ namespace Audacia.Typescript.Transpiler.Builders {
     public abstract class Builder
     {
         public Type Type { get; }
-        public IEnumerable<Settings> Settings { get; }
+        public Settings Settings { get; }
         
-        public Builder(Type type, IEnumerable<Settings> settings)
+        public Builder(Type type, Settings settings)
         {
             Type = type;
             Settings = settings;

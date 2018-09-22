@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -75,6 +74,7 @@ namespace Audacia.Typescript
             Indentation.Level++;
             return this;
         }
+        
         public TypescriptBuilder Unindent()
         {
             if (Indentation.Level != 0) Indentation.Level--;

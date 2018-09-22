@@ -6,7 +6,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 {
     public class EnumBuilder : Builder
     {
-        public EnumBuilder(Type type, IEnumerable<Settings> settings) : base(type, settings) { }
+        public EnumBuilder(Type type, Settings settings) : base(type, settings) { }
 
         public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
 

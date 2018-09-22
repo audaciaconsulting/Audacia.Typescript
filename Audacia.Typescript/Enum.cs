@@ -24,7 +24,7 @@ namespace Audacia.Typescript
 				.Append(" {")
 				.Indent() // TODO: Implement generic, also remove hard-coded indent here
 				.NewLine()
-				.Join(Members.Select(m => m.Key + " = \"" + m.Value + "\","), Environment.NewLine + builder.Indentation)
+				.Join(Members.Select(m => m.Key + " = \"" + m.Value + "\""), "," + Environment.NewLine + builder.Indentation)
 				.Unindent()
 				.NewLine()
 				.Append("}");
