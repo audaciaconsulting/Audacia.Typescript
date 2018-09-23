@@ -24,9 +24,9 @@ namespace Audacia.Typescript.Transpiler
             
             var configFileLocation = args.First();
             _settings = Settings.Load(configFileLocation);
-            var documentation = XmlDocumentation.Load(_settings.Outputs
-                .SelectMany(o => o.Inputs)
-                .Select(i => i.Assembly));
+
+            var assemblies = _settings.Outputs.SelectMany(o => o.Inputs).Select(i => i.Assembly);
+            var documentation = XmlDocumentation.Load(assemblies);
             
             var outputs = _settings.Outputs
                 .Select(setting => new FileMapping(setting, documentation))
