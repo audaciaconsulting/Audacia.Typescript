@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
+using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Mappings
@@ -17,7 +18,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
         
         private OutputSettings Settings { get; }
 
-        public FileMapping(OutputSettings outputSettings)
+        public FileMapping(OutputSettings outputSettings, XmlDocumentation documentation)
         {
             Settings = outputSettings;
             Typescript = new TypescriptFile { Path = outputSettings.Path };
@@ -43,7 +44,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
                 })
                 .Where(x => x.type.IsClass || x.type.IsInterface || x.type.IsEnum)
                 .Where(x => x.type.IsPublic && !x.type.IsNested)
-                .Select(x => TypeMapping.Create(x.type, x.settings))
+                .Select(x => TypeMapping.Create(x.type, x.settings, documentation))
                 .ToImmutableArray();
         }
 
@@ -72,7 +73,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
         
         public IEnumerable<Type> Dependencies => TypeMappings.SelectMany(t => t.Dependencies).Distinct();
 
-        public IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.Type);
+        public IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);
 
         public IReadOnlyCollection<TypeMapping> TypeMappings { get; }
 

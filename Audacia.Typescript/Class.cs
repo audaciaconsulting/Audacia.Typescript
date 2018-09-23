@@ -6,8 +6,10 @@ using Audacia.Typescript.Collections;
 
 namespace Audacia.Typescript
 {
+    /// <summary>A typescript class.</summary>
     public class Class : Element, IEnumerable<IMemberOf<Class>>
     {
+        /// <summary>The identifier of the class.</summary>
         public string Name { get; set; }
 
         public IList<string> Implements { get; } = new List<string>();

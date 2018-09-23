@@ -1,11 +1,11 @@
-﻿// Interface
+﻿//** Interface
 interface IStudent {
     yearOfBirth: number;
     age: number;
     printDetails(): void;
 }
 
-// Base class
+//** Base class
 class School {
     name: string;
     city: string;
@@ -17,7 +17,7 @@ class School {
     }
 }
 
-// Child Class implements IStudent and inherits from College
+//** Child Class implements IStudent and inherits from College
 class Student extends School implements IStudent, IArguments {
     length: number;
     callee: Function;
@@ -25,7 +25,7 @@ class Student extends School implements IStudent, IArguments {
     lastName: string;
     yearOfBirth: number;
 
-    // Constructor
+    //** Constructor
     constructor(firstName: string, lastName: string, name: string, city: string, yearOfBirth: number) {
         super(name, city);
         this.firstName = firstName;

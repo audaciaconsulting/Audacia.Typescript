@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
+using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Mappings;
 using static System.Console;
 
@@ -23,9 +24,12 @@ namespace Audacia.Typescript.Transpiler
             
             var configFileLocation = args.First();
             _settings = Settings.Load(configFileLocation);
+            var documentation = XmlDocumentation.Load(_settings.Outputs
+                .SelectMany(o => o.Inputs)
+                .Select(i => i.Assembly));
             
             var outputs = _settings.Outputs
-                .Select(setting => new FileMapping(setting))
+                .Select(setting => new FileMapping(setting, documentation))
                 .ToArray();
             
             foreach (var file in outputs)
@@ -41,7 +45,6 @@ namespace Audacia.Typescript.Transpiler
                 ResetColor();
             }
             
-            WriteLine();
             ForegroundColor = ConsoleColor.Green;
             WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
             ResetColor();
