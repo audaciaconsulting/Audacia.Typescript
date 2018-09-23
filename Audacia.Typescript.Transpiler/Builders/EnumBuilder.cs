@@ -10,7 +10,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
 
-        public override Element Build(IEnumerable<Builder> context)
+        public override Element Build()
         {
             var @enum = new Enum<string>(Type.Name){Modifiers = { Modifier.Export }};
             var values = (int[]) System.Enum.GetValues(Type);

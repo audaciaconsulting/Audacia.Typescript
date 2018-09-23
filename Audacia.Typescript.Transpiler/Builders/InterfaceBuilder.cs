@@ -17,13 +17,13 @@ namespace Audacia.Typescript.Transpiler.Builders {
         
         public InterfaceBuilder(Type type, Settings settings) : base(type, settings)
         {
-            _interfaces = Type.GetInterfaces().Where(i => settings.Namespaces.Contains(i.Namespace));
+            _interfaces = Type.GetInterfaces().Where(i => settings.Namespaces == null || settings.Namespaces.Contains(i.Namespace));
             _properties = type.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.MemberType == MemberTypes.Property)
                 .Cast<PropertyInfo>();
         }
 
-        public override Element Build(IEnumerable<Builder> context)
+        public override Element Build()
         {
             var  @interface = new Interface(Type.Name) { Modifiers = { Modifier.Export } };
 			

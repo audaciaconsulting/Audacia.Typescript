@@ -6,6 +6,8 @@ using System.Reflection;
 namespace Audacia.Typescript.Transpiler.Builders {
     public abstract class Builder
     {
+        public Class Test123 { get; set; }
+        
         public Type Type { get; }
         public Settings Settings { get; }
         
@@ -17,8 +19,17 @@ namespace Audacia.Typescript.Transpiler.Builders {
 
         public abstract IEnumerable<Type> Dependencies { get; }
         
-        public abstract Element Build(IEnumerable<Builder> context);
+        public abstract Element Build();
 
+        public static Builder Create(Type type, Settings settings)
+        {
+            if (type.IsClass) return new ClassBuilder(type, settings);
+            if (type.IsInterface) return new InterfaceBuilder(type, settings);
+            if (type.IsEnum) return new EnumBuilder(type, settings);
+            
+            throw new ArgumentOutOfRangeException();
+        }
+        
         protected void ReportProgress(ConsoleColor color, string type, string name)
         {
             Console.ForegroundColor = color;
@@ -60,7 +71,9 @@ namespace Audacia.Typescript.Transpiler.Builders {
                 return GetTypeName(at) + "[]";
             }
 
-            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(t))
+            var isGeneric = t.GenericTypeArguments.Any();
+            var isEnumerable = typeof(System.Collections.IEnumerable).IsAssignableFrom(t); 
+            if (isGeneric && isEnumerable)
             {
                 var collectionType = t.GetGenericArguments()[0]; // all my enumerables are typed, so there is a generic argument
                 return GetTypeName(collectionType) + "[]";

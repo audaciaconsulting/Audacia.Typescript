@@ -6,6 +6,10 @@ namespace Audacia.Typescript
 {
     public class TypescriptFile : IEnumerable<Element>
     {
+        public string Path { get; set; }
+        
+        public IList<Import> Imports { get; } = new List<Import>();
+        
         public IList<Element> Elements { get; } = new List<Element>();
 
         public IEnumerable<Class> Classes => Elements.OfType<Class>();
@@ -24,15 +28,24 @@ namespace Audacia.Typescript
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public void Add(string statement) => Elements.Add(new Statement(statement));
+        
         public override string ToString()
         {
-            //var header = "THIS FILE WAS AUTO GENERATED ON " + DateTime.Now;
             var builder = new TypescriptBuilder();
 
+            if (Imports.Any())
+            {
+                foreach (var import in Imports)
+                    builder.Append(import, null).NewLine();
+
+                builder.NewLine();
+            }
+            
             foreach (var element in Elements)
             {
                 if (element == null) continue;
-                
+
                 element.Build(builder, null);
 
                 if (element != Elements.LastOrDefault())
@@ -40,11 +53,6 @@ namespace Audacia.Typescript
             }
 
             return builder.ToString();
-        }
-
-        public void Add(string statement)
-        {
-            Elements.Add(new Statement(statement));
         }
     }
 }

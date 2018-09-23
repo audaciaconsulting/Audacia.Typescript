@@ -2,16 +2,17 @@ using System.Xml.Serialization;
 
 namespace Audacia.Typescript.Transpiler
 {
-    public class AssemblySettings
+    public class InputSettings
     {
+        public InputSettings() { }
+        
+        public InputSettings(string assembly) => Assembly = assembly;
+
         [XmlAttribute("name")]
         public string Assembly { get; set; }
 		
         [XmlElement("Namespace")]
         public NamespaceSettings[] Namespaces { get; set; }
-
-        [XmlElement("Output")]
-        public OutputSettings[] Outputs { get; set; }
     }
 
     public class NamespaceSettings
@@ -32,5 +33,8 @@ namespace Audacia.Typescript.Transpiler
 
         [XmlAttribute("path")]
         public string Path { get; set; }
+        
+        [XmlElement("Input")]
+        public InputSettings[] Inputs { get; set; }
     }
 }

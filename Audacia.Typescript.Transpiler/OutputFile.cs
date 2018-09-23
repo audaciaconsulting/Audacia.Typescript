@@ -17,13 +17,12 @@ namespace Audacia.Typescript.Transpiler
         
         public IList<Builder> Builders { get; } = new List<Builder>();
 
-        public string Build(IDictionary<string, OutputFile> context)
+        public string Build()
         {
             var file = new TypescriptFile();
-            var otherTemplates = context.Values.SelectMany(x => x.Builders);
             
             foreach (var template in Builders)
-                file.Elements.Add(template.Build(otherTemplates));
+                file.Elements.Add(template.Build());
 
             return file.ToString();
         }

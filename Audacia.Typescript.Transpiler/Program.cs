@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Builders;
+using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
 {
@@ -12,7 +13,6 @@ namespace Audacia.Typescript.Transpiler
     {
         private static readonly Stopwatch Stopwatch = new Stopwatch();
         private static Settings Settings { get; set; } 
-        private static IDictionary<string, OutputFile> Outputs { get; } = new Dictionary<string, OutputFile>();
 
         public static void Main(string[] args)
         {
@@ -22,83 +22,64 @@ namespace Audacia.Typescript.Transpiler
             var configFileLocation = args.First();
             Settings = Settings.Load(configFileLocation);
             
-            var rn = Environment.NewLine;
-            
-            var files = Settings.Assemblies
-                .SelectMany(s => s.Outputs)
-                .Distinct()
-                .Select(outputSettings => new OutputFile(outputSettings.Path));
+            var files = new Dictionary<TypescriptFile, IEnumerable<Builder>>();
+            foreach (var settings in Settings.Outputs)
+            {
+                var file = new TypescriptFile { Path = settings.Path };
+                
+                files[file] = settings.Inputs
+                    .Distinct()
+                    .Select(input => Assembly.LoadFrom(input.Assembly))
+                    .SelectMany(assembly => assembly.GetTypes())
+                    .Where(t => Settings.Namespaces == null || Settings.Namespaces.Any(n => n == t.Namespace))
+                    .Where(t => t.IsClass || t.IsInterface || t.IsEnum)
+                    .Where(t => t.IsPublic && !t.IsNested)
+                    .Select(x => Builder.Create(x, Settings));
+
+                foreach (var builder in files[file])
+                    file.Elements.Add(builder.Build());
+            }
 
             foreach (var file in files)
-                Outputs.Add(file.Path, file);
-
-            foreach (var setting in Settings.Assemblies)
             {
-                var assembly = Assembly.LoadFrom(setting.Assembly);
-                var builders = CreateBuilders(assembly, setting).ToArray();
+                var dependencies = file.Value
+                    .SelectMany(x => x.Dependencies)
+                    .Distinct();
+                
+                var references = files.Except(new[] {file})
+                    .Where(o => o.Value.Any(t => dependencies.Contains(t.Type)));
 
-                foreach (var builder in builders)
-                {
-                    foreach(var output in setting.Outputs)
-                        Outputs[output.Path].Builders.Add(builder);
-                }
-            }
-
-            foreach (var file in Outputs)
-            {
-                // Write dependencies at the top of the file
-                // TODO: This should be functionality in TypescriptFile.cs
-                var dependencies = file.Value.Dependencies;
-
-                var references = Outputs.Except(new[] {file})
-                    .Where(o => o.Value.IncludedTypes.Any(t => dependencies.Contains(t)));
-
-                var includes = string.Empty;
                 foreach (var reference in references)
                 {
-                    var source = new Uri(Path.GetFullPath(file.Value.Path));
-                    var target = new Uri(Path.GetFullPath(reference.Value.Path));
+                    var source = new Uri(Path.GetFullPath(file.Key.Path));
+                    var target = new Uri(Path.GetFullPath(reference.Key.Path));
                     var relativePath = source.MakeRelativeUri(target)
-                        .ToString()
-                        .Replace(".ts", string.Empty);
+                        .ToString();
 
-                    var types = file.Value.Dependencies
-                        .Where(d => reference.Value.IncludedTypes.Contains(d))
-                        .Select(d => new string(' ', 4) + d.Name)
-                        .Distinct();
+                    if (relativePath.EndsWith(".ts"))
+                        relativePath = relativePath.Substring(0, relativePath.Length - 3);
 
-                    includes += $"import {{ {rn}{string.Join(',' + rn, types)}{rn} }} from \"./{relativePath}\"{rn}";
+                    var types = file.Value.SelectMany(x => x.Dependencies)
+                        .Where(d => reference.Value.Select(x => x.Type).Contains(d))
+                        .Distinct()
+                        .Select(d => d.Name);
+
+                    file.Key.Imports.Add(new Import(relativePath, types));
                 }
                 
-                var content = file.Value.Build(Outputs);
-                File.WriteAllText(file.Key, includes + rn + content);
+                File.WriteAllText(file.Key.Path, file.Key.ToString());
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine();
-                Console.WriteLine($"Typescript file \"{Path.GetFullPath(file.Value.Path)}\" written.");
-                Console.WriteLine();
-                Console.ResetColor();
+                ForegroundColor = ConsoleColor.Green;
+                WriteLine();
+                WriteLine($"Typescript file \"{Path.GetFullPath(file.Key.Path)}\" written.");
+                WriteLine();
+                ResetColor();
             }
             
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
-            Console.ResetColor();
+            ForegroundColor = ConsoleColor.Green;
+            WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
+            ResetColor();
             
-        }
-
-        private static IEnumerable<Builder> CreateBuilders(Assembly assembly, AssemblySettings settings)
-        {
-            var types = assembly.GetTypes()
-                .Where(t => settings.Namespaces.Any(n => n.Name == t.Namespace))
-                .Where(t => t.IsClass || t.IsInterface || t.IsEnum)
-                .Where(t => t.IsPublic && !t.IsNested);
-
-            foreach (var type in types)
-            {
-                if (type.IsClass) yield return new ClassBuilder(type, Settings);
-                else if (type.IsInterface) yield return new InterfaceBuilder(type, Settings);
-                else if (type.IsEnum) yield return new EnumBuilder(type, Settings);
-            }
         }
     }
 }
