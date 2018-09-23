@@ -25,8 +25,9 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
                 if (!removed.Any())
                 {
-                    var mappingsList = string.Join(", ", mappings.Select(m => m.SourceType.TypescriptName()));
-                    throw new InvalidDataException("Cyclic reference detected: " + mappingsList);
+                    var rn = Environment.NewLine;
+                    var mappingsList = string.Join(", " + rn, mappings.Select(m => m.SourceType.TypescriptName()));
+                    throw new InvalidDataException("Cyclic references detected: " + rn + mappingsList);
                 }
                 
                 foreach (var mapping in removed)
