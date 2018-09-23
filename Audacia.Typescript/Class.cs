@@ -17,7 +17,7 @@ namespace Audacia.Typescript
         public Class(string name) => Name = name;
 
         public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
-        
+
         public ClassMemberList Members { get; } = new ClassMemberList();
 
         public IEnumerable<Property> Properties => Members.OfType<Property>()
@@ -57,16 +57,19 @@ namespace Audacia.Typescript
             {
                 builder.Append('<');
                 builder.Join(TypeArguments, this, ", ");
-                builder.Append('>');                
+                builder.Append('>');
             }
 
             if (!string.IsNullOrWhiteSpace(Extends)) builder.Append(" extends ").Append(Extends);
 
             if (Implements.Any()) builder.Append(" implements ").Join(Implements.Distinct(), ", ");
 
-            builder.Append(" {").Indent().NewLine();
+            builder.Append(" {");
 
-            if (Properties.Any()) 
+            if (Members.Any()) builder.Indent().NewLine();
+            else return builder.Append(" }");
+
+            if (Properties.Any())
                 builder.Join(Properties, this, Environment.NewLine + builder.Indentation);
 
             var functionMembers = Constructors
@@ -76,7 +79,7 @@ namespace Audacia.Typescript
 
             if (Properties.Any() && functionMembers.Any())
                 builder.NewLine().NewLine();
-            
+
             foreach (var element in functionMembers)
             {
                 builder.Append(element, this);
@@ -84,7 +87,7 @@ namespace Audacia.Typescript
                 if (element != functionMembers.Last())
                     builder.NewLine().NewLine();
             }
-            
+
             return builder.Unindent()
                 .NewLine()
                 .Append("}");
@@ -94,13 +97,13 @@ namespace Audacia.Typescript
     public class TypeArgument : Element
     {
         public TypeArgument(string name) => Name = name;
-        
+
         public TypeArgument(string name, string extends) : this(name) => Extends = extends;
 
         public string Name { get; }
 
         public string Extends { get; }
-        
+
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
             builder.Append(Name);

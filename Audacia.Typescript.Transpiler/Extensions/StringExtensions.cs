@@ -1,68 +1,51 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Audacia.Typescript.Transpiler.Mappings;
 
 namespace Audacia.Typescript.Transpiler.Extensions
 {
-    public static class TypeExtensions
+    public static class StringExtensions
     {
-        private static Type[] ArrayTypes =
-        {
-            typeof(IEnumerable)
-        };
-        
         public static string CamelCase(this string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
             if (s.Length < 2) return s.ToLowerInvariant();
             return char.ToLowerInvariant(s[0]) + s.Substring(1);
         }
-        
-        public static string TypescriptName(this Type type)
+    }
+    
+    public static class EnumerableExtensions
+    {
+        public static IEnumerable<TypeMapping> TopologicalSort(this IEnumerable<TypeMapping> nodes)
         {
-            if (Nullable.GetUnderlyingType(type) != null)
-                return Nullable.GetUnderlyingType(type).TypescriptName();
-
-            var genericArguments = type.GetGenericArguments();
-
-            // Check built-in types first
-            if (type.Namespace.StartsWith(nameof(System)))
-            {
-                if (type.IsArray)
-                {
-                    var at = type.GetElementType();
-                    return at.TypescriptName() + "[]";
-                }
-
-                var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
-                if (genericArguments.Any() && isEnumerable)
-                {
-                    var collectionType = type.GetGenericArguments()[0];
-                    return collectionType.TypescriptName() + "[]";
-                }
-                
-                if (type.IsPrimitive)
-                {
-                    if (type == typeof(bool)) return "boolean";
-                    if (type == typeof(char)) return "string";
-                    return "number";
-                }
-
-                if (type == typeof(decimal)) return "number";
-                if (type == typeof(string)) return "string";
-                if (type == typeof(Guid)) return "string";
-            }
-
-            if (genericArguments.Any())
-            {
-                return type.Name.Substring(0, type.Name.Length - 2)
-                       + '<'
-                       + string.Join(", ", genericArguments.Select(a => a.TypescriptName()))
-                       + '>';
-            }
+            var mappings = nodes.ToHashSet();
+            var removed = new HashSet<TypeMapping>();
             
-            //if (type.IsEnum) return type.Name;
-            return type.Name;
+            while (mappings.Count > 0)
+            {
+                foreach (var element in mappings)
+                {
+                    var hasDependencies = mappings.Any(m => element.Dependencies.Contains(m.Type));
+                    if (hasDependencies)
+                    {
+                        Console.WriteLine("wait for dependencies: " + element.Type.Name);
+                        continue;
+                    }
+
+                    yield return element;
+                    removed.Add(element);
+                    Console.WriteLine("no dependencies: " + element.Type.Name);
+                }
+
+                if (!removed.Any()) throw new InvalidDataException("Cyclic reference detected");
+                
+                foreach (var mapping in removed)
+                    mappings.Remove(mapping);
+                
+                removed.Clear();
+            }
         }
     }
 }

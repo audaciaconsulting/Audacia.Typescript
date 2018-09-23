@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Audacia.Typescript.Transpiler.Configuration;
 
 namespace Audacia.Typescript.Transpiler.Mappings 
 {
-    public class EnumMapping : Mapping
+    public class EnumMapping : TypeMapping
     {
-        public EnumMapping(Type type, Settings settings) : base(type, settings) { }
+        public EnumMapping(Type type, InputSettings settings) : base(type, settings) { }
 
         public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
 
         public override Element Build()
         {
-            var @enum = new Enum<string>(Type.Name){Modifiers = { Modifier.Export }};
+            var @enum = new Enum(Type.Name) { Modifiers = { Modifier.Export }};
             var values = (int[]) System.Enum.GetValues(Type);
 			
             foreach (var val in values)

@@ -5,13 +5,17 @@ using System.Linq;
 
 namespace Audacia.Typescript 
 {
-	public class Enum<T> : Enum, IEnumerable
+	public class Enum : Element
 	{
+		public string Name { get; set; }
+        
+		public IList<IModifier<Enum>> Modifiers { get; } = new List<IModifier<Enum>>();
+		
 		public Enum(string name) => Name = name;
 
-		public IDictionary<string, T> Members { get; } = new Dictionary<string, T>();
+		public IDictionary<string, object> Members { get; } = new Dictionary<string, object>();
 
-		public void Add(string member, T value) => Members.Add(member, value);
+		public void Add(string member, object value) => Members.Add(member, value);
 		
 		public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
 		{
@@ -31,12 +35,5 @@ namespace Audacia.Typescript
 		}
 
 		public IEnumerator GetEnumerator() => ((IEnumerable) Members).GetEnumerator();
-	}
-
-	public abstract class Enum : Element
-	{
-		public string Name { get; set; }
-        
-		public IList<IModifier<Enum>> Modifiers { get; } = new List<IModifier<Enum>>();
 	}
 }

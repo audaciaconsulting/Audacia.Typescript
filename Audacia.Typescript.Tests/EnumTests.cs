@@ -10,7 +10,7 @@ namespace Audacia.Typescript.Tests
         public void Returns_a_correctly_formed_enum()
         {
             var expected = File.ReadAllText("enum.ts");
-            var @enum = new Enum<string>("IceCream")
+            var @enum = new Enum("IceCream")
             {
                 Modifiers = {Modifier.Export},
                 Members =

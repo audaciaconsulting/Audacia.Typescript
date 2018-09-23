@@ -2,16 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Extensions;
 
-namespace Audacia.Typescript.Transpiler.Mappings {
-    public abstract class Mapping
+namespace Audacia.Typescript.Transpiler.Mappings 
+{
+    /// <summary>Maps a CLR Type to a Typescript one.</summary>
+    public abstract class TypeMapping
     {
         public Type Type { get; }
+
+        protected InputSettings Settings { get; }
         
-        public Settings Settings { get; }
-        
-        public Mapping(Type type, Settings settings)
+        public TypeMapping(Type type, InputSettings settings)
         {
             Type = type;
             Settings = settings;
@@ -21,7 +24,7 @@ namespace Audacia.Typescript.Transpiler.Mappings {
         
         public abstract Element Build();
 
-        public static Mapping Create(Type type, Settings settings)
+        public static TypeMapping Create(Type type, InputSettings settings)
         {
             if (type.IsClass) return new ClassMapping(type, settings);
             if (type.IsInterface) return new InterfaceMapping(type, settings);
@@ -37,7 +40,5 @@ namespace Audacia.Typescript.Transpiler.Mappings {
             Console.ResetColor();
             Console.WriteLine(name);
         }
-        
-        
     }
 }

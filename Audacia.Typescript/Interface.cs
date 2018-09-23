@@ -46,9 +46,12 @@ namespace Audacia.Typescript
             
             if (Extends.Any()) builder.Append(" extends ").Join(Extends, ", ");
 
-            return builder.Append(" {")
-                .NewLine()
-                .Indent()
+            builder.Append(" {");
+
+            if (Members.Any()) builder.Indent().NewLine();
+            else return builder.Append(" }");
+            
+            return builder
                 .Join(Members, this, Environment.NewLine + builder.Indentation)
                 .Unindent()
                 .NewLine()
