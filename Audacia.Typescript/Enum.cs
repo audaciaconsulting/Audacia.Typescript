@@ -22,7 +22,7 @@ namespace Audacia.Typescript
 				.Append("enum ")
 				.Append(Name)
 				.Append(" {")
-				.Indent() // TODO: Implement generic, also remove hard-coded indent here
+				.Indent()
 				.NewLine()
 				.Join(Members.Select(m => m.Key + " = \"" + m.Value + "\""), "," + Environment.NewLine + builder.Indentation)
 				.Unindent()

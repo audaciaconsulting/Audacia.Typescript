@@ -6,8 +6,8 @@ namespace Audacia.Typescript
     public class TypescriptBuilder
     {
         public Indentation Indentation { get; } = Indentation.Spaces(4);
-        
-        public Line CurrentLine { get; } = new Line();
+
+        private Line CurrentLine { get; } = new Line();
         
         private readonly StringBuilder _builder = new StringBuilder();
     
@@ -85,7 +85,7 @@ namespace Audacia.Typescript
         {
             return _builder.ToString();
         }
-        
-        public class Line { public bool Blank { get; set; } }
+
+        private class Line { public bool Blank { get; set; } }
     }
 }

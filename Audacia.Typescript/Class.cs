@@ -8,7 +8,7 @@ namespace Audacia.Typescript
 {
     public class Class : Element, IEnumerable<IMemberOf<Class>>
     {
-        public string Name { get; }
+        public string Name { get; set; }
 
         public IList<string> Implements { get; } = new List<string>();
 

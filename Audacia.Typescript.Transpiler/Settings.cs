@@ -7,9 +7,14 @@ namespace Audacia.Typescript.Transpiler
 {
     public class Settings
     {
-        [XmlElement("Output")] public OutputSettings[] Outputs { get; set; }
+        [XmlElement("Output")] 
+        public OutputSettings[] Outputs { get; set; }
 
-        public IEnumerable<string> Namespaces => Outputs.SelectMany(x => x.Inputs).SelectMany(i => i.Namespaces).Select(n => n.Name);
+        public IEnumerable<string> Namespaces => Outputs
+            .SelectMany(x => x.Inputs)
+            .Where(x => x.Namespaces != null)
+            .SelectMany(i => i.Namespaces)
+            .Select(n => n.Name);
 
         private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
 
@@ -46,5 +51,41 @@ namespace Audacia.Typescript.Transpiler
                 }
             }
         };
+        
+        public class InputSettings
+        {
+            public InputSettings() { }
+        
+            public InputSettings(string assembly) => Assembly = assembly;
+
+            [XmlAttribute("name")]
+            public string Assembly { get; set; }
+		
+            [XmlElement("Namespace")]
+            public NamespaceSettings[] Namespaces { get; set; } = new NamespaceSettings[0];
+        }
+
+        public class NamespaceSettings
+        {
+            public NamespaceSettings() { }
+
+            public NamespaceSettings(string name) => Name = name;
+
+            [XmlAttribute("name")]
+            public string Name { get; set; }
+        }
+    
+        public class OutputSettings
+        {
+            public OutputSettings() { }
+        
+            public OutputSettings(string path) => Path = path;
+
+            [XmlAttribute("path")]
+            public string Path { get; set; }
+        
+            [XmlElement("Input")]
+            public InputSettings[] Inputs { get; set; } = new InputSettings[0];
+        }
     }
 }

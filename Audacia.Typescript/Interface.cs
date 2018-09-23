@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Audacia.Typescript.Collections;
 
 namespace Audacia.Typescript
 {
@@ -15,6 +16,8 @@ namespace Audacia.Typescript
 
         public void Add(IMemberOf<Interface> member) => Members.Add(member);
 
+        public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
+        
         public IList<IMemberOf<Interface>> Members { get; } = new List<IMemberOf<Interface>>();
 
         public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
@@ -33,6 +36,13 @@ namespace Audacia.Typescript
             if (Modifiers.Any()) builder.Append(' ');
             
             builder.Append("interface ").Append(Name);
+        
+            if (TypeArguments.Any())
+            {
+                builder.Append('<');
+                builder.Join(TypeArguments, this, ", ");
+                builder.Append('>');                
+            }
             
             if (Extends.Any()) builder.Append(" extends ").Join(Extends, ", ");
 

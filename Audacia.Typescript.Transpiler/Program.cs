@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Audacia.Typescript.Transpiler.Builders;
+using Audacia.Typescript.Transpiler.Mappings;
 using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
@@ -22,19 +22,29 @@ namespace Audacia.Typescript.Transpiler
             var configFileLocation = args.First();
             Settings = Settings.Load(configFileLocation);
             
-            var files = new Dictionary<TypescriptFile, IEnumerable<Builder>>();
+            var files = new Dictionary<TypescriptFile, IEnumerable<Mapping>>();
             foreach (var settings in Settings.Outputs)
             {
                 var file = new TypescriptFile { Path = settings.Path };
                 
                 files[file] = settings.Inputs
                     .Distinct()
-                    .Select(input => Assembly.LoadFrom(input.Assembly))
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(t => Settings.Namespaces == null || Settings.Namespaces.Any(n => n == t.Namespace))
+                    .SelectMany(input =>
+                    {
+                        var types = Assembly.LoadFrom(input.Assembly)
+                            .GetTypes()
+                            .Where(t => input.Namespaces == null 
+                                || input.Namespaces.Any(n => n.Name == t.Namespace));
+                        
+                        // Filter out subtypes of generics- we only want the top one in the inheritance hierarchy
+                        return types.Where(type => !types
+                            .Any(other => type.Namespace == other.Namespace
+                                && type.Name.Split('`').First() == other.Name.Split('`').First()
+                                && other.GetGenericArguments().Length > type.GetGenericArguments().Length));
+                    })
                     .Where(t => t.IsClass || t.IsInterface || t.IsEnum)
                     .Where(t => t.IsPublic && !t.IsNested)
-                    .Select(x => Builder.Create(x, Settings));
+                    .Select(x => Mapping.Create(x, Settings));
 
                 foreach (var builder in files[file])
                     file.Elements.Add(builder.Build());
@@ -53,8 +63,7 @@ namespace Audacia.Typescript.Transpiler
                 {
                     var source = new Uri(Path.GetFullPath(file.Key.Path));
                     var target = new Uri(Path.GetFullPath(reference.Key.Path));
-                    var relativePath = source.MakeRelativeUri(target)
-                        .ToString();
+                    var relativePath = "./" + source.MakeRelativeUri(target);
 
                     if (relativePath.EndsWith(".ts"))
                         relativePath = relativePath.Substring(0, relativePath.Length - 3);
@@ -72,10 +81,10 @@ namespace Audacia.Typescript.Transpiler
                 ForegroundColor = ConsoleColor.Green;
                 WriteLine();
                 WriteLine($"Typescript file \"{Path.GetFullPath(file.Key.Path)}\" written.");
-                WriteLine();
                 ResetColor();
             }
             
+            WriteLine();
             ForegroundColor = ConsoleColor.Green;
             WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
             ResetColor();

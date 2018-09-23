@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Audacia.Typescript.Transpiler.Builders;
+using Audacia.Typescript.Transpiler.Mappings;
 
 namespace Audacia.Typescript.Transpiler
 {
@@ -15,7 +15,7 @@ namespace Audacia.Typescript.Transpiler
 
         public IEnumerable<Type> IncludedTypes => Builders.Select(t => t.Type);
         
-        public IList<Builder> Builders { get; } = new List<Builder>();
+        public IList<Mapping> Builders { get; } = new List<Mapping>();
 
         public string Build()
         {

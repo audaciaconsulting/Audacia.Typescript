@@ -328,3 +328,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+Audacia.Typescript.Transpiler/Audacia.Typescript.ts
+Audacia.Typescript.Transpiler/Audacia.Typescript.Tests.ts
+Audacia.Typescript.Transpiler/Audacia.Typescript.Transpiler.ts

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Audacia.Typescript.Transpiler.Builders 
+namespace Audacia.Typescript.Transpiler.Mappings 
 {
-    public class EnumBuilder : Builder
+    public class EnumMapping : Mapping
     {
-        public EnumBuilder(Type type, Settings settings) : base(type, settings) { }
+        public EnumMapping(Type type, Settings settings) : base(type, settings) { }
 
         public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
 
