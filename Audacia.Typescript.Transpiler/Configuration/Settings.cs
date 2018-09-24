@@ -5,17 +5,23 @@ using System.Xml.Serialization;
 
 namespace Audacia.Typescript.Transpiler.Configuration
 {
+    public class DependencyResolutionSettings
+    {
+        [XmlAttribute("unknownTypes")]
+        public string UnknownTypes { get; set; }
+    }
+    
     public class Settings
     {
         [XmlElement("Output")] 
         public OutputSettings[] Outputs { get; set; }
-
-        public IEnumerable<string> Namespaces => Outputs
-            .SelectMany(x => x.Inputs)
-            .Where(x => x.Namespaces != null)
-            .SelectMany(i => i.Namespaces)
-            .Select(n => n.Name);
-
+        
+        [XmlElement("DependencyResolution")] 
+        public DependencyResolutionSettings DependencyResolution { get; set; }
+        
+        [XmlElement("CyclicReferences")] 
+        public CyclicReferencesSettings CyclicReferences { get; set; }
+        
         private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
 
         public static Settings Load(string path)

@@ -14,21 +14,23 @@ namespace Audacia.Typescript.Transpiler
     /// <summary>Represents a single transpiler task and contains the main entry point for the program.</summary>
     public class Transpilation
     {
+        // Global settings... sue me.
+        public static Settings Settings;
+        
         private static readonly Stopwatch Stopwatch = new Stopwatch();
-        private static Settings _settings;
-
+        
         public static void Main(string[] args)
         {
             Stopwatch.Start();
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
             
             var configFileLocation = args.First();
-            _settings = Settings.Load(configFileLocation);
+            Settings = Settings.Load(configFileLocation);
 
-            var assemblies = _settings.Outputs.SelectMany(o => o.Inputs).Select(i => i.Assembly);
+            var assemblies = Settings.Outputs.SelectMany(o => o.Inputs).Select(i => i.Assembly);
             var documentation = XmlDocumentation.Load(assemblies);
             
-            var outputs = _settings.Outputs
+            var outputs = Settings.Outputs
                 .Select(setting => new FileMapping(setting, documentation))
                 .ToArray();
             

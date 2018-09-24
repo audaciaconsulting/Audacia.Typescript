@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Mappings;
 
 namespace Audacia.Typescript.Transpiler.Extensions
@@ -25,9 +26,19 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
                 if (!removed.Any())
                 {
-                    var rn = Environment.NewLine;
-                    var mappingsList = string.Join(", " + rn, mappings.Select(m => m.SourceType.TypescriptName()));
-                    throw new InvalidDataException("Cyclic references detected: " + rn + mappingsList);
+                    var setting = Transpilation.Settings.CyclicReferences?.Feedback ?? FeedbackLevel.Ignore;
+
+                    if (setting == FeedbackLevel.Ignore)
+                    {
+                        mappings.Clear();
+                        break;
+                    }
+                    if (setting == FeedbackLevel.Error)
+                    {
+                        var rn = Environment.NewLine;
+                        var mappingsList = string.Join(", " + rn, mappings.Select(m => m.SourceType.TypescriptName()));
+                        throw new InvalidDataException("Cyclic references detected: " + rn + mappingsList);
+                    }
                 }
                 
                 foreach (var mapping in removed)

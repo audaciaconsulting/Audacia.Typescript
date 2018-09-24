@@ -41,17 +41,15 @@ namespace Audacia.Typescript.Transpiler.Extensions
                     var collectionType = type.GetGenericArguments()[0];
                     return "Array<" +  collectionType.TypescriptName() + ">";
                 }
-                
-                if (type.IsPrimitive)
-                {
-                    if (type == typeof(bool)) return "boolean";
-                    if (type == typeof(char)) return "string";
-                    return "number";
-                }
 
+                if (type == typeof(bool)) return "boolean";
+                if (type == typeof(char)) return "string";
                 if (type == typeof(decimal)) return "number";
                 if (type == typeof(string)) return "string";
                 if (type == typeof(Guid)) return "string";
+                if (type == typeof(DateTime)) return "Date";
+                
+                if (type.IsPrimitive) return "number";
             }
 
             if (genericArguments.Any())
