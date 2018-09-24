@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,12 +18,50 @@ namespace Audacia.Typescript.Transpiler.Documentation
             var path = assembly.Replace(".dll", ".xml");
 
             if (!File.Exists(path)) return null;
-            using (var reader = new XmlTextReader(path))
+
+            var tempPath = ReplaceCrefTags(path);
+            
+            using (var reader = new XmlTextReader(tempPath))
             {
                 reader.ReadToDescendant("members");
                 var deserializer = new XmlSerializer(typeof(AssemblyDocumentation));
                 return (AssemblyDocumentation) deserializer.Deserialize(reader.ReadSubtree());
             }
+        }
+
+        private static string ReplaceCrefTags(string path)
+        {
+            var content = File.ReadAllText(path);
+            
+            // todo; <para> tag
+            // dirty filthy regexes
+            var summaryRegex = new Regex(@"<summary>(.*)<\/summary>");
+            var crefRegex = new Regex(@"<(c|paramref|see|seealso|typeparamref) cref="".:([^""]*)""\/>");
+            var summaryMatches = summaryRegex.Matches(content);
+
+            foreach (Match summaryMatch in summaryMatches)
+            {
+                var originalSummary = summaryMatch.Captures[0].Value;
+                var tagMatches = crefRegex.Matches(originalSummary);
+                
+                var newSummary = originalSummary;
+                
+                foreach (Match tagMatch in tagMatches)
+                {
+                    var replacement = tagMatch.Groups[2].Captures.Single().Value
+                        .Split('`').First()
+                        .Split('.').Last();
+
+                    newSummary = newSummary.Replace(tagMatch.Value, replacement);
+                }
+
+                content = content.Replace(originalSummary, newSummary);
+            }
+
+            var tempFileName = Path.GetTempFileName();
+            File.WriteAllText(tempFileName, content);
+
+            return tempFileName;
         }
 
         public MemberDocumentation Class(Type @class)

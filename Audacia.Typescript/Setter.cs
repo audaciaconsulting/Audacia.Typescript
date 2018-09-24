@@ -2,6 +2,7 @@ using System;
 
 namespace Audacia.Typescript
 {
+    /// <summary>The setter for a specific <see cref="Property"/>.</summary>
     public class Setter : Accessor
     {
         public string ArgumentName { get; }

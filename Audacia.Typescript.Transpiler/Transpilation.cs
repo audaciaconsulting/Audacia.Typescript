@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Mappings;
@@ -14,7 +12,6 @@ namespace Audacia.Typescript.Transpiler
     /// <summary>Represents a single transpiler task and contains the main entry point for the program.</summary>
     public class Transpilation
     {
-        // Global settings... sue me.
         public static Settings Settings;
         
         private static readonly Stopwatch Stopwatch = new Stopwatch();
@@ -22,6 +19,8 @@ namespace Audacia.Typescript.Transpiler
         public static void Main(string[] args)
         {
             Stopwatch.Start();
+            
+            WriteLine();
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
             
             var configFileLocation = args.First();

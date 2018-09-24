@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
-using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Mappings 
 {
