@@ -79,8 +79,8 @@ namespace Audacia.Typescript.Transpiler.Mappings
 
         public string Build()
         {
-            var settings = Transpilation.Settings.CyclicReferences?.Handling ?? CyclicReferenceHandling.Include;
-            var mappings = settings == CyclicReferenceHandling.Include
+            var settings = Transpilation.Settings.CyclicReferences?.Handling ?? CyclicReferenceHandling.Ignore;
+            var mappings = settings == CyclicReferenceHandling.Ignore
                 ? TypeMappings
                 : TypeMappings.TopologicalSort();
             

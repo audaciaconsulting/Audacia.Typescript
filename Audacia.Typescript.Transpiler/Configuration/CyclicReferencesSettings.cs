@@ -13,8 +13,8 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
     public enum CyclicReferenceHandling
     {
-        Include,
-        Skip
+        Ignore,
+        Exclude
     }
     
     public enum FeedbackLevel
