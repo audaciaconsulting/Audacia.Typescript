@@ -6,10 +6,10 @@ using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
-namespace Audacia.Typescript.Transpiler.Mappings 
+namespace Audacia.Typescript.Transpiler.Builders 
 {
     // TODO: Consolidate with Class.cs, its basically the same
-    public class InterfaceMapping : TypeMapping
+    public class InterfaceBuilder : TypeBuilder
     {
         private readonly IEnumerable<Type> _interfaces;
         private readonly IEnumerable<Type> _typeArguments;
@@ -21,7 +21,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
             .Concat(_typeArguments)
             .Where(t => !t.Namespace.StartsWith(nameof(System)));
         
-        public InterfaceMapping(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
+        public InterfaceBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
             : base(sourceType, settings, documentation)
         {
             _typeArguments = sourceType.GetGenericArguments();

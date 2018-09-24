@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
-using Audacia.Typescript.Transpiler.Mappings;
 
 namespace Audacia.Typescript.Transpiler.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static IEnumerable<TypeMapping> TopologicalSort(this IEnumerable<TypeMapping> nodes)
+        public static IEnumerable<TypeBuilder> TopologicalSort(this IEnumerable<TypeBuilder> nodes)
         {
             var mappings = nodes.ToHashSet();
-            var removed = new HashSet<TypeMapping>();
+            var removed = new HashSet<TypeBuilder>();
             
             while (mappings.Count > 0)
             {

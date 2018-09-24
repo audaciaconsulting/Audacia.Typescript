@@ -6,9 +6,9 @@ using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
-namespace Audacia.Typescript.Transpiler.Mappings
+namespace Audacia.Typescript.Transpiler.Builders
 {
-    public class ClassMapping : TypeMapping
+    public class ClassBuilder : TypeBuilder
     {
         private readonly Type _baseType;
         private readonly IEnumerable<Type> _interfaces;
@@ -22,7 +22,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
             .Concat(_typeArguments)
             .Where(t => !t.Namespace.StartsWith(nameof(System)));
 
-        public ClassMapping(Type sourceType, InputSettings settings, XmlDocumentation documentation)
+        public ClassBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
             : base(sourceType, settings, documentation)
         {
             _baseType = sourceType.BaseType != typeof(object) ? sourceType.BaseType : null;

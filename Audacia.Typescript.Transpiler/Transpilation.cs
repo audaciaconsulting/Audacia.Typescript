@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
-using Audacia.Typescript.Transpiler.Mappings;
 using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
@@ -12,7 +12,9 @@ namespace Audacia.Typescript.Transpiler
     /// <summary>Represents a single transpiler task and contains the main entry point for the program.</summary>
     public class Transpilation
     {
-        public static Settings Settings;
+        public static Settings Settings { get; private set; }
+        
+        public static TypeMap Types { get; private set; }
         
         private static readonly Stopwatch Stopwatch = new Stopwatch();
         
@@ -30,8 +32,10 @@ namespace Audacia.Typescript.Transpiler
             var documentation = XmlDocumentation.Load(assemblies);
             
             var outputs = Settings.Outputs
-                .Select(setting => new FileMapping(setting, documentation))
+                .Select(setting => new FileBuilder(setting, documentation))
                 .ToArray();
+            
+            Types = new TypeMap(outputs);
             
             foreach (var file in outputs)
             {

@@ -7,10 +7,10 @@ using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
-namespace Audacia.Typescript.Transpiler.Mappings
+namespace Audacia.Typescript.Transpiler.Builders
 {
     /// <summary>A transpile operation representing the output to a single typescript file.</summary>
-    public class FileMapping
+    public class FileBuilder
     {
         public string Path => Settings.Path;
         
@@ -18,7 +18,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
         
         private OutputSettings Settings { get; }
 
-        public FileMapping(OutputSettings outputSettings, XmlDocumentation documentation)
+        public FileBuilder(OutputSettings outputSettings, XmlDocumentation documentation)
         {
             Settings = outputSettings;
             Typescript = new TypescriptFile { Path = outputSettings.Path };
@@ -44,11 +44,11 @@ namespace Audacia.Typescript.Transpiler.Mappings
                 })
                 .Where(x => x.type.IsClass || x.type.IsInterface || x.type.IsEnum)
                 .Where(x => x.type.IsPublic && !x.type.IsNested)
-                .Select(x => TypeMapping.Create(x.type, x.settings, documentation))
+                .Select(x => TypeBuilder.Create(x.type, x.settings, documentation))
                 .ToImmutableArray();
         }
 
-        public void AddReferences(IEnumerable<FileMapping> mappings)
+        public void AddReferences(IEnumerable<FileBuilder> mappings)
         {
             var references = mappings
                 .Except(new[] { this }) // Get files which contain types we depend on
@@ -75,7 +75,7 @@ namespace Audacia.Typescript.Transpiler.Mappings
 
         public IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);
 
-        public IReadOnlyCollection<TypeMapping> TypeMappings { get; }
+        public IReadOnlyCollection<TypeBuilder> TypeMappings { get; }
 
         public string Build()
         {

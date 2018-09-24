@@ -4,11 +4,11 @@ using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 
-namespace Audacia.Typescript.Transpiler.Mappings 
+namespace Audacia.Typescript.Transpiler.Builders 
 {
-    public class EnumMapping : TypeMapping
+    public class EnumBuilder : TypeBuilder
     {
-        public EnumMapping(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
+        public EnumBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
             : base(sourceType, settings, documentation) { }
 
         public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
