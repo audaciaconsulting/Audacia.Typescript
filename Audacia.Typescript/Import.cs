@@ -23,7 +23,7 @@ namespace Audacia.Typescript
             builder.Append("import {");
 
             if (Types.Count == 1) builder.Append(' ').Append(Types.Single()).Append(" }");
-            else builder.Indent().NewLine().Join(Types, ',' + Environment.NewLine).Append(" }").Unindent();
+            else builder.Indent().NewLine().Join(Types, ',' + Environment.NewLine + builder.Indentation).Append(" }").Unindent();
 
             return builder.Append(" from '").Append(Path).Append("';");
         }
