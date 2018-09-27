@@ -36,8 +36,9 @@ namespace Audacia.Typescript.Transpiler.Documentation
             // todo; <para> tag
             // dirty filthy regexes
             var summaryRegex = new Regex(@"<summary>(.*)<\/summary>");
+            var returnsRegex = new Regex(@"<returns>(.*)<\/returns>");
             var crefRegex = new Regex(@"<(c|paramref|see|seealso|typeparamref) cref="".:([^""]*)""\/>");
-            var summaryMatches = summaryRegex.Matches(content);
+            var summaryMatches = summaryRegex.Matches(content).Concat(returnsRegex.Matches(content));
 
             foreach (Match summaryMatch in summaryMatches)
             {
