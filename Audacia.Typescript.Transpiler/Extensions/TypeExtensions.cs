@@ -36,7 +36,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 }
 
                 if (type.Name.StartsWith("IDictionary") || type.Name.StartsWith("Dictionary") && genericArguments.Length == 2)
-                    return "Array<any>";
+                    return "any";
 
                 var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
                 if (genericArguments.Any() && isEnumerable)
