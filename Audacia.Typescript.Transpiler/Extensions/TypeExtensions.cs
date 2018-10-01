@@ -35,7 +35,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                     return "Array<" + at.TypescriptName() + ">";
                 }
 
-                if (type.IsAssignableFrom(typeof(IDictionary)) && genericArguments.Length == 2)
+                if (type.Name.StartsWith("IDictionary") || type.Name.StartsWith("Dictionary") && genericArguments.Length == 2)
                     return "Array<any>";
 
                 var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
