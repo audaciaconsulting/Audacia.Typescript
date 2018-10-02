@@ -36,7 +36,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 }
 
                 if (type.Name.StartsWith("IDictionary") || type.Name.StartsWith("Dictionary") && genericArguments.Length == 2)
-                    return "any";
+                    return $"Map<{genericArguments[0]}, {genericArguments[1]}>";
 
                 var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
                 if (genericArguments.Any() && isEnumerable)
