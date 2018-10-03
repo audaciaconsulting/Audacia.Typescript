@@ -12,6 +12,8 @@ namespace Audacia.Typescript.Transpiler
         public bool ContainsType(Type type) => _mappings.ContainsKey(type);
         
         public TypeBuilder[] this[Type type] => _mappings[type];
+
+        public List<TypescriptFile> Files { get; set; }
         
         public TypeMap(IEnumerable<FileBuilder> fileMappings)
         {

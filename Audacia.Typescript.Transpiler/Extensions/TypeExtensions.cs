@@ -24,7 +24,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             
             foreach (var property in properties)
             {
-                results.Add(property.GetType());
+                results.Add(property.PropertyType);
                 results.AddRange(property.PropertyType.GetGenericDependencies());
             }
 
@@ -35,7 +35,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         {
             var results = new List<Type>();
             
-            if (!type.ContainsGenericParameters) return results;
+            //if (!type.ContainsGenericParameters) return results;
             
             var generics = type.GetGenericArguments();
             results.AddRange(generics);
