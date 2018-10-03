@@ -22,6 +22,8 @@ namespace Audacia.Typescript.Transpiler.Builders
         public XmlDocumentation Documentation { get; set; }
 
         public abstract IEnumerable<Type> Dependencies { get; }
+
+        public Type Inherits => SourceType.BaseType != typeof(object) ? SourceType.BaseType : null;
         
         public abstract Element Build();
 

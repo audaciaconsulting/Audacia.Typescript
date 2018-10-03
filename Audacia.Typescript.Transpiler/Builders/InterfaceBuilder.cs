@@ -20,10 +20,11 @@ namespace Audacia.Typescript.Transpiler.Builders
             .Concat(_interfaces)
             .Concat(_typeArguments)
             .Where(t => !t.Namespace.StartsWith(nameof(System)));
-        
+
         public InterfaceBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
             : base(sourceType, settings, documentation)
         {
+            
             _typeArguments = sourceType.GetGenericArguments();
             _interfaces = SourceType.GetDeclaredInterfaces()
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))

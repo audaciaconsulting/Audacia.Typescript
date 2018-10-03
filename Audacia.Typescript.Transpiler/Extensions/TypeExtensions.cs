@@ -24,6 +24,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
             if (Nullable.GetUnderlyingType(type) != null)
                 return Nullable.GetUnderlyingType(type).TypescriptName();
 
+            if (type == typeof(object)) return "any";
+            
             var genericArguments = type.GetGenericArguments();
 
             // Check built-in types first
@@ -36,7 +38,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 }
 
                 if (type.Name.StartsWith("IDictionary") || type.Name.StartsWith("Dictionary") && genericArguments.Length == 2)
-                    return $"Map<{genericArguments[0]}, {genericArguments[1]}>";
+                    return $"Map<{genericArguments[0].TypescriptName()}, {genericArguments[1].TypescriptName()}>";
 
                 var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
                 if (genericArguments.Any() && isEnumerable)

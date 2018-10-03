@@ -18,7 +18,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             {
                 foreach (var element in mappings)
                 {
-                    if (mappings.Any(m => element.Dependencies.Contains(m.SourceType))) continue;
+                    if (mappings.Any(m => element.Inherits == m.SourceType)) continue;
 
                     yield return element;
                     removed.Add(element);

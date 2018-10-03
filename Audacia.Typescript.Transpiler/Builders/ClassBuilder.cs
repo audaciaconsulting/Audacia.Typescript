@@ -10,14 +10,13 @@ namespace Audacia.Typescript.Transpiler.Builders
 {
     public class ClassBuilder : TypeBuilder
     {
-        private readonly Type _baseType;
         private readonly IEnumerable<Type> _interfaces;
         private readonly IEnumerable<Type> _typeArguments;
         private readonly IEnumerable<PropertyInfo> _properties;
 
         public override IEnumerable<Type> Dependencies => _properties
             .Select(p => p.PropertyType)
-            .Concat(new[] {_baseType}.Where(x => x != null))
+            .Concat(new[] {Inherits}.Where(x => x != null))
             .Concat(_interfaces)
             .Concat(_typeArguments)
             .Where(t => !t.Namespace.StartsWith(nameof(System)));
@@ -25,7 +24,6 @@ namespace Audacia.Typescript.Transpiler.Builders
         public ClassBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
             : base(sourceType, settings, documentation)
         {
-            _baseType = sourceType.BaseType != typeof(object) ? sourceType.BaseType : null;
             _typeArguments = sourceType.GetGenericArguments();
             _interfaces = SourceType.GetDeclaredInterfaces()
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))
@@ -40,8 +38,8 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             var @class = new Class(SourceType.Name.Split('`').First()) {Modifiers = {Modifier.Export}};
 
-            if (_baseType != null)
-                @class.Extends = _baseType.TypescriptName();
+            if (Inherits != null)
+                @class.Extends = Inherits.TypescriptName();
 
             var classDocumentation = Documentation.ForClass(SourceType);
             
