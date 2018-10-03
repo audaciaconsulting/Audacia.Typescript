@@ -48,9 +48,9 @@ namespace Audacia.Typescript.Transpiler.Builders
                 .ToImmutableArray();
         }
 
-        public void AddReferences(IEnumerable<FileBuilder> mappings)
+        public void AddReferences(IEnumerable<FileBuilder> outputFiles)
         {
-            var references = mappings
+            var references = outputFiles
                 .Except(new[] { this }) // Get files which contain types we depend on
                 .Where(mapping => mapping.IncludedTypes.Any(type => Dependencies.Contains(type)));
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Audacia.Typescript.Transpiler.Extensions
 {
@@ -16,7 +17,12 @@ namespace Audacia.Typescript.Transpiler.Extensions
             results.AddRange(type.GetGenericDependencies());
             results.AddRange(type.GetDeclaredInterfaces());
 
-            foreach (var property in type.GetProperties())
+            var properties = type
+                .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(mi => mi.MemberType == MemberTypes.Property)
+                .Cast<PropertyInfo>();
+            
+            foreach (var property in properties)
             {
                 results.Add(property.GetType());
                 results.AddRange(property.PropertyType.GetGenericDependencies());
