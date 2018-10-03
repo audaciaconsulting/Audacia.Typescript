@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
+using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
@@ -21,7 +22,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public XmlDocumentation Documentation { get; set; }
 
-        public abstract IEnumerable<Type> Dependencies { get; }
+        public IEnumerable<Type> Dependencies => SourceType.Dependencies();
 
         public Type Inherits => SourceType.BaseType != typeof(object) ? SourceType.BaseType : null;
         

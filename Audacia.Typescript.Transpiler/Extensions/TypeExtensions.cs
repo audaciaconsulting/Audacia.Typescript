@@ -7,14 +7,47 @@ namespace Audacia.Typescript.Transpiler.Extensions
 {
     public static class TypeExtensions
     {
-        public static IEnumerable<Type> GetDeclaredInterfaces(this Type t)
+        public static IEnumerable<Type> Dependencies(this Type type)
         {
-            var allInterfaces = t.GetInterfaces();
+            if (type == typeof(object)) return Enumerable.Empty<Type>();
+            if (type == typeof(Enum)) return Enumerable.Empty<Type>();
+            
+            var results = new List<Type> { type.BaseType };
+            results.AddRange(type.GetGenericDependencies());
+            results.AddRange(type.GetDeclaredInterfaces());
+
+            foreach (var property in type.GetProperties())
+            {
+                results.Add(property.GetType());
+                results.AddRange(property.PropertyType.GetGenericDependencies());
+            }
+
+            return results;
+        }
+
+        private static IEnumerable<Type> GetGenericDependencies(this Type type)
+        {
+            var results = new List<Type>();
+            
+            if (!type.ContainsGenericParameters) return results;
+            
+            var generics = type.GetGenericArguments();
+            results.AddRange(generics);
+                
+            foreach(var generic in type.GetGenericArguments())
+                results.AddRange(GetGenericDependencies(generic));
+
+            return results;
+        }
+        
+        public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
+        {
+            var allInterfaces = type.GetInterfaces();
             
             var baseInterfaces = Enumerable.Empty<Type>();
-            if (t.BaseType != null)
+            if (type.BaseType != null)
             {
-                baseInterfaces = t.BaseType.GetInterfaces();
+                baseInterfaces = type.BaseType.GetInterfaces();
             }
             return allInterfaces.Except(baseInterfaces.Concat(allInterfaces.SelectMany(i => i.GetInterfaces()))).Distinct();
             

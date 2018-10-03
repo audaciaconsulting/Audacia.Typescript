@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
@@ -10,8 +9,6 @@ namespace Audacia.Typescript.Transpiler.Builders
     {
         public EnumBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
             : base(sourceType, settings, documentation) { }
-
-        public override IEnumerable<Type> Dependencies { get; } = Enumerable.Empty<Type>();
 
         public override Element Build()
         {

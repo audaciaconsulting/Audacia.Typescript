@@ -15,12 +15,6 @@ namespace Audacia.Typescript.Transpiler.Builders
         private readonly IEnumerable<Type> _typeArguments;
         private readonly IEnumerable<PropertyInfo> _properties;
 
-        public override IEnumerable<Type> Dependencies => _properties
-            .Select(p => p.PropertyType)
-            .Concat(_interfaces)
-            .Concat(_typeArguments)
-            .Where(t => !t.Namespace.StartsWith(nameof(System)));
-
         public InterfaceBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation) 
             : base(sourceType, settings, documentation)
         {
