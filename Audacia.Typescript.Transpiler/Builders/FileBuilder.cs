@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
@@ -45,7 +44,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 .Where(x => x.type.IsClass || x.type.IsInterface || x.type.IsEnum)
                 .Where(x => x.type.IsPublic && !x.type.IsNested)
                 .Select(x => TypeBuilder.Create(x.type, x.settings, documentation))
-                .ToImmutableArray();
+                .ToArray();
         }
 
         public void AddReferences(IEnumerable<FileBuilder> outputFiles)
