@@ -11,8 +11,13 @@
   </metadata>
   <files>
     <file src="_._" target="lib/netcoreapp2.0/" />
+    <file src="_._" target="lib/net45/" />
+    
     <file src="Audacia.Typescript.Transpiler.targets" target="build/netcoreapp2.0/Audacia.Typescript.Transpiler.targets" />
+    <file src="Audacia.Typescript.Transpiler.targets" target="build/net45/Audacia.Typescript.Transpiler.targets" />
+    
     <file src="GenerateTypescript.targets" target="tools/" />
     <file src="$publishdir$\netcoreapp2.0\**\*" target="tools/netcoreapp2.0/" />
+    <file src="$publishdir$\net46\**\*" target="tools/net46/" />
   </files>
 </package>

@@ -7,7 +7,7 @@
 		<AssemblyInformationalVersion>2.1.0.0</AssemblyInformationalVersion>
 		<Authors>Adam Drewery</Authors>
 		<Company>Audacia</Company>
-		<TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
 	</PropertyGroup>
 
 	<!-- Pack settings -->
