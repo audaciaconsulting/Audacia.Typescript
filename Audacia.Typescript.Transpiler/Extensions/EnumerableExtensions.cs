@@ -11,7 +11,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
     {
         public static IEnumerable<TypeBuilder> TopologicalSort(this IEnumerable<TypeBuilder> nodes)
         {
-            var mappings = nodes.ToHashSet();
+            var mappings = nodes.ToList();
             var removed = new HashSet<TypeBuilder>();
             
             while (mappings.Count > 0)
