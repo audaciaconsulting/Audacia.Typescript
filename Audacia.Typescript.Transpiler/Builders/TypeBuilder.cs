@@ -17,14 +17,14 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             SourceType = sourceType;
             Settings = settings;
-            this.Documentation = documentation;
+            Documentation = documentation;
         }
 
         public XmlDocumentation Documentation { get; set; }
 
         public IEnumerable<Type> Dependencies => SourceType.Dependencies();
 
-        public Type Inherits => SourceType.BaseType != typeof(object) ? SourceType.BaseType : null;
+        public Type Inherits => SourceType.BaseType != typeof(object) && !SourceType.BaseType.Namespace.StartsWith(nameof(System)) ? SourceType.BaseType : null;
         
         public abstract Element Build();
 

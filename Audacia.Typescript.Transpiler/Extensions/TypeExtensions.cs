@@ -16,6 +16,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             var results = new List<Type> { type.BaseType };
             results.AddRange(type.GetGenericDependencies());
             results.AddRange(type.GetDeclaredInterfaces());
+            results.AddRange(type.GetDeclaredInterfaces().SelectMany(i => i.GetGenericDependencies()));
 
             var properties = type
                 .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -28,7 +29,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 results.AddRange(property.PropertyType.GetGenericDependencies());
             }
 
-            return results;
+            return results.Distinct();
         }
 
         private static IEnumerable<Type> GetGenericDependencies(this Type type)
