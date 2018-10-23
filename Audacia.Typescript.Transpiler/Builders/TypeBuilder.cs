@@ -17,7 +17,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             SourceType = sourceType;
             Settings = settings;
-            this.Documentation = documentation;
+            Documentation = documentation;
         }
 
         public XmlDocumentation Documentation { get; set; }
