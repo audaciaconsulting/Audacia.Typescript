@@ -38,7 +38,7 @@ namespace Audacia.Typescript.Transpiler.Documentation
             var summaryRegex = new Regex(@"<summary>(.*)<\/summary>");
             var returnsRegex = new Regex(@"<returns>(.*)<\/returns>");
             var crefRegex = new Regex(@"<(c|paramref|see|seealso|typeparamref) cref="".:([^""]*)""\/>");
-            var summaryMatches = summaryRegex.Matches(content).Concat(returnsRegex.Matches(content));
+            var summaryMatches = summaryRegex.Matches(content).Cast<Match>().Concat(returnsRegex.Matches(content).Cast<Match>());
 
             foreach (Match summaryMatch in summaryMatches)
             {
@@ -49,7 +49,7 @@ namespace Audacia.Typescript.Transpiler.Documentation
                 
                 foreach (Match tagMatch in tagMatches)
                 {
-                    var replacement = tagMatch.Groups[2].Captures.Single().Value
+                    var replacement = tagMatch.Groups[2].Captures.Cast<Match>().Single().Value
                         .Split('`').First()
                         .Split('.').Last();
 
