@@ -49,7 +49,9 @@ namespace Audacia.Typescript.Transpiler.Documentation
                 
                 foreach (Match tagMatch in tagMatches)
                 {
-                    var replacement = tagMatch.Groups[2].Captures.Cast<Match>().Single().Value
+                    var replacement = tagMatch.Groups[2].Captures
+                        .Cast<Group>()
+                        .Single().Value
                         .Split('`').First()
                         .Split('.').Last();
 
