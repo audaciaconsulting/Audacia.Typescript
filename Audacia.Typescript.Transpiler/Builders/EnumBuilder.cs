@@ -22,19 +22,30 @@ namespace Audacia.Typescript.Transpiler.Builders
 			
             foreach (var val in values)
             {
+                object value;
                 var name = System.Enum.GetName(SourceType, val);
-				
-                var attribute = SourceType.GetMember(name)
-                    .Single()
-                    .GetCustomAttributes(true)
-                    .FirstOrDefault(a => a.GetType().Name == "EnumMemberAttribute");
-			
-                var label = attribute?.GetType()
-                    .GetProperty("Value")
-                    .GetValue(attribute)
-                    .ToString();
-				
-                @enum.Members.Add(name, label ?? name);				
+
+                //If we've specified we want number enum values, just add the value it finds.
+                if (Settings.EnumSettings?.ValueType == EnumValueType.Number)
+                {
+                    value = val;
+                }
+                //Use string enum values by default
+                else
+                {
+                    var attribute = SourceType.GetMember(name)
+                        .Single()
+                        .GetCustomAttributes(true)
+                        .FirstOrDefault(a => a.GetType().Name == "EnumMemberAttribute");
+
+                    var label = attribute?.GetType()
+                        .GetProperty("Value")
+                        .GetValue(attribute)
+                        .ToString();
+                    value = $"\"{label ?? name}\"";
+                }
+
+                @enum.Members.Add(name, value);
             }
 			
             ReportProgress(ConsoleColor.DarkYellow, "enum", @enum.Name);
