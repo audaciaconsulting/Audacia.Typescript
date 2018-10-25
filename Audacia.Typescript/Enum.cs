@@ -28,7 +28,7 @@ namespace Audacia.Typescript
 				.Append(" {")
 				.Indent()
 				.NewLine()
-				.Join(Members.Select(m => m.Key + " = \"" + m.Value + "\""), "," + Environment.NewLine + builder.Indentation)
+				.Join(Members.Select(m => $"{m.Key} = {m.Value}"), "," + Environment.NewLine + builder.Indentation)
 				.Unindent()
 				.NewLine()
 				.Append("}");
