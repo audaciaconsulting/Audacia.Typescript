@@ -10,5 +10,8 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
         [XmlAttribute("name")]
         public string Name { get; set; }
+
+        [XmlElement("TypeName")]
+        public TypeNameSettings[] Types { get; set; } = new TypeNameSettings[0];
     }
 }

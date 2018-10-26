@@ -13,7 +13,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         {
             var mappings = nodes.ToList();
             var removed = new HashSet<TypeBuilder>();
-            
+
             while (mappings.Count > 0)
             {
                 foreach (var element in mappings)
@@ -40,12 +40,46 @@ namespace Audacia.Typescript.Transpiler.Extensions
                         throw new InvalidDataException("Cyclic references detected: " + rn + mappingsList);
                     }
                 }
-                
+
                 foreach (var mapping in removed)
                     mappings.Remove(mapping);
-                
+
                 removed.Clear();
             }
+        }
+
+
+        /// <summary>
+        /// Based on the provided <see cref="InputSettings"/>, filter by namespaces and specified type names if necessary
+        /// </summary>
+        /// <param name="types"></param>
+        /// <param name="inputSettings"></param>
+        /// <returns></returns>
+        public static Type[] FilterByInputSettings(this IEnumerable<Type> types, InputSettings inputSettings)
+        {
+            var namespaceSettings = inputSettings.Namespaces;
+            if (namespaceSettings != null)
+            {
+                types = types.Where(t => namespaceSettings.Any(n => n.Name == t.Namespace));
+
+                var nameSpacesWithoutTypes = namespaceSettings
+                    .Where(n => n.Types == null || !n.Types.Any())
+                    .Select(n => n.Name);
+                var specifiedTypes = namespaceSettings
+                    .Where(n => n.Types != null)
+                    .SelectMany(n => n.Types)
+                    .ToList();
+
+                //If user's specified types within a namespace, only return those types
+                if (specifiedTypes.Any())
+                {
+                    types = types
+                        .Where(t => specifiedTypes
+                            .Any(type => nameSpacesWithoutTypes.Contains(t.Namespace) || type.Name == t.Name));
+                }
+            }
+
+            return types.ToArray();
         }
     }
 }
