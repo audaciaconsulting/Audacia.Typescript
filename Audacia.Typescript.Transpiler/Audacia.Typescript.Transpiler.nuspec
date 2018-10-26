@@ -18,6 +18,6 @@
     
     <file src="GenerateTypescript.targets" target="tools/" />
     <file src="$publishdir$\netcoreapp2.0\**\*" target="tools/netcoreapp2.0/" />
-    <file src="$publishdir$\net46\**\*" target="tools/net46/" />
+    <file src="$publishdir$\net45\**\*" target="tools/net45/" />
   </files>
 </package>
