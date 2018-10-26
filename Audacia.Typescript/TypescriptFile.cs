@@ -34,6 +34,10 @@ namespace Audacia.Typescript
         {
             var builder = new TypescriptBuilder();
 
+            builder.Append(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten."), null)
+                .NewLine()
+                .NewLine();
+
             if (Imports.Any())
             {
                 foreach (var import in Imports)
