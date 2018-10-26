@@ -78,12 +78,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             var mappings = TypeMappings.TopologicalSort();
 
-            var sb = new StringBuilder()
-                .AppendLine(
-                    "This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten.")
-                .AppendLine();
-
-            Typescript.Elements.Add(new Comment(sb.ToString()));
+            Typescript.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
 
             foreach (var mapping in mappings)
                 Typescript.Elements.Add(mapping.Build());
