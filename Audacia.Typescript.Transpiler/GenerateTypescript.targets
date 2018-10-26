@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<ConfigFileLocation>$(MSBuildProjectDirectory)/transpiler.config</ConfigFileLocation>
 		<TsGenFileExe Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' OR '$(TargetFrameworkIdentifier)' == '.NETStandard'">dotnet "$(MSBuildThisFileDirectory)/netcoreapp2.0/Audacia.Typescript.Transpiler.dll"</TsGenFileExe>
-		<TsGenFileExe Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">"$(MSBuildThisFileDirectory)/net46/Audacia.Typescript.Transpiler.exe"</TsGenFileExe>
+		<TsGenFileExe Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">"$(MSBuildThisFileDirectory)/net45/Audacia.Typescript.Transpiler.exe"</TsGenFileExe>
 	</PropertyGroup>
 
 	<Target Name="GenerateTypescript" AfterTargets="CoreCompile">
