@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
@@ -75,8 +76,9 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public string Build()
         {
-            var settings = Transpilation.Settings.CyclicReferences?.Handling ?? CyclicReferenceHandling.Ignore;
             var mappings = TypeMappings.TopologicalSort();
+
+            Typescript.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
 
             foreach (var mapping in mappings)
                 Typescript.Elements.Add(mapping.Build());
