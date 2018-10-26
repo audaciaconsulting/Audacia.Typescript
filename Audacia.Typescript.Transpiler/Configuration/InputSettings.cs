@@ -10,7 +10,10 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
         [XmlAttribute("name")]
         public string Assembly { get; set; }
-		
+
+        [XmlElement("Enums")]
+        public EnumSettings EnumSettings { get; set; }
+
         [XmlElement("Namespace")]
         public NamespaceSettings[] Namespaces { get; set; }
     }
