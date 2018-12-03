@@ -91,6 +91,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 if (type == typeof(decimal)) return "number";
                 if (type == typeof(string)) return "string";
                 if (type == typeof(Guid)) return "string";
+                if (type == typeof(TimeSpan)) return "string";
                 if (type == typeof(DateTime)) return "Date";
                 
                 if (type.IsPrimitive) return "number";
