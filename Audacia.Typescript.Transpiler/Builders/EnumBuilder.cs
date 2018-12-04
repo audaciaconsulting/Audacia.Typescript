@@ -25,6 +25,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 object value;
                 var name = System.Enum.GetName(SourceType, val);
 
+				var member = SourceType.GetMember(name);
                 //If we've specified we want number enum values, just add the value it finds.
                 if (Settings.EnumSettings?.ValueType == EnumValueType.Number)
                 {
@@ -33,18 +34,31 @@ namespace Audacia.Typescript.Transpiler.Builders
                 //Use string enum values by default
                 else
                 {
-                    var attribute = SourceType.GetMember(name)
-                        .Single()
-                        .GetCustomAttributes(true)
-                        .FirstOrDefault(a => a.GetType().Name == "EnumMemberAttribute");
+	                var enumMemberAttribute = member.Single()
+	                    .GetCustomAttributes(true)
+	                    .FirstOrDefault(a => a.GetType().Name == "System.Runtime.Serialization.EnumMemberAttribute");
+				
+	                var label = enumMemberAttribute?.GetType()
+	                    .GetProperty("Value")
+	                    .GetValue(enumMemberAttribute)
+	                    .ToString();
 
-                    var label = attribute?.GetType()
-                        .GetProperty("Value")
-                        .GetValue(attribute)
-                        .ToString();
-                    value = $"\"{label ?? name}\"";
-                }
+	                // No EnumMemberAttribute, try for a DisplayAttribute instead.
+	                if (label == null)
+	                {
+	                    var displayAttribute = member.Single()
+	                        .GetCustomAttributes(true)
+	                        .FirstOrDefault(a => a.GetType().FullName == "System.ComponentModel.DataAnnotations.DisplayAttribute");
 
+	                    label = displayAttribute?.GetType()
+	                        .GetProperty("Name")
+	                        .GetValue(displayAttribute)
+	                    .ToString();
+	                }
+					
+					value = $"\"{label ?? name}\"";
+				}
+				
                 @enum.Members.Add(name, value);
             }
 			
