@@ -23,20 +23,34 @@ namespace Audacia.Typescript.Transpiler.Builders
             foreach (var val in values)
             {
                 var name = System.Enum.GetName(SourceType, val);
-				
-                var attribute = SourceType.GetMember(name)
+
+                var enumMemberAttribute = SourceType.GetMember(name)
                     .Single()
                     .GetCustomAttributes(true)
-                    .FirstOrDefault(a => a.GetType().Name == "EnumMemberAttribute");
-			
-                var label = attribute?.GetType()
+                    .FirstOrDefault(a => a.GetType().Name == "System.Runtime.Serialization.EnumMemberAttribute");
+                
+                var label = enumMemberAttribute?.GetType()
                     .GetProperty("Value")
-                    .GetValue(attribute)
+                    .GetValue(enumMemberAttribute)
                     .ToString();
-				
-                @enum.Members.Add(name, label ?? name);				
+
+                // No EnumMemberAttribute, try for a DisplayAttribute instead.
+                if (label == null)
+                {
+                    var displayAttribute = SourceType.GetMember(name)
+                        .Single()
+                        .GetCustomAttributes(true)
+                        .FirstOrDefault(a => a.GetType().FullName == "System.ComponentModel.DataAnnotations.DisplayAttribute");
+
+                    label = displayAttribute?.GetType()
+                        .GetProperty("Name")
+                        .GetValue(displayAttribute)
+                        .ToString();
+                }
+                
+                @enum.Members.Add(name, label ?? name);
             }
-			
+
             ReportProgress(ConsoleColor.DarkYellow, "enum", @enum.Name);
             return @enum;
         }
