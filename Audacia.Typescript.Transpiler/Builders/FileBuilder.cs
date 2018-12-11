@@ -60,9 +60,9 @@ namespace Audacia.Typescript.Transpiler.Builders
                 if (relativePath.EndsWith(".ts"))
                     relativePath = relativePath.Substring(0, relativePath.Length - 3);
 
-                var dependencyNames = Dependencies
-                    .Where(d => reference.IncludedTypes.Contains(d))
-                    .Select(d => d.Name);
+                var dependencyNames = Dependencies // Compare by full name so we include generics.
+                    .Where(d => reference.IncludedTypes.Select(x => x.FullName.SanitizeTypeName()).Contains(d.FullName.SanitizeTypeName()))
+                    .Select(d => d.Name.SanitizeTypeName());
 
                 Typescript.Imports.Add(new Import(relativePath, dependencyNames));
             }
