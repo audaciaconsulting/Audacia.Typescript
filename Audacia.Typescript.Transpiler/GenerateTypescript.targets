@@ -6,7 +6,7 @@
 		<TsGenFileExe Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">"$(MSBuildThisFileDirectory)/net45/Audacia.Typescript.Transpiler.exe"</TsGenFileExe>
 	</PropertyGroup>
 
-	<Target Name="GenerateTypescript" BeforeTargets="CoreCompile">
+	<Target Name="GenerateTypescript" AfterTargets="CoreCompile">
 		<Exec Command="$(TsGenFileExe) $(ConfigFileLocation)" />
 	</Target>
 </Project>
