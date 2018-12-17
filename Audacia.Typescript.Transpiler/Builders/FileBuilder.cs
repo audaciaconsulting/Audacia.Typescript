@@ -69,7 +69,10 @@ namespace Audacia.Typescript.Transpiler.Builders
             }
         }
 
-        public IEnumerable<Type> Dependencies => TypeMappings.SelectMany(t => t.Dependencies).Distinct();
+        public IEnumerable<Type> Dependencies => TypeMappings.SelectMany(t => t.Dependencies)
+            .Where(result => result != null)
+            .Where(result => result.FullName != null)
+            .DistinctBy(result => result.FullName.SanitizeTypeName());
 
         public IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);
 
