@@ -29,7 +29,10 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 results.AddRange(property.PropertyType.GetGenericDependencies());
             }
 
-            return results.Distinct();
+            return results
+                .Where(result => result != null)
+                .Where(result => result.FullName != null)
+                .DistinctBy(result => result.FullName.SanitizeTypeName());
         }
 
         private static IEnumerable<Type> GetGenericDependencies(this Type type)
