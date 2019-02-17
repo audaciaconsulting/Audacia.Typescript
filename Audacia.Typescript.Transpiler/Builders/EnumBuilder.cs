@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
+using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
@@ -59,7 +60,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                     value = $"\"{label ?? name}\"";
                 }
 
-                @enum.Members.Add(name, value);
+                @enum.Members.Add(name.CamelCase(), value);
             }
 
             ReportProgress(ConsoleColor.DarkYellow, "enum", @enum.Name);

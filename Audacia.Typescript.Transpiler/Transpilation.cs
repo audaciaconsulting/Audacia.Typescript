@@ -13,34 +13,34 @@ namespace Audacia.Typescript.Transpiler
     public class Transpilation
     {
         public static Settings Settings { get; private set; }
-        
-        public static TypeMap Types { get; private set; }
-        
+
         private static readonly Stopwatch Stopwatch = new Stopwatch();
-        
+
         public static void Main(string[] args)
         {
             Stopwatch.Start();
-            
+
             WriteLine();
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
-            
+
             var configFileLocation = args.First();
             Settings = Settings.Load(configFileLocation);
 
             var assemblies = Settings.Outputs.SelectMany(o => o.Inputs).Select(i => i.Assembly);
             var documentation = XmlDocumentation.Load(assemblies);
-            
+
             var outputs = Settings.Outputs
                 .Select(setting => new FileBuilder(setting, documentation))
                 .ToArray();
-            
-            Types = new TypeMap(outputs);
-            
+
+            var includedTypes = outputs.SelectMany(o => o.IncludedTypes);
+            var missingTypes = outputs.SelectMany(o => o.Dependencies)
+                .Where(type => !includedTypes.Contains(type));
+
             foreach (var file in outputs)
             {
                 file.AddReferences(outputs);
-                
+
                 File.WriteAllText(file.Path, file.Build());
 
                 ForegroundColor = ConsoleColor.Green;
@@ -49,7 +49,8 @@ namespace Audacia.Typescript.Transpiler
                 WriteLine();
                 ResetColor();
             }
-            
+
+
             ForegroundColor = ConsoleColor.Green;
             WriteLine($"Typescript transpile completed in {Stopwatch.ElapsedMilliseconds}ms.");
             ResetColor();

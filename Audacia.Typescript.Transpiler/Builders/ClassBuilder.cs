@@ -14,9 +14,14 @@ namespace Audacia.Typescript.Transpiler.Builders
         private readonly IEnumerable<Type> _typeArguments;
         private readonly IEnumerable<PropertyInfo> _properties;
 
+        public object Instance { get; }
+
         public ClassBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
             : base(sourceType, settings, documentation)
         {
+            if (Settings.Properties.Initialize)
+                Instance = CreateInstance();
+
             _typeArguments = sourceType.GetGenericArguments();
             _interfaces = SourceType.GetDeclaredInterfaces()
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))
@@ -35,7 +40,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @class.Extends = Inherits.TypescriptName();
 
             var classDocumentation = Documentation.ForClass(SourceType);
-            
+
             if (classDocumentation != null)
                 @class.Comment = classDocumentation.Summary;
 
@@ -47,19 +52,52 @@ namespace Audacia.Typescript.Transpiler.Builders
             foreach (var typeArgument in _typeArguments)
                 @class.TypeArguments.Add(typeArgument.TypescriptName());
 
-            foreach (var property in _properties)
+            foreach (var source in _properties)
             {
-                var element = new Property(property.Name.CamelCase(), property.PropertyType.TypescriptName());
-                var propertyDocumentation = Documentation.ForMember(property);
-                
+                var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
+                var propertyDocumentation = Documentation.ForMember(source);
+
                 if (propertyDocumentation != null)
-                    element.Comment = propertyDocumentation.Summary;
-                
-                @class.Members.Add(element);
+                    target.Comment = propertyDocumentation.Summary;
+
+                if (Settings.Properties?.Initialize ?? false)
+                {
+                    var value = Instance == null ? null : source.GetValue(Instance);
+
+                    if (source.PropertyType.IsEnum)
+                    {
+                        target.Value = source.PropertyType.TypescriptName() + "." + System.Enum
+                                           .GetName(source.PropertyType, value)
+                                           .CamelCase();
+                    }
+                    else
+                    {
+                        if (Literal.TryCreate(value, out var literal))
+                            target.Value = literal.ToString();
+                        else
+                            target.Value = "new " + value.GetType().TypescriptName() + "()";
+                    }
+                }
+
+                @class.Members.Add(target);
             }
 
             ReportProgress(ConsoleColor.Green, "class", @class.Name);
             return @class;
+        }
+
+        private object CreateInstance()
+        {
+            if (SourceType.IsAbstract) return null;
+
+            try
+            {
+                return Activator.CreateInstance(SourceType, true);
+            }
+            catch (MissingMethodException)
+            {
+                return null;
+            }
         }
     }
 }

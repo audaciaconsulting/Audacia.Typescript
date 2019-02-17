@@ -5,7 +5,7 @@ namespace Audacia.Typescript.Transpiler.Configuration
     public class InputSettings
     {
         public InputSettings() { }
-        
+
         public InputSettings(string assembly) => Assembly = assembly;
 
         [XmlAttribute("name")]
@@ -16,5 +16,8 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
         [XmlElement("Namespace")]
         public NamespaceSettings[] Namespaces { get; set; }
+
+        [XmlElement("Properties")]
+        public PropertySettings Properties { get; set; } = new PropertySettings();
     }
 }

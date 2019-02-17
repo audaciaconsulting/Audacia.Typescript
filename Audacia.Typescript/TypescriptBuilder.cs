@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,9 +9,11 @@ namespace Audacia.Typescript
         public Indentation Indentation { get; } = Indentation.Spaces(4);
 
         private Line CurrentLine { get; } = new Line();
-        
+
         private readonly StringBuilder _builder = new StringBuilder();
-    
+
+        public TypescriptBuilder Literal(object value) => Append(new Literal(value), null);
+
         public TypescriptBuilder Join(IEnumerable<IElement> elements, IElement parent, string delimiter)
         {
             var d = string.Empty;
@@ -24,7 +27,38 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Join(IEnumerable<string> strings, string delimiter)
+        public TypescriptBuilder Join(IEnumerable<IElement> elements, IElement parent, Action<TypescriptBuilder> delimiter)
+        {
+            var delimit = false;
+            foreach (var element in elements)
+            {
+                if (delimit) delimiter(this);
+
+                element.Build(this, parent);
+                delimit = true;
+            }
+
+            return this;
+        }
+
+        public TypescriptBuilder Join(IEnumerable<IElement> elements, Action<TypescriptBuilder> delimiter) =>
+            Join(elements, null, delimiter);
+
+        public TypescriptBuilder Join(IEnumerable<object> strings, Action<TypescriptBuilder> delimiter)
+        {
+            var delimit = false;
+            foreach (var element in strings)
+            {
+                if (delimit) delimiter(this);
+
+                Append(element);
+                delimit = true;
+            }
+
+            return this;
+        }
+
+        public TypescriptBuilder Join(IEnumerable<object> strings, string delimiter)
         {
             var d = string.Empty;
             foreach (var element in strings)
@@ -39,42 +73,33 @@ namespace Audacia.Typescript
         public TypescriptBuilder Append(IElement element, Element parent)
         {
             if(CurrentLine.Blank) _builder.Append(Indentation);
-            
+
             CurrentLine.Blank = false;
-            return element.Build(this, parent);    
+            return element.Build(this, parent);
         }
-        
-        public TypescriptBuilder Append(string s)
+
+        public TypescriptBuilder Append(object s)
         {
             if(CurrentLine.Blank) _builder.Append(Indentation);
-            
+
             CurrentLine.Blank = false;
-            _builder.Append(s);            
+            _builder.Append(s);
             return this;
         }
-        
-        public TypescriptBuilder Append(char c)
-        {
-            if(CurrentLine.Blank) _builder.Append(Indentation);
-            CurrentLine.Blank = false;
-            
-            _builder.Append(c);
-            return this;
-        }
-        
+
         public TypescriptBuilder NewLine()
         {
             _builder.AppendLine();
             CurrentLine.Blank = true;
             return this;
         }
-        
+
         public TypescriptBuilder Indent()
         {
             Indentation.Level++;
             return this;
         }
-        
+
         public TypescriptBuilder Unindent()
         {
             if (Indentation.Level != 0) Indentation.Level--;

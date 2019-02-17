@@ -9,18 +9,26 @@ namespace Audacia.Typescript.Transpiler.Configuration
         [XmlAttribute("unknownTypes")]
         public string UnknownTypes { get; set; }
     }
-    
+
+    public class PropertySettings
+    {
+        [XmlAttribute("initialize")]
+        public bool Initialize { get; set; }
+    }
+
     public class Settings
     {
-        [XmlElement("Output")] 
+        [XmlElement("Output")]
         public OutputSettings[] Outputs { get; set; }
-        
-        [XmlElement("DependencyResolution")] 
+
+        [XmlElement("DependencyResolution")]
         public DependencyResolutionSettings DependencyResolution { get; set; }
-        
-        [XmlElement("CyclicReferences")] 
+
+        [XmlElement("CyclicReferences")]
         public CyclicReferencesSettings CyclicReferences { get; set; }
-        
+
+
+
         private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
 
         public static Settings Load(string path)
@@ -30,7 +38,7 @@ namespace Audacia.Typescript.Transpiler.Configuration
                 using (TextWriter writer = new StreamWriter(path))
                     Xml.Serialize(writer, Default);
 
-                throw new InvalidDataException("Failed to find a config file at: " 
+                throw new InvalidDataException("Failed to find a config file at: "
                     + path + ". A template config file has been automatically generated for you");
             }
 

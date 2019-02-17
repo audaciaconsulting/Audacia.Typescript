@@ -7,7 +7,7 @@ using Audacia.Typescript.Collections;
 namespace Audacia.Typescript
 {
     /// <summary>A typescript class.</summary>
-    public class Class : Element, IEnumerable<IMemberOf<Class>>
+    public class Class : Element, IEnumerable<IMemberOf<Class>>, IGeneric
     {
         /// <summary>The identifier of the class.</summary>
         public string Name { get; set; }
@@ -15,6 +15,8 @@ namespace Audacia.Typescript
         public IList<string> Implements { get; } = new List<string>();
 
         public string Extends { get; set; }
+
+        private Class() { }
 
         public Class(string name) => Name = name;
 
@@ -93,27 +95,6 @@ namespace Audacia.Typescript
             return builder.Unindent()
                 .NewLine()
                 .Append("}");
-        }
-    }
-
-    public class TypeArgument : Element
-    {
-        public TypeArgument(string name) => Name = name;
-
-        public TypeArgument(string name, string extends) : this(name) => Extends = extends;
-
-        public string Name { get; }
-
-        public string Extends { get; }
-
-        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
-        {
-            builder.Append(Name);
-
-            if (Extends != null)
-                builder.Append(" extends ").Append(Extends);
-
-            return builder;
         }
     }
 }
