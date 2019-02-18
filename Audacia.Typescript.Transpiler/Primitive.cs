@@ -66,7 +66,7 @@ namespace Audacia.Typescript.Transpiler
                 var literals = array.Select(Primitive.Literal);
                 if (!array.Any()) builder.Append("[]");
 
-                builder.Append('[')
+                else builder.Append('[')
                     .Indent()
                     .NewLine()
                     .Join(literals, b => b.Append(',').NewLine())
@@ -79,8 +79,9 @@ namespace Audacia.Typescript.Transpiler
                 .Append("Array")
                 .Append(GenericArguments(source));
 
-            public override bool CanWrite(Type type) => !(type == typeof(IDictionary))
-                && (type.IsArray || type == typeof(IEnumerable))
+            public override bool CanWrite(Type type) => type.IsArray
+                || !typeof(IDictionary).IsAssignableFrom(type)
+                && typeof(IEnumerable).IsAssignableFrom(type)
                 && (type.Namespace?.StartsWith(nameof(System)) ?? false);
         }
 
@@ -88,7 +89,8 @@ namespace Audacia.Typescript.Transpiler
         {
             public override void Literal(TypescriptBuilder builder, object value) => builder
                 .Append("new Map")
-                .Append(GenericArguments(value.GetType()));
+                .Append(GenericArguments(value.GetType()))
+                .Append("()");
 
             public override void Identifier(TypescriptBuilder builder, Type source)
             {
@@ -98,7 +100,7 @@ namespace Audacia.Typescript.Transpiler
                 else builder.Append("<any, any>");
             }
 
-            public override bool CanWrite(Type type) => type == typeof(IDictionary)
+            public override bool CanWrite(Type type) => typeof(IDictionary).IsAssignableFrom(type)
                 && (type.Namespace?.StartsWith(nameof(System)) ?? false);
         }
 

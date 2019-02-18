@@ -85,9 +85,10 @@ namespace Audacia.Typescript
             return this;
         }
 
-        public TypescriptBuilder Append(Func<TypescriptBuilder, TypescriptBuilder> action)
+        public TypescriptBuilder Append(Action<TypescriptBuilder> action)
         {
-            return action(this);
+            action(this);
+            return this;
         }
 
         public TypescriptBuilder NewLine()

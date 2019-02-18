@@ -64,6 +64,12 @@ namespace Audacia.Typescript.Transpiler.Builders
                 if (Settings.Properties?.Initialize ?? false)
                 {
                     var value = Instance == null ? null : source.GetValue(Instance);
+                    if (value == null)
+                    {
+                        if (Primitive.Array.CanWrite(source.PropertyType))
+                            target.Value = Primitive.Literal(new object[0]);
+                        else target.Value = "null";
+                    }
 
                     if (source.PropertyType.IsEnum)
                     {
@@ -74,8 +80,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                     else
                     {
                         var literal = Primitive.Literal(value);
-                        Debug.Assert(value != null, "Literal should stringify null values");
-                        target.Value = literal ?? "new " + value.GetType().TypescriptName() + "()";
+                        target.Value = literal ?? ("new " + value.GetType().TypescriptName() + "()");
                     }
                 }
 
