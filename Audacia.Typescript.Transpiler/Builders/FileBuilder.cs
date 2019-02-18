@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
@@ -30,7 +29,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 {
                     var types = input.assembly.GetTypes().ToArray();
 
-                    types = types.FilterByInputSettings(input.settings);
+                    types = types.FilterBy(input.settings);
 
                     // Filter out subtypes of generics- we only want the top one in the inheritance hierarchy
                     return types.Where(type => !types

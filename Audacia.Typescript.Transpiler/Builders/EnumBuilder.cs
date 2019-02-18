@@ -39,9 +39,10 @@ namespace Audacia.Typescript.Transpiler.Builders
                         .GetCustomAttributes(true)
                         .FirstOrDefault(a => a.GetType().FullName == "System.Runtime.Serialization.EnumMemberAttribute");
 
-                    var label = enumMemberAttribute?.GetType()
+                    var label = enumMemberAttribute
+                        ?.GetType()
                         .GetProperty("Value")
-                        .GetValue(enumMemberAttribute)
+                        ?.GetValue(enumMemberAttribute)
                         ?.ToString();
 
                     // No EnumMemberAttribute, try for a DisplayAttribute instead.
@@ -53,7 +54,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
                         label = displayAttribute?.GetType()
                             .GetProperty("Name")
-                            .GetValue(displayAttribute)
+                            ?.GetValue(displayAttribute)
                             ?.ToString();
                     }
 

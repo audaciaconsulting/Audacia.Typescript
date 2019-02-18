@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,8 @@ using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
 {
+    // TODO: Finish this
+
     /// <summary>Represents a single transpiler task and contains the main entry point for the program.</summary>
     public class Transpilation
     {
@@ -34,8 +37,10 @@ namespace Audacia.Typescript.Transpiler
                 .ToArray();
 
             var includedTypes = outputs.SelectMany(o => o.IncludedTypes);
+
             var missingTypes = outputs.SelectMany(o => o.Dependencies)
                 .Where(type => !includedTypes.Contains(type));
+
 
             foreach (var file in outputs)
             {

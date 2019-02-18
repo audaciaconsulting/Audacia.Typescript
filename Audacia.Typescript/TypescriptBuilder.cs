@@ -12,8 +12,6 @@ namespace Audacia.Typescript
 
         private readonly StringBuilder _builder = new StringBuilder();
 
-        public TypescriptBuilder Literal(object value) => Append(new Literal(value), null);
-
         public TypescriptBuilder Join(IEnumerable<IElement> elements, IElement parent, string delimiter)
         {
             var d = string.Empty;
@@ -85,6 +83,11 @@ namespace Audacia.Typescript
             CurrentLine.Blank = false;
             _builder.Append(s);
             return this;
+        }
+
+        public TypescriptBuilder Append(Func<TypescriptBuilder, TypescriptBuilder> action)
+        {
+            return action(this);
         }
 
         public TypescriptBuilder NewLine()

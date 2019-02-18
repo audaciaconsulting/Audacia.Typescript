@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Configuration;
@@ -72,10 +73,9 @@ namespace Audacia.Typescript.Transpiler.Builders
                     }
                     else
                     {
-                        if (Literal.TryCreate(value, out var literal))
-                            target.Value = literal.ToString();
-                        else
-                            target.Value = "new " + value.GetType().TypescriptName() + "()";
+                        var literal = Primitive.Literal(value);
+                        Debug.Assert(value != null, "Literal should stringify null values");
+                        target.Value = literal ?? "new " + value.GetType().TypescriptName() + "()";
                     }
                 }
 

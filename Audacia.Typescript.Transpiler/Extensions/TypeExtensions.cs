@@ -12,7 +12,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
             if (type == typeof(Enum)) return Enumerable.Empty<Type>();
-            
+
             var results = new List<Type> { type.BaseType };
             results.AddRange(type.GetGenericDependencies());
             results.AddRange(type.GetDeclaredInterfaces());
@@ -22,7 +22,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(mi => mi.MemberType == MemberTypes.Property)
                 .Cast<PropertyInfo>();
-            
+
             foreach (var property in properties)
             {
                 results.Add(property.PropertyType);
@@ -38,29 +38,29 @@ namespace Audacia.Typescript.Transpiler.Extensions
         private static IEnumerable<Type> GetGenericDependencies(this Type type)
         {
             var results = new List<Type>();
-            
+
             //if (!type.ContainsGenericParameters) return results;
-            
+
             var generics = type.GetGenericArguments();
             results.AddRange(generics);
-                
+
             foreach(var generic in type.GetGenericArguments())
                 results.AddRange(GetGenericDependencies(generic));
 
             return results;
         }
-        
+
         public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
         {
             var allInterfaces = type.GetInterfaces();
-            
+
             var baseInterfaces = Enumerable.Empty<Type>();
             if (type.BaseType != null)
             {
                 baseInterfaces = type.BaseType.GetInterfaces();
             }
             return allInterfaces.Except(baseInterfaces.Concat(allInterfaces.SelectMany(i => i.GetInterfaces()))).Distinct();
-            
+
         }
         public static string TypescriptName(this Type type)
         {
@@ -68,7 +68,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 return Nullable.GetUnderlyingType(type).TypescriptName();
 
             if (type == typeof(object)) return "any";
-            
+
             var genericArguments = type.GetGenericArguments();
 
             // Check built-in types first
@@ -98,7 +98,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 if (type == typeof(TimeSpan)) return "string";
                 if (type == typeof(DateTime)) return "Date";
                 if (type == typeof(DateTimeOffset)) return "Date";
-                
+
                 if (type.IsPrimitive) return "number";
             }
 
@@ -109,7 +109,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                        + string.Join(", ", genericArguments.Select(a => a.TypescriptName()))
                        + '>';
             }
-            
+
             //if (type.IsEnum) return type.Name;
             return type.Name;
         }

@@ -25,7 +25,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
             {
                 var settings = new InputSettings { Namespaces = null };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(this._types, result);
             }
@@ -39,7 +39,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                 var namespaceToUse = nameof(FirstNamespace);
                 var settings = new InputSettings { Namespaces = new[] { new NamespaceSettings(namespaceToUse) } };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.True(result.Any() && result.All(t => t.Namespace == namespaceToUse),
                     $"Should have only returned types within the specified namespace {namespaceToUse}");
@@ -51,7 +51,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                 var namespaceToUse = nameof(FirstNamespace);
                 var settings = new InputSettings { Namespaces = new[] { new NamespaceSettings(namespaceToUse) } };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.True(result.Any() && result.All(t => t.Namespace == namespaceToUse),
                     $"Should have only returned types within the specified namespace {namespaceToUse}");
@@ -74,7 +74,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Empty(result);
             }
@@ -96,7 +96,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(result, new []{ typeof(ClassA)});
             }
@@ -127,7 +127,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(this._types, result);
 
@@ -151,7 +151,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
                 
                 Assert.True(result.Length == 3 && !result.Contains(typeof(ClassD)),
                     $"Should have filtered out {nameof(ClassD)} if other types are specified");

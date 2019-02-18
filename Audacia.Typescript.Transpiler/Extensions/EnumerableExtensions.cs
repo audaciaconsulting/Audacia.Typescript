@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
@@ -24,23 +23,6 @@ namespace Audacia.Typescript.Transpiler.Extensions
                     removed.Add(element);
                 }
 
-                if (!removed.Any())
-                {
-                    var setting = Transpilation.Settings.CyclicReferences?.Feedback ?? FeedbackLevel.Ignore;
-
-                    if (setting == FeedbackLevel.Ignore)
-                    {
-                        mappings.Clear();
-                        break;
-                    }
-                    if (setting == FeedbackLevel.Error)
-                    {
-                        var rn = Environment.NewLine;
-                        var mappingsList = string.Join(", " + rn, mappings.Select(m => m.SourceType.TypescriptName()));
-                        throw new InvalidDataException("Cyclic references detected: " + rn + mappingsList);
-                    }
-                }
-
                 foreach (var mapping in removed)
                     mappings.Remove(mapping);
 
@@ -48,14 +30,13 @@ namespace Audacia.Typescript.Transpiler.Extensions
             }
         }
 
-
         /// <summary>
         /// Based on the provided <see cref="InputSettings"/>, filter by namespaces and specified type names if necessary
         /// </summary>
         /// <param name="types"></param>
         /// <param name="inputSettings"></param>
         /// <returns></returns>
-        public static Type[] FilterByInputSettings(this IEnumerable<Type> types, InputSettings inputSettings)
+        public static Type[] FilterBy(this IEnumerable<Type> types, InputSettings inputSettings)
         {
             var namespaceSettings = inputSettings.Namespaces;
             if (namespaceSettings != null)
