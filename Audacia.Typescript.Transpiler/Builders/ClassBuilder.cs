@@ -66,7 +66,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                     var value = Instance == null ? null : source.GetValue(Instance);
                     if (value == null)
                     {
-                        if (Primitive.Array.CanWrite(source.PropertyType))
+                        if (Primitive.Array.CanWriteValue(source.PropertyType))
                             target.Value = Primitive.Literal(new object[0]);
                         else target.Value = "null";
                     }

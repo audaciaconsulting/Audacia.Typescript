@@ -32,6 +32,8 @@ namespace Audacia.Typescript.Transpiler
 
         public abstract void Identifier(TypescriptBuilder builder, Type source);
 
+        public static bool CanWrite(Type type) => Defaults.Any(primitive => primitive.CanWriteValue(type));
+
         public static string Literal(object value)
         {
             if (value == null) return "null";
@@ -39,7 +41,7 @@ namespace Audacia.Typescript.Transpiler
             type = type = Nullable.GetUnderlyingType(type) ?? type;
 
             var builder = new TypescriptBuilder();
-            var match = Defaults.FirstOrDefault(primitive => primitive.CanWrite(value.GetType()));
+            var match = Defaults.FirstOrDefault(primitive => primitive.CanWriteValue(value.GetType()));
             if (match == null) return null;
 
             match.Literal(builder, value);
@@ -50,14 +52,14 @@ namespace Audacia.Typescript.Transpiler
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
             var builder = new TypescriptBuilder();
-            var match = Defaults.FirstOrDefault(primitive => primitive.CanWrite(type));
+            var match = Defaults.FirstOrDefault(primitive => primitive.CanWriteValue(type));
             if (match == null) return null;
 
             match.Identifier(builder, type);
             return builder.ToString();
         }
 
-        public abstract bool CanWrite(Type value);
+        public abstract bool CanWriteValue(Type value);
 
         private class ArrayPrimitive : Primitive
         {
@@ -80,7 +82,7 @@ namespace Audacia.Typescript.Transpiler
                 .Append("Array")
                 .Append(GenericArguments(source));
 
-            public override bool CanWrite(Type type)
+            public override bool CanWriteValue(Type type)
             {
                 if (typeof(IDictionary).IsAssignableFrom(type)) return false;
                 if (type.IsArray) return true;
@@ -106,7 +108,7 @@ namespace Audacia.Typescript.Transpiler
                 else builder.Append("<any, any>");
             }
 
-            public override bool CanWrite(Type type) => // TODO: Dodgy
+            public override bool CanWriteValue(Type type) => // TODO: Dodgy
                 (type.Namespace?.StartsWith(nameof(System)) ?? false)
                 && type.Name.Contains("Dictionary");
         }
@@ -120,7 +122,7 @@ namespace Audacia.Typescript.Transpiler
 
             public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("string");
 
-            public override bool CanWrite(Type type) =>
+            public override bool CanWriteValue(Type type) =>
                 type == typeof(string)
                 || type == typeof(char)
                 || type == typeof(Guid)
@@ -134,7 +136,7 @@ namespace Audacia.Typescript.Transpiler
 
             public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("boolean");
 
-            public override bool CanWrite(Type type) => type == typeof(bool);
+            public override bool CanWriteValue(Type type) => type == typeof(bool);
         }
 
         private class DatePrimitive : Primitive
@@ -161,7 +163,7 @@ namespace Audacia.Typescript.Transpiler
 
             public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("Date" +
                                                                                                       "");
-            public override bool CanWrite(Type type) => type == typeof(DateTime) || type == typeof(DateTimeOffset);
+            public override bool CanWriteValue(Type type) => type == typeof(DateTime) || type == typeof(DateTimeOffset);
         }
 
         private class NumberPrimitive : Primitive
@@ -170,7 +172,7 @@ namespace Audacia.Typescript.Transpiler
 
             public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("number");
 
-            public override bool CanWrite(Type type) => new[]
+            public override bool CanWriteValue(Type type) => new[]
             {
                 typeof(byte),
                 typeof(sbyte),

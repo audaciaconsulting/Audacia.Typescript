@@ -39,7 +39,10 @@ namespace Audacia.Typescript.Transpiler
             var includedTypes = outputs.SelectMany(o => o.IncludedTypes);
 
             var missingTypes = outputs.SelectMany(o => o.Dependencies)
-                .Where(type => !includedTypes.Contains(type));
+                .Where(type => type.IsGenericType
+                    ? !includedTypes.Contains(type.GetGenericTypeDefinition())
+                    : !includedTypes.Contains(type))
+                .Where(type => !Primitive.CanWrite(type));
 
 
             foreach (var file in outputs)
