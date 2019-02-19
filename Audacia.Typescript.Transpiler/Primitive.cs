@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler
@@ -79,10 +80,15 @@ namespace Audacia.Typescript.Transpiler
                 .Append("Array")
                 .Append(GenericArguments(source));
 
-            public override bool CanWrite(Type type) => type.IsArray
-                || !typeof(IDictionary).IsAssignableFrom(type)
-                && typeof(IEnumerable).IsAssignableFrom(type)
-                && (type.Namespace?.StartsWith(nameof(System)) ?? false);
+            public override bool CanWrite(Type type)
+            {
+                if (typeof(IDictionary).IsAssignableFrom(type)) return false;
+                if (type.IsArray) return true;
+
+                return typeof(IEnumerable).IsAssignableFrom(type)
+                    && (type.Namespace?.StartsWith(nameof(System)) ?? false)
+                    && !type.Name.Contains("Dictionary");
+            }
         }
 
         private class MapPrimitive : Primitive
@@ -100,8 +106,9 @@ namespace Audacia.Typescript.Transpiler
                 else builder.Append("<any, any>");
             }
 
-            public override bool CanWrite(Type type) => typeof(IDictionary).IsAssignableFrom(type)
-                && (type.Namespace?.StartsWith(nameof(System)) ?? false);
+            public override bool CanWrite(Type type) => // TODO: Dodgy
+                (type.Namespace?.StartsWith(nameof(System)) ?? false)
+                && type.Name.Contains("Dictionary");
         }
 
         private class StringPrimitive : Primitive

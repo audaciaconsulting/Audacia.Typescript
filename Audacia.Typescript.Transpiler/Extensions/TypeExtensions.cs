@@ -69,49 +69,19 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
             if (type == typeof(object)) return "any";
 
-            var genericArguments = type.GetGenericArguments();
+            var genericArguments =
+                type.GetGenericArguments();
 
-            // Check built-in types first
-            if (type.Namespace.StartsWith(nameof(System)))
-            {
-                if (type.IsArray)
-                {
-                    var at = type.GetElementType();
-                    return "Array<" + at.TypescriptName() + ">";
-                }
+            var primitive = Primitive.Identifier(type);
+            if (primitive != null) return primitive;
 
-                if (type.Name.StartsWith("IDictionary") || type.Name.StartsWith("Dictionary") && genericArguments.Length == 2)
-                    return $"Map<{genericArguments[0].TypescriptName()}, {genericArguments[1].TypescriptName()}>";
+            if (!genericArguments.Any()) return type.Name;
 
-                var isEnumerable = typeof(IEnumerable).IsAssignableFrom(type);
-                if (genericArguments.Any() && isEnumerable)
-                {
-                    var collectionType = type.GetGenericArguments()[0];
-                    return "Array<" +  collectionType.TypescriptName() + ">";
-                }
+            return type.Name.Substring(0, type.Name.Length - 2)
+                   + '<'
+                   + string.Join(", ", genericArguments.Select(a => a.TypescriptName()))
+                   + '>';
 
-                if (type == typeof(bool)) return "boolean";
-                if (type == typeof(char)) return "string";
-                if (type == typeof(decimal)) return "number";
-                if (type == typeof(string)) return "string";
-                if (type == typeof(Guid)) return "string";
-                if (type == typeof(TimeSpan)) return "string";
-                if (type == typeof(DateTime)) return "Date";
-                if (type == typeof(DateTimeOffset)) return "Date";
-
-                if (type.IsPrimitive) return "number";
-            }
-
-            if (genericArguments.Any())
-            {
-                return type.Name.Substring(0, type.Name.Length - 2)
-                       + '<'
-                       + string.Join(", ", genericArguments.Select(a => a.TypescriptName()))
-                       + '>';
-            }
-
-            //if (type.IsEnum) return type.Name;
-            return type.Name;
         }
     }
 }
