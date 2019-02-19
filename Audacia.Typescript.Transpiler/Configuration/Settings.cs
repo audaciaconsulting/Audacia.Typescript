@@ -52,7 +52,7 @@ namespace Audacia.Typescript.Transpiler.Configuration
             {
                 new OutputSettings("../../example/output/file.ts")
                 {
-                    Inputs = new[] {"../../path/to/example/assembly.dll"}.Select(x => new InputSettings(x)).ToArray()
+                    Inputs = new[] {"../../path/to/example/assembly.dll"}.Select(x => new InputSettings(x)).ToList()
                 },
                 new OutputSettings("../../example/output/file.ts")
                 {
@@ -60,7 +60,7 @@ namespace Audacia.Typescript.Transpiler.Configuration
                     {
                         Namespaces = new[] {"example", "namespace", "specifications "}
                             .Select(y => new NamespaceSettings(y)).ToArray()
-                    }).ToArray()
+                    }).ToList()
                 }
             }
         };

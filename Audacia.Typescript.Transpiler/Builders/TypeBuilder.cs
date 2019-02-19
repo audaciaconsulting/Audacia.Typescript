@@ -34,11 +34,10 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public static TypeBuilder Create(Type type, InputSettings settings, XmlDocumentation documentation)
         {
-            if (type.IsClass) return new ClassBuilder(type, settings, documentation);
             if (type.IsInterface) return new InterfaceBuilder(type, settings, documentation);
             if (type.IsEnum) return new EnumBuilder(type, settings, documentation);
 
-            throw new ArgumentOutOfRangeException();
+            return new ClassBuilder(type, settings, documentation);
         }
 
         protected void ReportProgress(ConsoleColor color, string type, string name)

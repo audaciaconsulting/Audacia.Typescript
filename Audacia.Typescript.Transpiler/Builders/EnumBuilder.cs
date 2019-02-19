@@ -15,22 +15,21 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             var @enum = new Enum(SourceType.Name) {Modifiers = {Modifier.Export}};
 
-            var classDocumentation = Documentation.ForClass(SourceType);
+            var classDocumentation = Documentation?.ForClass(SourceType);
             if (classDocumentation != null)
                 @enum.Comment = classDocumentation.Summary;
 
-            var values = (int[]) System.Enum.GetValues(SourceType);
+            var names= System.Enum.GetNames(SourceType);
 
-            foreach (var val in values)
+            foreach (var name in names)
             {
                 object value;
-                var name = System.Enum.GetName(SourceType, val);
 
                 var member = SourceType.GetMember(name);
                 //If we've specified we want number enum values, just add the value it finds.
                 if (Settings.EnumSettings?.ValueType == EnumValueType.Number)
                 {
-                    value = val;
+                    value = System.Enum.Parse(SourceType, name);
                 }
                 //Use string enum values by default
                 else

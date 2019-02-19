@@ -40,7 +40,7 @@ namespace Audacia.Typescript.Transpiler.Builders
             if (Inherits != null)
                 @class.Extends = Inherits.TypescriptName();
 
-            var classDocumentation = Documentation.ForClass(SourceType);
+            var classDocumentation = Documentation?.ForClass(SourceType);
 
             if (classDocumentation != null)
                 @class.Comment = classDocumentation.Summary;
@@ -56,39 +56,67 @@ namespace Audacia.Typescript.Transpiler.Builders
             foreach (var source in _properties)
             {
                 var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
-                var propertyDocumentation = Documentation.ForMember(source);
+                
+                var propertyDocumentation = Documentation?.ForMember(source);
 
                 if (propertyDocumentation != null)
                     target.Comment = propertyDocumentation.Summary;
 
                 if (Settings.Properties?.Initialize ?? false)
                 {
-                    var value = Instance == null ? null : source.GetValue(Instance);
-                    if (value == null)
-                    {
-                        if (Primitive.Array.CanWriteValue(source.PropertyType))
-                            target.Value = Primitive.Literal(new object[0]);
-                        else target.Value = "null";
-                    }
-
-                    if (source.PropertyType.IsEnum)
-                    {
-                        target.Value = source.PropertyType.TypescriptName() + "." + System.Enum
-                                           .GetName(source.PropertyType, value)
-                                           .CamelCase();
-                    }
-                    else
-                    {
-                        var literal = Primitive.Literal(value);
-                        target.Value = literal ?? ("new " + value.GetType().TypescriptName() + "()");
-                    }
+                    SetDefaultValue(source, target);
                 }
 
                 @class.Members.Add(target);
             }
 
+            var illegalProp = @class.Properties.SingleOrDefault(p => p.Name == "constructor");
+            {
+                if (illegalProp != null)
+                {
+                    const string prefix = "_";
+                    var newName = prefix + illegalProp.Name;
+                    while (@class.Properties.Any(p => p.Name == newName))
+                        newName = prefix + newName;
+
+                    illegalProp.Name = newName;
+                }
+            }
+
             ReportProgress(ConsoleColor.Green, "class", @class.Name);
             return @class;
+        }
+
+        private void SetDefaultValue(PropertyInfo source, Property target)
+        {
+            var value = Instance == null ? null : source.GetValue(Instance);
+            if (value == null)
+            {
+                if (Primitive.CanWrite(source.PropertyType) && source.PropertyType.IsPrimitive)
+                {
+                    var @default = Activator.CreateInstance(source.PropertyType);
+                    target.Value = Primitive.Literal(@default);
+                }
+
+                // Initialize all arrays anyway
+                if (Primitive.Array.CanWriteValue(source.PropertyType))
+                {
+                    target.Value = Primitive.Literal(new object[0]);
+                    return;
+                }
+                else target.Value = "null";
+            }
+
+            if (source.PropertyType.IsEnum)
+            {
+                target.Value = source.PropertyType.TypescriptName() + "." + System.Enum
+                                   .GetName(source.PropertyType, value)
+                                   .CamelCase();
+                return;
+            }
+
+            var literal = Primitive.Literal(value);
+            target.Value = literal ?? ("new " + value.GetType().TypescriptName() + "()");
         }
 
         private object CreateInstance()

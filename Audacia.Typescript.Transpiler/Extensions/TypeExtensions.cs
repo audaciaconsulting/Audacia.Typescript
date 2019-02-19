@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +10,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
         public static IEnumerable<Type> Dependencies(this Type type)
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
-            if (type == typeof(Enum)) return Enumerable.Empty<Type>();
+            if (type == typeof(System.Enum)) return Enumerable.Empty<Type>();
+            if (type.BaseType == typeof(System.Enum)) return Enumerable.Empty<Type>();
 
             var results = new List<Type> { type.BaseType };
             results.AddRange(type.GetGenericDependencies());
@@ -49,6 +49,13 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
             return results;
         }
+
+        // Filters out runtime generic types that aren't definitions definitions
+        public static IEnumerable<Type> Declarations(this IEnumerable<Type> types) =>
+            types.Where(type => !types
+                .Any(other => type.Namespace == other.Namespace
+                              && type.Name.Split('`').First() == other.Name.Split('`').First()
+                              && other.GetGenericArguments().Length > type.GetGenericArguments().Length));
 
         public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
         {

@@ -38,9 +38,20 @@ namespace Audacia.Typescript.Transpiler.Builders
                         && other.GetGenericArguments().Length > type.GetGenericArguments().Length))
                     .Select(type => new { type, input.settings });
                 })
-                .Where(x => x.type.IsClass || x.type.IsInterface || x.type.IsEnum)
                 .Where(x => x.type.IsPublic && !x.type.IsNested)
                 .Select(x => TypeBuilder.Create(x.type, x.settings, documentation))
+                .ToArray();
+        }
+
+        public FileBuilder(OutputSettings outputSettings, IEnumerable<Type> types)
+        {
+            Settings = outputSettings;
+            Typescript = new TypescriptFile { Path = outputSettings.Path };
+
+                // Filter out subtypes of generics- we only want the top one in the inheritance hierarchy
+                TypeMappings = types.Declarations()
+                .Where(x => x.IsPublic && !x.IsNested)
+                .Select(x => TypeBuilder.Create(x, new InputSettings(), null))
                 .ToArray();
         }
 

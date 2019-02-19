@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Policy;
@@ -10,17 +11,29 @@ namespace Audacia.Typescript.Transpiler
 {
     public abstract class Primitive
     {
+        public static Primitive Any { get; } = new AnyPrimitive();
+
         public static Primitive String { get; } = new StringPrimitive();
+
         public static Primitive Number { get; } = new NumberPrimitive();
+
         public static Primitive Boolean { get; } = new BooleanPrimitive();
+
         public static Primitive Array { get; } = new ArrayPrimitive();
+
         public static Primitive Date { get; } = new DatePrimitive();
+
         public static Primitive Map { get; } = new MapPrimitive();
 
-        protected virtual Action<TypescriptBuilder> GenericArguments(Type source) => builder => builder
-            .Append('<')
-            .Join(source.GetGenericArguments().Select(a => a.TypescriptName()), ", ")
-            .Append('>');
+        protected virtual Action<TypescriptBuilder> GenericArguments(Type source) => builder =>
+        {
+            if (!source.IsGenericType) return;
+
+            builder
+                .Append('<')
+                .Join(source.GetGenericArguments().Select(a => a.TypescriptName()), ", ")
+                .Append('>');
+        };
 
         public static ICollection<Primitive> Defaults { get; } = typeof(Primitive)
             .GetProperties(BindingFlags.Public | BindingFlags.Static)
@@ -78,9 +91,18 @@ namespace Audacia.Typescript.Transpiler
                     .Append(']');
             }
 
-            public override void Identifier(TypescriptBuilder builder, Type source) => builder
-                .Append("Array")
-                .Append(GenericArguments(source));
+            public override void Identifier(TypescriptBuilder builder, Type source)
+            {
+                if (source.IsArray)
+                    builder.Append("Array")
+                        .Append('<')
+                        .Append(source.GetElementType().TypescriptName())
+                        .Append('>');
+                else
+                    builder
+                        .Append("Array")
+                        .Append(GenericArguments(source));
+            }
 
             public override bool CanWriteValue(Type type)
             {
@@ -185,6 +207,20 @@ namespace Audacia.Typescript.Transpiler
                 typeof(decimal),
                 typeof(double),
                 typeof(float)
+            }.Contains(type);
+        }
+
+        private class AnyPrimitive : Primitive
+        {
+            public override void Literal(TypescriptBuilder builder, object value) => builder.Append("{ }");
+
+            public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("any");
+
+            public override bool CanWriteValue(Type type) => new[]
+            {
+                typeof(object),
+                typeof(DynamicObject),
+                typeof(ExpandoObject),
             }.Contains(type);
         }
     }

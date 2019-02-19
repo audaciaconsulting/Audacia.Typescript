@@ -22,10 +22,19 @@ namespace Audacia.Typescript
 
             builder.Append("import {");
 
-            if (Types.Count == 1) builder.Append(' ').Append(Types.Single()).Append(" }");
-            else builder.Indent().NewLine().Join(Types, b => b.Append(',').NewLine()).Append(" }").Unindent();
+            if (Types.Count == 1) builder
+                .Append(' ')
+                .Append(Types.Single())
+                .Append(" }");
+            else builder
+                .Indent()
+                .NewLine()
+                .Join(Types, b => b.Append(',').NewLine())
+                .Append(" }").Unindent();
 
-            return builder.Append(" from '").Append(Path).Append("';");
+            return builder.Append(" from '")
+                .Append(Path)
+                .Append("';");
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
+using Audacia.Typescript.Transpiler.Extensions;
 using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
@@ -34,16 +35,56 @@ namespace Audacia.Typescript.Transpiler
 
             var outputs = Settings.Outputs
                 .Select(setting => new FileBuilder(setting, documentation))
-                .ToArray();
+                .ToList();
 
             var includedTypes = outputs.SelectMany(o => o.IncludedTypes);
 
             var missingTypes = outputs.SelectMany(o => o.Dependencies)
+                .Declarations()
+                .Where(type => !Primitive.CanWrite(type))
                 .Where(type => type.IsGenericType
                     ? !includedTypes.Contains(type.GetGenericTypeDefinition())
                     : !includedTypes.Contains(type))
-                .Where(type => !Primitive.CanWrite(type));
+                .ToList();
 
+            var count = -1;
+
+            foreach (var type in missingTypes)
+                WriteLine("including: " + type.Namespace + "." + type.Name);
+
+            while (missingTypes.Count != count)
+            {
+                count = missingTypes.Count;
+                var dependencies = missingTypes
+                    .SelectMany(t => t.Dependencies())
+                    .Where(t => !missingTypes.Contains(t))
+                    .Declarations()
+                    .Where(type => !Primitive.CanWrite(type))
+                    .ToList();
+
+                foreach (var dependency in dependencies)
+                {
+                    WriteLine("including: " + dependency.Namespace + "." + dependency.Name.SanitizeTypeName());
+                    missingTypes.Add(dependency);
+                }
+            }
+
+            foreach (var group in missingTypes.Distinct().GroupBy(type => type.Assembly))
+            {
+                var name = string.Join(".", group.Key.GetName().Name
+                    .TrimEnd()
+                    .Split('.')
+                    .Reverse()
+                    .Skip(1) // remove file extension
+                    .Reverse()
+                    .Select(s => s.CamelCase()))
+                    + ".ts";
+
+                var path = Path.GetDirectoryName(outputs.First().Path) ?? string.Empty;
+                var settings = new OutputSettings(Path.Combine(path, name));
+                var output = new FileBuilder(settings, group);
+                outputs.Add(output);
+            }
 
             foreach (var file in outputs)
             {
