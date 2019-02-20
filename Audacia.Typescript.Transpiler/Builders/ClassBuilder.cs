@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Audacia.Typescript.Transpiler.Configuration;
-using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
@@ -17,17 +14,17 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public object Instance { get; }
 
-        public ClassBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
-            : base(sourceType, settings, documentation)
+        public ClassBuilder(Type sourceType, FileBuilder input, Transpilation outputContext)
+            : base(sourceType, input, outputContext)
         {
-            if (Settings.Properties.Initialize)
+            if (OutputContext.Properties.Initialize)
                 Instance = CreateInstance();
 
             _typeArguments = sourceType.GetGenericArguments();
             _interfaces = SourceType.GetDeclaredInterfaces()
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))
-                .Where(i => Settings.Namespaces == null
-                            || settings.Namespaces.Select(n => n.Name).Contains(i.Namespace));
+                .Where(i => input.Namespaces == null
+                            || input.Namespaces.Select(n => n.Name).Contains(i.Namespace));
             _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(p => !p.GetIndexParameters().Any());
 
@@ -69,7 +66,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 if (propertyDocumentation != null)
                     target.Comment = propertyDocumentation.Summary;
 
-                if (Settings.Properties?.Initialize ?? false)
+                if (OutputContext.Properties?.Initialize ?? false)
                 {
                     SetDefaultValue(source, target);
                 }
@@ -162,18 +159,19 @@ namespace Audacia.Typescript.Transpiler.Builders
         private object CreateInstance()
         {
             if (SourceType.IsAbstract) return null;
+            if (SourceType.ContainsGenericParameters) return null;
 
             try
             {
                 return Activator.CreateInstance(SourceType, true);
             }
-            catch (MissingMethodException)
+            catch (MissingMethodException) { return null; }
+            catch (NotSupportedException) { return null; }
+            catch (Exception e)
             {
-                return null;
-            }
-            catch (TargetInvocationException e) when (e.InnerException != null)
-            {
-                var exception = e.InnerException.GetType().Name;
+                if (e is TargetInvocationException x) e = x;
+
+                var exception = e.GetType().Name;
                 var nameSpace = SourceType.Namespace;
                 var className = SourceType.Name;
 
@@ -184,9 +182,9 @@ namespace Audacia.Typescript.Transpiler.Builders
                 Write(".");
                 Write(ConsoleColor.Blue, className);
                 Console.WriteLine();
-                WriteLine(ConsoleColor.Red, "exception:", e.InnerException.Message);
+                WriteLine(ConsoleColor.Red, "exception:", e.Message);
                 Console.WriteLine();
-                Write(ConsoleColor.Red, e.InnerException.StackTrace);
+                Write(ConsoleColor.Red, e.StackTrace);
                 Console.WriteLine();
 
                 return null;
