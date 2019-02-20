@@ -12,9 +12,6 @@ namespace Audacia.Typescript.Transpiler.Configuration
         [XmlElement("DependencyResolution")]
         public DependencyResolutionSettings DependencyResolution { get; set; }
 
-        [XmlElement("CyclicReferences")]
-        public CyclicReferencesSettings CyclicReferences { get; set; }
-
 
 
         private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
