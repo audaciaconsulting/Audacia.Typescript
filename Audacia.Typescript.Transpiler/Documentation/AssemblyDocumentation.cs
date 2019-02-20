@@ -19,20 +19,21 @@ namespace Audacia.Typescript.Transpiler.Documentation
 
             if (!File.Exists(path)) return null;
 
-            var tempPath = ReplaceCrefTags(path);
-            
-            using (var reader = new XmlTextReader(tempPath))
+            var text = ReadFile(path);
+
+            using (var textReader = new StringReader(text))
+            using (var xmlReader = new XmlTextReader(textReader))
             {
-                reader.ReadToDescendant("members");
+                xmlReader.ReadToDescendant("members");
                 var deserializer = new XmlSerializer(typeof(AssemblyDocumentation));
-                return (AssemblyDocumentation) deserializer.Deserialize(reader.ReadSubtree());
+                return (AssemblyDocumentation) deserializer.Deserialize(xmlReader.ReadSubtree());
             }
         }
 
-        private static string ReplaceCrefTags(string path)
+        private static string ReadFile(string path)
         {
             var content = File.ReadAllText(path);
-            
+
             // todo; <para> tag
             // dirty filthy regexes
             var summaryRegex = new Regex(@"<summary>(.*)<\/summary>");
@@ -44,9 +45,9 @@ namespace Audacia.Typescript.Transpiler.Documentation
             {
                 var originalSummary = summaryMatch.Captures[0].Value;
                 var tagMatches = crefRegex.Matches(originalSummary);
-                
+
                 var newSummary = originalSummary;
-                
+
                 foreach (Match tagMatch in tagMatches)
                 {
                     var replacement = tagMatch.Groups[2].Captures
@@ -61,10 +62,7 @@ namespace Audacia.Typescript.Transpiler.Documentation
                 content = content.Replace(originalSummary, newSummary);
             }
 
-            var tempFileName = Path.GetTempFileName();
-            File.WriteAllText(tempFileName, content);
-
-            return tempFileName;
+            return content;
         }
 
         public MemberDocumentation Class(Type @class)

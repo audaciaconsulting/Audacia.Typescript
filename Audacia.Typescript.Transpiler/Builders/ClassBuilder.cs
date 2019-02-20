@@ -116,7 +116,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                     Write(ConsoleColor.Blue, className);
                     Write(".");
                     Write(propertyName);
-                    WriteLine(ConsoleColor.Red, e.InnerException.Message, string.Empty);
+                    WriteLine(ConsoleColor.Red, string.Empty, e.InnerException.Message);
                     Console.WriteLine();
                     Write(e.InnerException.StackTrace);
                     //Console.WriteLine();
