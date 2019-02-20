@@ -10,17 +10,4 @@ namespace Audacia.Typescript.Transpiler.Configuration
         [XmlAttribute("feedback")]
         public FeedbackLevel Feedback { get; set; }
     }
-
-    public enum CyclicReferenceHandling
-    {
-        Ignore,
-        Exclude
-    }
-    
-    public enum FeedbackLevel
-    {
-        Ignore,
-        Info,
-        Error
-    }
 }

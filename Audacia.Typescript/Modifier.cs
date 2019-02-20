@@ -1,5 +1,7 @@
 ﻿namespace Audacia.Typescript
 {
+    public interface IAccessor { }
+
     public static class Modifier
     {
         public static PublicModifier Public { get; } = new PublicModifier();
@@ -9,8 +11,8 @@
         public static AbstractModifier Abstract { get; } = new AbstractModifier();
 
         public static ProtectedModifier Protected { get; } = new ProtectedModifier();
-        
-        public class PublicModifier : IModifier<Function>, IModifier<Property>
+
+        public class PublicModifier : IModifier<Function>, IModifier<Property>, IAccessor
         {
             internal PublicModifier() { }
 
@@ -19,7 +21,7 @@
             public override string ToString() => Name;
         }
 
-        public class ExportModifier : IModifier<Class>, IModifier<Function>, IModifier<Enum>
+        public class ExportModifier : IModifier<Class>, IModifier<Function>, IModifier<Enum>, IAccessor
         {
             internal ExportModifier() { }
 
@@ -28,7 +30,7 @@
             public override string ToString() => Name;
         }
 
-        public class AbstractModifier : IModifier<Class>, IModifier<Function>
+        public class AbstractModifier : IModifier<Class>, IModifier<Function>, IModifier<Property>
         {
             internal AbstractModifier() { }
 
@@ -37,7 +39,7 @@
             public override string ToString() => Name;
         }
 
-        public class ProtectedModifier : IModifier<Function>, IModifier<Property>
+        public class ProtectedModifier : IModifier<Function>, IModifier<Property>, IAccessor
         {
             public ProtectedModifier() { }
 

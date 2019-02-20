@@ -1,4 +1,7 @@
-﻿namespace Audacia.Typescript
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Audacia.Typescript
 {
     public class Property : Element, IMemberOf<Class>, IMemberOf<Interface>
     {
@@ -12,6 +15,8 @@
             Name = name;
             Type = type;
         }
+
+        public ICollection<IModifier<Property>> Modifiers { get; } = new List<IModifier<Property>>();
 
         public string Name { get; set; }
 
@@ -52,6 +57,11 @@
 
             if (!HasSetter && !HasGetter && parent != null || parent is Interface)
             {
+                var modifiers = Modifiers.Distinct().OrderBy(m => !(m is IAccessor)).Select(m => m.ToString());
+                builder.Join(modifiers, " ");
+
+                if (Modifiers.Any()) builder.Append(' ');
+
                 builder.Append(Name);
 
                 if (HasType) builder.Append(": ").Append(Type);

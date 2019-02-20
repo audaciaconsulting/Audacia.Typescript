@@ -8,12 +8,4 @@ namespace Audacia.Typescript.Transpiler.Configuration
         [XmlAttribute("valueType")]
         public EnumValueType ValueType { get; set; }
     }
-
-
-    public enum EnumValueType
-    {
-        Number,
-        String
-    }
-
 }

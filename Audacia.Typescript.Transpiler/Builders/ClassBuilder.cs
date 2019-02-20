@@ -28,14 +28,15 @@ namespace Audacia.Typescript.Transpiler.Builders
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))
                 .Where(i => Settings.Namespaces == null
                             || settings.Namespaces.Select(n => n.Name).Contains(i.Namespace));
-            _properties = sourceType.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(mi => mi.MemberType == MemberTypes.Property)
-                .Cast<PropertyInfo>();
+            _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(p => !p.GetIndexParameters().Any());
+
+            // .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
         }
 
         public override Element Build()
         {
-            var @class = new Class(SourceType.Name.Split('`').First()) {Modifiers = {Modifier.Export}};
+            var @class = new Class(SourceType.Name.SanitizeTypeName()) {Modifiers = {Modifier.Export}};
 
             if (Inherits != null)
                 @class.Extends = Inherits.TypescriptName();
@@ -55,8 +56,14 @@ namespace Audacia.Typescript.Transpiler.Builders
 
             foreach (var source in _properties)
             {
+                var getMethod = source.GetMethod;
                 var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
-                
+
+                if (getMethod.IsAbstract) target.Modifiers.Add(Modifier.Abstract);
+
+                if (getMethod.IsFamily) target.Modifiers.Add(Modifier.Protected);
+                else target.Modifiers.Add(Modifier.Public);
+
                 var propertyDocumentation = Documentation?.ForMember(source);
 
                 if (propertyDocumentation != null)
@@ -83,40 +90,73 @@ namespace Audacia.Typescript.Transpiler.Builders
                 }
             }
 
-            ReportProgress(ConsoleColor.Green, "class", @class.Name);
+            WriteLine(ConsoleColor.Green, "class", @class.Name);
             return @class;
         }
 
         private void SetDefaultValue(PropertyInfo source, Property target)
         {
-            var value = Instance == null ? null : source.GetValue(Instance);
-            if (value == null)
+            if (Instance != null)
             {
-                if (Primitive.CanWrite(source.PropertyType) && source.PropertyType.IsPrimitive)
+                object value = null;
+                try { value = source.GetValue(Instance); }
+                catch (TargetInvocationException e) when (e.InnerException != null)
                 {
-                    var @default = Activator.CreateInstance(source.PropertyType);
-                    target.Value = Primitive.Literal(@default);
+                    var exception = e.InnerException.GetType().Name;
+                    var nameSpace = SourceType.Namespace;
+                    var className = SourceType.Name;
+                    var propertyName = source.Name;
+
+                    //Console.WriteLine();
+                    WriteLine(ConsoleColor.Red, "warn:", string.Empty);
+                    Write(ConsoleColor.Blue, exception);
+                    Write(" encountered inspecting ");
+                    Write(nameSpace);
+                    Write(".");
+                    Write(ConsoleColor.Blue, className);
+                    Write(".");
+                    Write(propertyName);
+                    WriteLine(ConsoleColor.Red, e.InnerException.Message, string.Empty);
+                    Console.WriteLine();
+                    Write(e.InnerException.StackTrace);
+                    //Console.WriteLine();
                 }
 
-                // Initialize all arrays anyway
-                if (Primitive.Array.CanWriteValue(source.PropertyType))
+                if (value == null)
                 {
-                    target.Value = Primitive.Literal(new object[0]);
+                    target.Value = "null";
                     return;
                 }
-                else target.Value = "null";
+
+                if (source.PropertyType.IsEnum)
+                {
+                    target.Value = source.PropertyType
+                        .TypescriptName() + "." + System.Enum
+                        .GetName(source.PropertyType, value)
+                        .CamelCase();
+
+                    return;
+                }
+
+                var literal = Primitive.Literal(value);
+                target.Value = literal ?? ("new " + value.GetType().TypescriptName() + "()");
             }
 
-            if (source.PropertyType.IsEnum)
+            if (Primitive.Array.CanWriteValue(source.PropertyType))
             {
-                target.Value = source.PropertyType.TypescriptName() + "." + System.Enum
-                                   .GetName(source.PropertyType, value)
-                                   .CamelCase();
+                target.Value = Primitive.Literal(new object[0]);
                 return;
             }
 
-            var literal = Primitive.Literal(value);
-            target.Value = literal ?? ("new " + value.GetType().TypescriptName() + "()");
+            if (Primitive.CanWrite(source.PropertyType) && source.PropertyType.IsPrimitive)
+            {
+                var @default = Activator.CreateInstance(source.PropertyType);
+                target.Value = Primitive.Literal(@default);
+            }
+
+            else target.Value = "null";
+
+
         }
 
         private object CreateInstance()
@@ -129,6 +169,26 @@ namespace Audacia.Typescript.Transpiler.Builders
             }
             catch (MissingMethodException)
             {
+                return null;
+            }
+            catch (TargetInvocationException e) when (e.InnerException != null)
+            {
+                var exception = e.InnerException.GetType().Name;
+                var nameSpace = SourceType.Namespace;
+                var className = SourceType.Name;
+
+                WriteLine(ConsoleColor.Red, "warn:", string.Empty);
+                Write(ConsoleColor.Blue, exception);
+                Write(" encountered instantiating ");
+                Write(nameSpace);
+                Write(".");
+                Write(ConsoleColor.Blue, className);
+                Console.WriteLine();
+                WriteLine(ConsoleColor.Red, "exception:", e.InnerException.Message);
+                Console.WriteLine();
+                Write(ConsoleColor.Red, e.InnerException.StackTrace);
+                Console.WriteLine();
+
                 return null;
             }
         }

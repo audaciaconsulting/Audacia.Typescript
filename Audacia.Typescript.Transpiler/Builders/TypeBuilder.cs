@@ -40,12 +40,25 @@ namespace Audacia.Typescript.Transpiler.Builders
             return new ClassBuilder(type, settings, documentation);
         }
 
-        protected void ReportProgress(ConsoleColor color, string type, string name)
+        protected void WriteLine(ConsoleColor color, string type, string name)
         {
+            Console.WriteLine();
             Console.ForegroundColor = color;
             Console.Write(type + ' ');
             Console.ResetColor();
-            Console.WriteLine(name);
+            Console.Write(name);
+        }
+
+        protected void Write(ConsoleColor color, string text)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ResetColor();
+        }
+
+        protected void Write(string text)
+        {
+            Console.Write(text);
         }
     }
 }

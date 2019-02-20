@@ -54,7 +54,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @interface.Members.Add(property);
             }
 
-            ReportProgress(ConsoleColor.Magenta, "interface", @interface.Name);
+            WriteLine(ConsoleColor.Magenta, "interface", @interface.Name);
             return @interface;
         }
     }

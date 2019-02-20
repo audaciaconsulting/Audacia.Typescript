@@ -51,7 +51,8 @@ namespace Audacia.Typescript
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
-            builder.Join(Modifiers.Distinct().Select(m => m.ToString()), " ");
+            var modifiers = Modifiers.Distinct().OrderBy(m => !(m is IAccessor)).Select(m => m.ToString());
+            builder.Join(modifiers, " ");
 
             if (Modifiers.Any()) builder.Append(' ');
 

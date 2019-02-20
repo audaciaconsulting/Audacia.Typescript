@@ -110,6 +110,7 @@ namespace Audacia.Typescript.Transpiler
                 if (type.IsArray) return true;
 
                 return typeof(IEnumerable).IsAssignableFrom(type)
+                    && (type != typeof(string))
                     && (type.Namespace?.StartsWith(nameof(System)) ?? false)
                     && !type.Name.Contains("Dictionary");
             }

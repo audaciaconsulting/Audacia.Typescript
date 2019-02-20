@@ -17,7 +17,7 @@ namespace Audacia.Typescript
         public void Add(IMemberOf<Interface> member) => Members.Add(member);
 
         public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
-        
+
         public IList<IMemberOf<Interface>> Members { get; } = new List<IMemberOf<Interface>>();
 
         public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
@@ -31,26 +31,27 @@ namespace Audacia.Typescript
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
-            builder.Join(Modifiers.Select(m => m.ToString()), " ");
+            var modifiers = Modifiers.Distinct().OrderBy(m => !(m is IAccessor)).Select(m => m.ToString());
+            builder.Join(modifiers, " ");
 
             if (Modifiers.Any()) builder.Append(' ');
-            
+
             builder.Append("interface ").Append(Name);
-        
+
             if (TypeArguments.Any())
             {
                 builder.Append('<');
                 builder.Join(TypeArguments, this, ", ");
-                builder.Append('>');                
+                builder.Append('>');
             }
-            
+
             if (Extends.Any()) builder.Append(" extends ").Join(Extends, ", ");
 
             builder.Append(" {");
 
             if (Members.Any()) builder.Indent().NewLine();
             else return builder.Append(" }");
-            
+
             return builder
                 .Join(Members, this, Environment.NewLine + builder.Indentation)
                 .Unindent()
