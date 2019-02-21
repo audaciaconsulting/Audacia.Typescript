@@ -11,6 +11,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         private readonly IEnumerable<Type> _interfaces;
         private readonly IEnumerable<Type> _typeArguments;
         private readonly IEnumerable<PropertyInfo> _properties;
+        private readonly IEnumerable<Type> _attributes;
 
         public object Instance { get; }
 
@@ -27,8 +28,6 @@ namespace Audacia.Typescript.Transpiler.Builders
                             || input.Namespaces.Select(n => n.Name).Contains(i.Namespace));
             _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(p => !p.GetIndexParameters().Any());
-
-            // .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
         }
 
         public override Element Build()

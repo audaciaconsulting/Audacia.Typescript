@@ -26,9 +26,11 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         [XmlIgnore] public IList<Type> Types { get; } = new List<Type>();
 
-        [XmlIgnore] public IReadOnlyCollection<TypeBuilder> TypeMappings { get; private set; }
+        [XmlIgnore] protected IReadOnlyCollection<TypeBuilder> TypeMappings { get; private set; }
 
         [XmlIgnore] public TypescriptFile File { get; set; }
+
+        [XmlIgnore] public XmlDocumentation Documentation { get; set; }
 
         public void AddReferences(IEnumerable<FileBuilder> outputFiles)
         {
@@ -61,12 +63,12 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public IEnumerable<Type> IncludedTypes => TypeMappings?.Select(t => t.SourceType);
 
-        public string Build(Transpilation context)
+        public void Build(Transpilation context)
         {
             if (Assembly == null)
                 throw new InvalidDataException("Please specify an assembly.");
 
-            this.Documentation = XmlDocumentation.Load(AssemblyPath);
+            Documentation = XmlDocumentation.Load(AssemblyPath);
 
             var name = string.Join(".", Assembly.GetName().Name
                            .TrimEnd()
@@ -87,10 +89,6 @@ namespace Audacia.Typescript.Transpiler.Builders
 
             foreach (var mapping in TypeMappings)
                 File.Elements.Add(mapping.Build());
-
-            return File.ToString();
         }
-
-        public XmlDocumentation Documentation { get; set; }
     }
 }

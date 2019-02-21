@@ -24,19 +24,18 @@ namespace Audacia.Typescript
 
         public ClassMemberList Members { get; } = new ClassMemberList();
 
+        public IList<Decorator> Decorators { get; } = new List<Decorator>();
+
         public IEnumerable<Property> Properties => Members.OfType<Property>()
-            .Where(p => !p.HasGetter && !p.HasSetter)
-            .ToArray();
+            .Where(p => !p.HasGetter && !p.HasSetter);
 
         public IEnumerable<Property> PropertyAccessors => Members.OfType<Property>()
-            .Where(p => p.HasGetter || p.HasSetter)
-            .ToArray();
+            .Where(p => p.HasGetter || p.HasSetter);
 
-        public IEnumerable<Constructor> Constructors => Members.OfType<Constructor>().ToArray();
+        public IEnumerable<Constructor> Constructors => Members.OfType<Constructor>();
 
         public IEnumerable<Function> Functions => Members.OfType<Function>()
-            .Where(m => !(m is Constructor))
-            .ToArray();
+            .Where(m => !(m is Constructor));
 
         public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
 
@@ -48,6 +47,8 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
+            builder.Join(Decorators, b => b.NewLine());
+
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 

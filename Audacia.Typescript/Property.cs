@@ -16,6 +16,8 @@ namespace Audacia.Typescript
             Type = type;
         }
 
+        public IList<Decorator> Decorator { get; } = new List<Decorator>();
+
         public ICollection<IModifier<Property>> Modifiers { get; } = new List<IModifier<Property>>();
 
         public string Name { get; set; }
