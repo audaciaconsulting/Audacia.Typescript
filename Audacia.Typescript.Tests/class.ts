@@ -4,7 +4,6 @@
 
     constructor(city: string) {
         this.city = city;
-        this.name = name;
     }
 
     public address(streetName: string) {

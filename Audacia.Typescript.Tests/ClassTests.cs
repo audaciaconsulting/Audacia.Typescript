@@ -13,10 +13,9 @@ namespace Audacia.Typescript.Tests
             var @class = new Class("College")
             {
                 new Property("city", "string"),
-                new Property("name", "string") { Value = "Nigel" },
+                new Property("name", "string") { Value = "\"Nigel\"" },
                 new Constructor
                 {
-                    { "name", "string" },
                     { "city", "string" },
                     "this.city = city;"
                 },
