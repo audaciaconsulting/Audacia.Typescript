@@ -37,7 +37,7 @@ namespace Audacia.Typescript
                 var text = string.Join(Environment.NewLine, lines.Select(s => "// " + s));
                 return builder.Append(text);
             }
-            else // Treat these as jsdoc comments. 
+            else // Treat these as jsdoc comments.
             {
                 var text = "//** " + string.Join(" ", lines);
                 return builder.Append(text);

@@ -16,6 +16,8 @@ namespace Audacia.Typescript
 
         public void Add(IMemberOf<Interface> member) => Members.Add(member);
 
+        public IList<Decorator> Decorators { get; } = new List<Decorator>();
+
         public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
 
         public IList<IMemberOf<Interface>> Members { get; } = new List<IMemberOf<Interface>>();
@@ -28,6 +30,8 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
+            builder.Join(Decorators, b => b.NewLine());
+            
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 

@@ -1,15 +1,14 @@
 using System;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
-using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
     public class EnumBuilder : TypeBuilder
     {
-        public EnumBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
-            : base(sourceType, settings, documentation) { }
+        public EnumBuilder(Type sourceType, FileBuilder input, Transpilation outputContext)
+            : base(sourceType, input, outputContext) { }
 
         public override Element Build()
         {
@@ -27,7 +26,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
                 var member = SourceType.GetMember(name);
                 //If we've specified we want number enum values, just add the value it finds.
-                if (Settings.EnumSettings?.ValueType == EnumValueType.Number)
+                if (OutputContext.EnumSettings?.ValueType == EnumValueType.Number)
                 {
                     value = System.Enum.Parse(SourceType, name);
                 }

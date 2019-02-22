@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
@@ -13,16 +10,18 @@ namespace Audacia.Typescript.Transpiler.Builders
     {
         public Type SourceType { get; }
 
-        protected InputSettings Settings { get; }
+        public FileBuilder Input { get; }
 
-        public TypeBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
+        public Transpilation OutputContext { get; }
+
+        public TypeBuilder(Type sourceType, FileBuilder input, Transpilation outputContext)
         {
             SourceType = sourceType;
-            Settings = settings;
-            Documentation = documentation;
+            Input = input;
+            OutputContext = outputContext;
         }
 
-        public XmlDocumentation Documentation { get; set; }
+        public XmlDocumentation Documentation => Input.Documentation;
 
         public IEnumerable<Type> Dependencies => SourceType.Dependencies();
 
@@ -32,12 +31,12 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public abstract Element Build();
 
-        public static TypeBuilder Create(Type type, InputSettings settings, XmlDocumentation documentation)
+        public static TypeBuilder Create(Type type, FileBuilder input, Transpilation output)
         {
-            if (type.IsInterface) return new InterfaceBuilder(type, settings, documentation);
-            if (type.IsEnum) return new EnumBuilder(type, settings, documentation);
+            if (type.IsInterface) return new InterfaceBuilder(type, input, output);
+            if (type.IsEnum) return new EnumBuilder(type, input, output);
 
-            return new ClassBuilder(type, settings, documentation);
+            return new ClassBuilder(type, input, output);
         }
 
         protected void WriteLine(ConsoleColor color, string type, string name)

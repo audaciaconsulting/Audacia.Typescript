@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Builders;
-using Audacia.Typescript.Transpiler.Configuration;
 
 namespace Audacia.Typescript.Transpiler.Extensions
 {
@@ -36,7 +35,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         /// <param name="types"></param>
         /// <param name="inputSettings"></param>
         /// <returns></returns>
-        public static Type[] FilterBy(this IEnumerable<Type> types, InputSettings inputSettings)
+        public static Type[] FilterBy(this IEnumerable<Type> types, FileBuilder inputSettings)
         {
             var namespaceSettings = inputSettings.Namespaces;
             if (namespaceSettings != null)

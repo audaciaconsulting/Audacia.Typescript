@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
@@ -11,49 +13,24 @@ namespace Audacia.Typescript.Transpiler.Builders
     /// <summary>A transpile operation representing the output to a single typescript file.</summary>
     public class FileBuilder
     {
-        public string Path => Settings.Path;
-
-        public TypescriptFile Typescript { get; }
-
-        private OutputSettings Settings { get; }
-
-        public FileBuilder(OutputSettings outputSettings, XmlDocumentation documentation)
+        [XmlAttribute("name")]
+        public string AssemblyPath
         {
-            Settings = outputSettings;
-            Typescript = new TypescriptFile { Path = outputSettings.Path };
-
-            TypeMappings = outputSettings.Inputs
-                .Distinct()
-                .Select(settings => new { assembly = Assembly.LoadFrom(settings.Assembly), settings })
-                .SelectMany(input =>
-                {
-                    var types = input.assembly.GetTypes().ToArray();
-
-                    types = types.FilterBy(input.settings);
-
-                    // Filter out subtypes of generics- we only want the top one in the inheritance hierarchy
-                    return types.Where(type => !types
-                    .Any(other => type.Namespace == other.Namespace
-                        && type.Name.Split('`').First() == other.Name.Split('`').First()
-                        && other.GetGenericArguments().Length > type.GetGenericArguments().Length))
-                    .Select(type => new { type, input.settings });
-                })
-                .Where(x => x.type.IsPublic && !x.type.IsNested)
-                .Select(x => TypeBuilder.Create(x.type, x.settings, documentation))
-                .ToArray();
+            get => Assembly?.Location;
+            set => Assembly = Assembly.LoadFrom(value);
         }
 
-        public FileBuilder(OutputSettings outputSettings, IEnumerable<Type> types)
-        {
-            Settings = outputSettings;
-            Typescript = new TypescriptFile { Path = outputSettings.Path };
+        [XmlIgnore] public Assembly Assembly { get; set; }
 
-                // Filter out subtypes of generics- we only want the top one in the inheritance hierarchy
-                TypeMappings = types.Declarations()
-                .Where(x => x.IsPublic && !x.IsNested)
-                .Select(x => TypeBuilder.Create(x, new InputSettings(), null))
-                .ToArray();
-        }
+        [XmlElement("Namespace")] public List<NamespaceSettings> Namespaces { get; set; } = new List<NamespaceSettings>();
+
+        [XmlIgnore] public IList<Type> Types { get; } = new List<Type>();
+
+        [XmlIgnore] protected IReadOnlyCollection<TypeBuilder> TypeMappings { get; private set; }
+
+        [XmlIgnore] public TypescriptFile File { get; set; }
+
+        [XmlIgnore] public XmlDocumentation Documentation { get; set; }
 
         public void AddReferences(IEnumerable<FileBuilder> outputFiles)
         {
@@ -63,8 +40,8 @@ namespace Audacia.Typescript.Transpiler.Builders
 
             foreach (var reference in references)
             {
-                var source = new Uri(System.IO.Path.GetFullPath(Path));
-                var target = new Uri(System.IO.Path.GetFullPath(reference.Path));
+                var source = new Uri(Path.GetFullPath(File.Path));
+                var target = new Uri(Path.GetFullPath(reference.File.Path));
                 var relativePath = "./" + source.MakeRelativeUri(target);
 
                 if (relativePath.EndsWith(".ts"))
@@ -75,29 +52,43 @@ namespace Audacia.Typescript.Transpiler.Builders
                     .Where(d => includedNames.Contains(d.FullName.SanitizeTypeName()))
                     .Select(d => d.Name.SanitizeTypeName());
 
-                Typescript.Imports.Add(new Import(relativePath, dependencyNames));
+                File.Imports.Add(new Import(relativePath, dependencyNames));
             }
         }
 
-        public IEnumerable<Type> Dependencies => TypeMappings.SelectMany(t => t.Dependencies)
+        public IEnumerable<Type> Dependencies => TypeMappings?.SelectMany(t => t.Dependencies)
             .Where(result => result != null)
             .Where(result => result.FullName != null)
             .DistinctBy(result => result.FullName.SanitizeTypeName());
 
-        public IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);
+        public IEnumerable<Type> IncludedTypes => TypeMappings?.Select(t => t.SourceType);
 
-        public IReadOnlyCollection<TypeBuilder> TypeMappings { get; }
-
-        public string Build()
+        public void Build(Transpilation context)
         {
-            var mappings = TypeMappings.TopologicalSort();
+            if (Assembly == null)
+                throw new InvalidDataException("Please specify an assembly.");
 
-            Typescript.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
+            Documentation = XmlDocumentation.Load(AssemblyPath);
 
-            foreach (var mapping in mappings)
-                Typescript.Elements.Add(mapping.Build());
+            var name = string.Join(".", Assembly.GetName().Name
+                           .TrimEnd()
+                           .Split('.')
+                           .Select(s => s.CamelCase()))
+                       + ".ts";
 
-            return Typescript.ToString();
+            File = new TypescriptFile { Path = Path.Combine(context.Path, name) };
+
+            TypeMappings = Assembly.GetTypes().Declarations()
+                .Where(type => type.IsPublic && !type.IsNested)
+                .Select(type => TypeBuilder.Create(type, this, context))
+                .Where(m => Types.Contains(m.SourceType) || !Types.Any())
+                .TopologicalSort()
+                .ToArray();
+
+            File.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
+
+            foreach (var mapping in TypeMappings)
+                File.Elements.Add(mapping.Build());
         }
     }
 }

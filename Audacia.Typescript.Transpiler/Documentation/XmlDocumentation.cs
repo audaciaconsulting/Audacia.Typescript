@@ -9,24 +9,21 @@ namespace Audacia.Typescript.Transpiler.Documentation
         private readonly Dictionary<string, AssemblyDocumentation> _documentation =
             new Dictionary<string, AssemblyDocumentation>();
 
-        public static XmlDocumentation Load(IEnumerable<string> assemblies)
+        public static XmlDocumentation Load(string assembly)
         {
             var result = new XmlDocumentation();
 
-            foreach (var assembly in assemblies)
+            try
             {
-                try
-                {
-                    var docs = AssemblyDocumentation.Load(assembly);
-                    if (docs != null) result._documentation.Add(assembly, docs);
-                }
-                catch (InvalidOperationException e)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine();
-                    Console.WriteLine(e);
-                    Console.WriteLine();
-                }
+                var docs = AssemblyDocumentation.Load(assembly);
+                if (docs != null) result._documentation.Add(assembly, docs);
+            }
+            catch (InvalidOperationException e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine();
+                Console.WriteLine(e);
+                Console.WriteLine();
             }
 
             return result;
