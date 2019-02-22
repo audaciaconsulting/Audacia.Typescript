@@ -11,8 +11,6 @@ using static System.Console;
 
 namespace Audacia.Typescript.Transpiler
 {
-    // TODO: Finish this
-
     /// <summary>Represents a single transpiler task and contains the main entry point for the program.</summary>
     public class Transpilation
     {
