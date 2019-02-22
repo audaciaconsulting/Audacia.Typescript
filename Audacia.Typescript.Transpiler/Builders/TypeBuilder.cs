@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Documentation;
 using Audacia.Typescript.Transpiler.Extensions;
 
@@ -11,40 +10,54 @@ namespace Audacia.Typescript.Transpiler.Builders
     {
         public Type SourceType { get; }
 
-        protected InputSettings Settings { get; }
-        
-        public TypeBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
+        public FileBuilder Input { get; }
+
+        public Transpilation OutputContext { get; }
+
+        public TypeBuilder(Type sourceType, FileBuilder input, Transpilation outputContext)
         {
             SourceType = sourceType;
-            Settings = settings;
-            Documentation = documentation;
+            Input = input;
+            OutputContext = outputContext;
         }
 
-        public XmlDocumentation Documentation { get; set; }
+        public XmlDocumentation Documentation => Input.Documentation;
 
         public IEnumerable<Type> Dependencies => SourceType.Dependencies();
 
-        public Type Inherits => SourceType.BaseType !=  null 
-            && SourceType.BaseType != typeof(object) 
+        public Type Inherits => SourceType.BaseType !=  null
+            && SourceType.BaseType != typeof(object)
             && !SourceType.BaseType.Namespace.StartsWith(nameof(System)) ? SourceType.BaseType : null;
-        
+
         public abstract Element Build();
 
-        public static TypeBuilder Create(Type type, InputSettings settings, XmlDocumentation documentation)
+        public static TypeBuilder Create(Type type, FileBuilder input, Transpilation output)
         {
-            if (type.IsClass) return new ClassBuilder(type, settings, documentation);
-            if (type.IsInterface) return new InterfaceBuilder(type, settings, documentation);
-            if (type.IsEnum) return new EnumBuilder(type, settings, documentation);
-            
-            throw new ArgumentOutOfRangeException();
+            if (type.IsInterface) return new InterfaceBuilder(type, input, output);
+            if (type.IsEnum) return new EnumBuilder(type, input, output);
+
+            return new ClassBuilder(type, input, output);
         }
-        
-        protected void ReportProgress(ConsoleColor color, string type, string name)
+
+        protected void WriteLine(ConsoleColor color, string type, string name)
         {
+            Console.WriteLine();
             Console.ForegroundColor = color;
             Console.Write(type + ' ');
             Console.ResetColor();
-            Console.WriteLine(name);
+            Console.Write(name);
+        }
+
+        protected void Write(ConsoleColor color, string text)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ResetColor();
+        }
+
+        protected void Write(string text)
+        {
+            Console.Write(text);
         }
     }
 }

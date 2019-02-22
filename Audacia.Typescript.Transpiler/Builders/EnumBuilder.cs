@@ -1,35 +1,34 @@
 using System;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
-using Audacia.Typescript.Transpiler.Documentation;
+using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
     public class EnumBuilder : TypeBuilder
     {
-        public EnumBuilder(Type sourceType, InputSettings settings, XmlDocumentation documentation)
-            : base(sourceType, settings, documentation) { }
+        public EnumBuilder(Type sourceType, FileBuilder input, Transpilation outputContext)
+            : base(sourceType, input, outputContext) { }
 
         public override Element Build()
         {
             var @enum = new Enum(SourceType.Name) {Modifiers = {Modifier.Export}};
 
-            var classDocumentation = Documentation.ForClass(SourceType);
+            var classDocumentation = Documentation?.ForClass(SourceType);
             if (classDocumentation != null)
                 @enum.Comment = classDocumentation.Summary;
 
-            var values = (int[]) System.Enum.GetValues(SourceType);
+            var names= System.Enum.GetNames(SourceType);
 
-            foreach (var val in values)
+            foreach (var name in names)
             {
                 object value;
-                var name = System.Enum.GetName(SourceType, val);
 
                 var member = SourceType.GetMember(name);
                 //If we've specified we want number enum values, just add the value it finds.
-                if (Settings.EnumSettings?.ValueType == EnumValueType.Number)
+                if (OutputContext.EnumSettings?.ValueType == EnumValueType.Number)
                 {
-                    value = val;
+                    value = System.Enum.Parse(SourceType, name);
                 }
                 //Use string enum values by default
                 else
@@ -38,9 +37,10 @@ namespace Audacia.Typescript.Transpiler.Builders
                         .GetCustomAttributes(true)
                         .FirstOrDefault(a => a.GetType().FullName == "System.Runtime.Serialization.EnumMemberAttribute");
 
-                    var label = enumMemberAttribute?.GetType()
+                    var label = enumMemberAttribute
+                        ?.GetType()
                         .GetProperty("Value")
-                        .GetValue(enumMemberAttribute)
+                        ?.GetValue(enumMemberAttribute)
                         ?.ToString();
 
                     // No EnumMemberAttribute, try for a DisplayAttribute instead.
@@ -52,17 +52,17 @@ namespace Audacia.Typescript.Transpiler.Builders
 
                         label = displayAttribute?.GetType()
                             .GetProperty("Name")
-                            .GetValue(displayAttribute)
+                            ?.GetValue(displayAttribute)
                             ?.ToString();
                     }
 
                     value = $"\"{label ?? name}\"";
                 }
 
-                @enum.Members.Add(name, value);
+                @enum.Members.Add(name.CamelCase(), value);
             }
 
-            ReportProgress(ConsoleColor.DarkYellow, "enum", @enum.Name);
+            WriteLine(ConsoleColor.DarkYellow, "enum", @enum.Name);
             return @enum;
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Audacia.Typescript.Transpiler.Configuration
@@ -8,10 +9,8 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
         public NamespaceSettings(string name) => Name = name;
 
-        [XmlAttribute("name")]
-        public string Name { get; set; }
+        [XmlAttribute("name")] public string Name { get; set; }
 
-        [XmlElement("TypeName")]
-        public TypeNameSettings[] Types { get; set; } = new TypeNameSettings[0];
+        [XmlElement("TypeName")] public List<TypeNameSettings> Types { get; set; } = new List<TypeNameSettings>();
     }
 }

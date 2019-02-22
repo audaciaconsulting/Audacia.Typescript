@@ -21,10 +21,12 @@ namespace Audacia.Typescript
 
         public Function(string name, string type) : this(name) => Type = type;
 
+        public IList<Decorator> Decorators { get; } = new List<Decorator>();
+
         public ArgumentList Arguments { get; } = new ArgumentList();
 
         public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
-        
+
         public FunctionMemberList Statements { get; } = new FunctionMemberList();
 
         public IList<IModifier<Function>> Modifiers { get; } = new List<IModifier<Function>>();
@@ -43,6 +45,8 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
+            builder.Join(Decorators, b => b.NewLine());
+            
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
@@ -61,7 +65,7 @@ namespace Audacia.Typescript
                 builder.Join(TypeArguments, this, ", ");
                 builder.Append('>');
             }
-            
+
             builder.Append('(')
                 .Join(Arguments, this, ", ")
                 .Append(")");
