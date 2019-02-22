@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Extensions;
 using FirstNamespace;
@@ -23,9 +24,9 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
             [Fact]
             public void NoNamespaces_AllReturned()
             {
-                var settings = new InputSettings { Namespaces = null };
+                var settings = new FileBuilder() { Namespaces = null };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(this._types, result);
             }
@@ -37,9 +38,9 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
             public void AllNamespaces_AllReturned()
             {
                 var namespaceToUse = nameof(FirstNamespace);
-                var settings = new InputSettings { Namespaces = new[] { new NamespaceSettings(namespaceToUse) } };
+                var settings = new FileBuilder() { Namespaces = { new NamespaceSettings(namespaceToUse) } };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.True(result.Any() && result.All(t => t.Namespace == namespaceToUse),
                     $"Should have only returned types within the specified namespace {namespaceToUse}");
@@ -49,9 +50,9 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
             public void SomeNamespaces_OnlyTypesInNamespacesReturned()
             {
                 var namespaceToUse = nameof(FirstNamespace);
-                var settings = new InputSettings { Namespaces = new[] { new NamespaceSettings(namespaceToUse) } };
+                var settings = new FileBuilder() { Namespaces = { new NamespaceSettings(namespaceToUse) } };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.True(result.Any() && result.All(t => t.Namespace == namespaceToUse),
                     $"Should have only returned types within the specified namespace {namespaceToUse}");
@@ -60,13 +61,13 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
             [Fact]
             public void TypeNameDoesNotBelongInNamespace_FilteredOut()
             {
-                var settings = new InputSettings
+                var settings = new FileBuilder()
                 {
-                    Namespaces = new []
+                    Namespaces =
                     {
                         new NamespaceSettings(nameof(FirstNamespace))//Only ClassA and ClassB are in here
                         {
-                            Types = new []
+                            Types =
                             {
                                 new TypeNameSettings{ Name = nameof(ClassC)}//doesn't belong to `FirstNamespace`
                             }
@@ -74,21 +75,21 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Empty(result);
             }
-            
+
             [Fact]
             public void TypeNameSpecified_TypeReturned()
             {
-                var settings = new InputSettings
+                var settings = new FileBuilder()
                 {
-                    Namespaces = new[]
+                    Namespaces =
                     {
                         new NamespaceSettings(nameof(FirstNamespace))//Only ClassA and ClassB are in here
                         {
-                            Types = new []
+                            Types =
                             {
                                 new TypeNameSettings{ Name = nameof(ClassA)}
                             }
@@ -96,21 +97,21 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(result, new []{ typeof(ClassA)});
             }
-            
+
             [Fact]
             public void AllTypes_AllReturned()
             {
-                var settings = new InputSettings
+                var settings = new FileBuilder()
                 {
-                    Namespaces = new[]
+                    Namespaces =
                     {
                         new NamespaceSettings(nameof(FirstNamespace))//Only ClassA and ClassB are in here
                         {
-                            Types = new []
+                            Types =
                             {
                                 new TypeNameSettings{ Name = nameof(ClassA)},
                                 new TypeNameSettings{ Name = nameof(ClassB)}
@@ -118,7 +119,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                         },
                         new NamespaceSettings(nameof(SecondNamespace))//Only ClassA and ClassB are in here
                         {
-                            Types = new []
+                            Types =
                             {
                                 new TypeNameSettings{ Name = nameof(ClassC)},
                                 new TypeNameSettings{ Name = nameof(ClassD)}
@@ -127,23 +128,23 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
+                var result = this._types.FilterBy(settings);
 
                 Assert.Equal(this._types, result);
 
             }
-            
+
             [Fact]
             public void MixtureOfNamespacesAndTypes_FiltersMissingTypeOut()
             {
-                var settings = new InputSettings
+                var settings = new FileBuilder()
                 {
-                    Namespaces = new[]
+                    Namespaces =
                     {
                         new NamespaceSettings(nameof(FirstNamespace)),
                         new NamespaceSettings(nameof(SecondNamespace))//Only ClassA and ClassB are in here
                         {
-                            Types = new []
+                            Types =
                             {
                                 new TypeNameSettings{ Name = nameof(ClassC)}
                             }
@@ -151,8 +152,8 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
                     }
                 };
 
-                var result = this._types.FilterByInputSettings(settings);
-                
+                var result = this._types.FilterBy(settings);
+
                 Assert.True(result.Length == 3 && !result.Contains(typeof(ClassD)),
                     $"Should have filtered out {nameof(ClassD)} if other types are specified");
             }

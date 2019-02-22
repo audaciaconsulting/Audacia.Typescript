@@ -7,7 +7,7 @@ using Audacia.Typescript.Collections;
 namespace Audacia.Typescript
 {
     /// <summary>A typescript class.</summary>
-    public class Class : Element, IEnumerable<IMemberOf<Class>>
+    public class Class : Element, IEnumerable<IMemberOf<Class>>, IGeneric
     {
         /// <summary>The identifier of the class.</summary>
         public string Name { get; set; }
@@ -16,25 +16,26 @@ namespace Audacia.Typescript
 
         public string Extends { get; set; }
 
+        private Class() { }
+
         public Class(string name) => Name = name;
 
         public TypeArgumentList TypeArguments { get; } = new TypeArgumentList();
 
         public ClassMemberList Members { get; } = new ClassMemberList();
 
+        public IList<Decorator> Decorators { get; } = new List<Decorator>();
+
         public IEnumerable<Property> Properties => Members.OfType<Property>()
-            .Where(p => !p.HasGetter && !p.HasSetter)
-            .ToArray();
+            .Where(p => !p.HasGetter && !p.HasSetter);
 
         public IEnumerable<Property> PropertyAccessors => Members.OfType<Property>()
-            .Where(p => p.HasGetter || p.HasSetter)
-            .ToArray();
+            .Where(p => p.HasGetter || p.HasSetter);
 
-        public IEnumerable<Constructor> Constructors => Members.OfType<Constructor>().ToArray();
+        public IEnumerable<Constructor> Constructors => Members.OfType<Constructor>();
 
         public IEnumerable<Function> Functions => Members.OfType<Function>()
-            .Where(m => !(m is Constructor))
-            .ToArray();
+            .Where(m => !(m is Constructor));
 
         public IList<IModifier<Class>> Modifiers { get; } = new List<IModifier<Class>>();
 
@@ -46,10 +47,13 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
+            builder.Join(Decorators, b => b.NewLine());
+
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();
 
-            builder.Join(Modifiers.Distinct().Select(m => m.ToString()), " ");
+            var modifiers = Modifiers.Distinct().OrderBy(m => !(m is IAccessor)).Select(m => m.ToString());
+            builder.Join(modifiers, " ");
 
             if (Modifiers.Any()) builder.Append(' ');
 
@@ -93,27 +97,6 @@ namespace Audacia.Typescript
             return builder.Unindent()
                 .NewLine()
                 .Append("}");
-        }
-    }
-
-    public class TypeArgument : Element
-    {
-        public TypeArgument(string name) => Name = name;
-
-        public TypeArgument(string name, string extends) : this(name) => Extends = extends;
-
-        public string Name { get; }
-
-        public string Extends { get; }
-
-        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
-        {
-            builder.Append(Name);
-
-            if (Extends != null)
-                builder.Append(" extends ").Append(Extends);
-
-            return builder;
         }
     }
 }

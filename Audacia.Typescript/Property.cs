@@ -1,4 +1,7 @@
-﻿namespace Audacia.Typescript
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Audacia.Typescript
 {
     public class Property : Element, IMemberOf<Class>, IMemberOf<Interface>
     {
@@ -13,6 +16,10 @@
             Type = type;
         }
 
+        public IList<Decorator> Decorator { get; } = new List<Decorator>();
+
+        public ICollection<IModifier<Property>> Modifiers { get; } = new List<IModifier<Property>>();
+
         public string Name { get; set; }
 
         public string Type { get; set; }
@@ -21,11 +28,15 @@
 
         public Setter Set { get; set; }
 
+        public string Value { get; set; }
+
         public bool HasSetter => Set != null;
 
         public bool HasGetter => Get != null;
 
         public bool HasType => Type != null;
+
+        public bool HasValue => Value != null;
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
@@ -34,6 +45,7 @@
                 builder.Append("var ").Append(Name);
 
                 if (HasType) builder.Append(": ").Append(Type);
+                if (HasValue) builder.Append(" = ").Append(Value);
 
                 builder.Append(";");
             }
@@ -42,15 +54,21 @@
                 builder.Append(Get, this);
 
             if (HasGetter && HasSetter) builder.NewLine();
-            
+
             if (HasSetter && parent is Class) builder.Append(Set, this);
 
             if (!HasSetter && !HasGetter && parent != null || parent is Interface)
             {
+                var modifiers = Modifiers.Distinct().OrderBy(m => !(m is IAccessor)).Select(m => m.ToString());
+                builder.Join(modifiers, " ");
+
+                if (Modifiers.Any()) builder.Append(' ');
+
                 builder.Append(Name);
-                
+
                 if (HasType) builder.Append(": ").Append(Type);
-                
+                if (HasValue) builder.Append(" = ").Append(Value);
+
                 builder.Append(";");
             }
 

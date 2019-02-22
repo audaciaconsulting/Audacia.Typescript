@@ -1,26 +1,16 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using Audacia.Typescript.Transpiler.Builders;
 
 namespace Audacia.Typescript.Transpiler.Configuration
 {
-    public class DependencyResolutionSettings
-    {
-        [XmlAttribute("unknownTypes")]
-        public string UnknownTypes { get; set; }
-    }
-    
     public class Settings
     {
-        [XmlElement("Output")] 
-        public OutputSettings[] Outputs { get; set; }
-        
-        [XmlElement("DependencyResolution")] 
-        public DependencyResolutionSettings DependencyResolution { get; set; }
-        
-        [XmlElement("CyclicReferences")] 
-        public CyclicReferencesSettings CyclicReferences { get; set; }
-        
+        [XmlElement("Transpile")]
+        public List<Transpilation> Outputs { get; set; } = new List<Transpilation>();
+
         private static readonly XmlSerializer Xml = new XmlSerializer(typeof(Settings));
 
         public static Settings Load(string path)
@@ -30,7 +20,7 @@ namespace Audacia.Typescript.Transpiler.Configuration
                 using (TextWriter writer = new StreamWriter(path))
                     Xml.Serialize(writer, Default);
 
-                throw new InvalidDataException("Failed to find a config file at: " 
+                throw new InvalidDataException("Failed to find a config file at: "
                     + path + ". A template config file has been automatically generated for you");
             }
 
@@ -40,19 +30,19 @@ namespace Audacia.Typescript.Transpiler.Configuration
 
         public static Settings Default => new Settings
         {
-            Outputs = new[]
+            Outputs =
             {
-                new OutputSettings("../../example/output/file.ts")
+                new Transpilation("../../example/output/file.ts")
                 {
-                    Inputs = new[] {"../../path/to/example/assembly.dll"}.Select(x => new InputSettings(x)).ToArray()
+                    Inputs = new[] {"../../path/to/example/assembly.dll"}.Select(x => new FileBuilder()).ToList()
                 },
-                new OutputSettings("../../example/output/file.ts")
+                new Transpilation("../../example/output/file.ts")
                 {
-                    Inputs = new[] {"../../another/example/assembly.dll"}.Select(x => new InputSettings(x)
+                    Inputs = new[] {"../../another/example/assembly.dll"}.Select(x => new FileBuilder
                     {
                         Namespaces = new[] {"example", "namespace", "specifications "}
-                            .Select(y => new NamespaceSettings(y)).ToArray()
-                    }).ToArray()
+                            .Select(y => new NamespaceSettings(y)).ToList()
+                    }).ToList()
                 }
             }
         };

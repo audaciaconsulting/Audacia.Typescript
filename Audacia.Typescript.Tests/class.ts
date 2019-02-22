@@ -1,10 +1,9 @@
 ﻿class College {
     city: string;
-    name: string;
+    name: string = "Nigel";
 
-    constructor(name: string, city: string) {
+    constructor(city: string) {
         this.city = city;
-        this.name = name;
     }
 
     public address(streetName: string) {
