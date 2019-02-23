@@ -14,7 +14,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
             while (mappings.Count > 0)
             {
-                foreach (var element in mappings)
+                foreach (var element in mappings.OrderBy(m => !(m is EnumBuilder)))
                 {
                     if (mappings.Any(m => element.Inherits == m.SourceType)) continue;
 

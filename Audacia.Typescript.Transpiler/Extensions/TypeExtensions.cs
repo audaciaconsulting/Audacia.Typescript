@@ -16,6 +16,10 @@ namespace Audacia.Typescript.Transpiler.Extensions
             var results = new List<Type> { type.BaseType };
             results.AddRange(type.GetGenericDependencies());
             results.AddRange(type.GetDeclaredInterfaces());
+            results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType));
+            results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType)
+                .Where(a => a != type)
+                .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
             results.AddRange(type.GetDeclaredInterfaces().SelectMany(i => i.GetGenericDependencies()));
 
             var properties = type
@@ -30,6 +34,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             }
 
             return results
+                .Where(r => r != typeof(Attribute))
                 .Where(result => result != null)
                 .Where(result => result.FullName != null)
                 .DistinctBy(result => result.FullName.SanitizeTypeName());
@@ -50,7 +55,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             return results;
         }
 
-        // Filters out runtime generic types that aren't definitions definitions
+        // Filters out runtime generic types that aren't definitions
         public static IEnumerable<Type> Declarations(this IEnumerable<Type> types) =>
             types.Where(type => !types
                 .Any(other => type.Namespace == other.Namespace
@@ -69,6 +74,12 @@ namespace Audacia.Typescript.Transpiler.Extensions
             return allInterfaces.Except(baseInterfaces.Concat(allInterfaces.SelectMany(i => i.GetInterfaces()))).Distinct();
 
         }
+
+        public static string DecoratorName(this Type type) =>
+            type.Name.EndsWith("Attribute")
+                ? type.Name.Substring(0, type.Name.Length - 9).CamelCase()
+                : type.Name.CamelCase();
+
         public static string TypescriptName(this Type type)
         {
             if (Nullable.GetUnderlyingType(type) != null)

@@ -23,7 +23,7 @@ namespace Audacia.Typescript
 
         public string Name { get; set; }
 
-        public IList<string> Arguments { get; set; }
+        public IList<string> Arguments { get; } =  new List<string>();
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) =>
             builder.Append('@')

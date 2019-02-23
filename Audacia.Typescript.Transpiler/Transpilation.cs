@@ -44,7 +44,7 @@ namespace Audacia.Typescript.Transpiler
 
             var missingTypes = Inputs.SelectMany(o => o.Dependencies)
                 .Declarations()
-                .Where(type => !Primitive.CanWrite(type))
+                .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                 .Where(type => type.IsGenericType
                     ? !includedTypes.Contains(type.GetGenericTypeDefinition())
                     : !includedTypes.Contains(type))
@@ -62,7 +62,7 @@ namespace Audacia.Typescript.Transpiler
                     .SelectMany(t => t.Dependencies())
                     .Where(t => !missingTypes.Contains(t))
                     .Declarations()
-                    .Where(type => !Primitive.CanWrite(type))
+                    .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                     .ToList();
 
                 foreach (var dependency in dependencies)
@@ -81,9 +81,28 @@ namespace Audacia.Typescript.Transpiler
                 Inputs.Add(output);
             }
 
+            var attributes = Inputs
+                .SelectMany(i => i.Types)
+                .Where(t => typeof(Attribute).IsAssignableFrom(t))
+                .GroupBy(t => t.Assembly);
+
+            var decoratorFiles = attributes.Select(g =>
+            {
+                var fileBuilder = new DecoratorFileBuilder { Assembly = g.Key };
+
+                foreach (var attribute in g)
+                    fileBuilder.Types.Add(attribute);
+
+                fileBuilder.Build(this);
+                return fileBuilder;
+            });
+
+            Inputs.AddRange(decoratorFiles);
+
             foreach (var builder in Inputs)
             {
                 builder.AddReferences(Inputs);
+
 
                 File.WriteAllText(builder.File.Path, builder.File.ToString());
 
