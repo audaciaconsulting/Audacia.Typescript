@@ -9,10 +9,16 @@ namespace Audacia.Typescript.Transpiler.Extensions
     {
         public static IEnumerable<Type> ClassAttributeDependencies(this Type type)
         {
-            var results = new List<Type>();
+            return type.GetCustomAttributes(false).Select(a => a.GetType());
+        }
 
-            results.AddRange(type.GetCustomAttributes(false).Select(a => a.GetType()));
-            return results;
+        public static IEnumerable<Type> PropertyAttributeDependencies(this Type type)
+        {
+            return type
+                .GetProperties()
+                .SelectMany(p => p.GetCustomAttributes(false))
+                .Select(a => a.GetType())
+                .Distinct();
         }
 
         public static IEnumerable<Type> Dependencies(this Type type)
@@ -38,6 +44,9 @@ namespace Audacia.Typescript.Transpiler.Extensions
             {
                 results.Add(property.PropertyType);
                 results.AddRange(property.PropertyType.GetGenericDependencies());
+                results.AddRange(property.GetCustomAttributesData().Select(a => a.AttributeType)
+                    .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
+                    .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
             }
 
             return results
@@ -82,10 +91,32 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
         }
 
-        public static string DecoratorName(this Type type) =>
-            type.Name.EndsWith("Attribute")
+        public static string ClassDecoratorName(this Type type)
+        {
+            var name = type.Name.EndsWith("Attribute")
                 ? type.Name.Substring(0, type.Name.Length - 9).CamelCase()
                 : type.Name.CamelCase();
+
+            var usage = type.GetCustomAttribute<AttributeUsageAttribute>();
+            if (usage != null && usage.ValidOn.HasFlag(AttributeTargets.Property))
+                name += "Type";
+
+            return name;
+        }
+
+        public static string PropertyDecoratorName(this Type type)
+        {
+            var name = type.Name.EndsWith("Attribute")
+                ? type.Name.Substring(0, type.Name.Length - 9).CamelCase()
+                : type.Name.CamelCase();
+
+            var usage = type.GetCustomAttribute<AttributeUsageAttribute>();
+            if (usage != null && (usage.ValidOn.HasFlag(AttributeTargets.Class) || usage.ValidOn.HasFlag(AttributeTargets.Enum)))
+                name += "Prop";
+
+            return name;
+        }
+
 
         public static string TypescriptName(this Type type)
         {

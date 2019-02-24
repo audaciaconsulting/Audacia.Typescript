@@ -58,9 +58,9 @@ namespace Audacia.Typescript.Transpiler.Builders
             {
                 foreach (var attribute in _attributes)
                 {
-                    var name = attribute.GetType().DecoratorName();
+                    var name = attribute.GetType().ClassDecoratorName();
                     var arguments = new ObjectLiteral(attribute);
-                    @class.Decorators.Add(new Decorator(name, new[] {arguments.ToString()}));
+                    @class.Decorators.Add(new Decorator(name, new[] {arguments}));
                 }
             }
 
@@ -68,6 +68,7 @@ namespace Audacia.Typescript.Transpiler.Builders
             {
                 var getMethod = source.GetMethod;
                 var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
+                var attributes = source.GetCustomAttributes(false);
 
                 if (getMethod.IsAbstract) target.Modifiers.Add(Modifier.Abstract);
 
@@ -82,6 +83,13 @@ namespace Audacia.Typescript.Transpiler.Builders
                 if (OutputContext.Properties?.Initialize ?? false)
                 {
                     SetDefaultValue(source, target);
+                }
+
+                foreach (var attribute in attributes)
+                {
+                    var name = attribute.GetType().PropertyDecoratorName();
+                    var arguments = new ObjectLiteral(attribute);
+                    target.Decorators.Add(new Decorator(name, new[] {arguments}));
                 }
 
                 @class.Members.Add(target);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
@@ -22,10 +23,17 @@ namespace Audacia.Typescript.Transpiler.Builders
             File = new TypescriptFile { Path = Path.Combine(context.Path, name) };
             File.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
 
+
+
             foreach (var type in Types)
             {
-                File.Elements.Add(new ClassDecoratorFunction(type.DecoratorName(),
-                    type.Name));
+                var attributeUsage = type.GetCustomAttribute<AttributeUsageAttribute>();
+
+                if (attributeUsage == null || attributeUsage.ValidOn.HasFlag(AttributeTargets.Class) || attributeUsage.ValidOn.HasFlag(AttributeTargets.Enum))
+                    File.Elements.Add(new ClassDecoratorFunction(type.ClassDecoratorName(), type.Name));
+
+                if (attributeUsage == null || attributeUsage.ValidOn.HasFlag(AttributeTargets.Property))
+                    File.Elements.Add(new PropertyDecoratorFunction(type.PropertyDecoratorName(), type.Name));
             }
         }
 
@@ -34,5 +42,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         public override IEnumerable<Type> IncludedTypes => Types;
 
         public override IEnumerable<Type> ClassAttributeDependencies => Enumerable.Empty<Type>();
+
+        public override IEnumerable<Type> PropertyAttributeDependencies => Enumerable.Empty<Type>();
     }
 }

@@ -34,13 +34,19 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public virtual void AddReferences(IEnumerable<FileBuilder> outputFiles)
         {
-            var references = outputFiles
+            var fileBuilders = outputFiles.ToList();
+
+            var references = fileBuilders
                 .Except(new[] { this }) // Get files which contain types we depend on
                 .Where(mapping => mapping.IncludedTypes.Any(type => Dependencies.Contains(type)));
 
-            var attributeReferences = outputFiles
+            var classAttributeReferences = fileBuilders
                 .Except(new[] { this }) // Get files which contain types we depend on
                 .Where(mapping => mapping.IncludedTypes.Any(type => ClassAttributeDependencies.Contains(type)));
+
+            var propertyAttributeReferences = fileBuilders
+                .Except(new[] { this }) // Get files which contain types we depend on
+                .Where(mapping => mapping.IncludedTypes.Any(type => PropertyAttributeDependencies.Contains(type)));
 
             foreach (var reference in references)
             {
@@ -59,7 +65,9 @@ namespace Audacia.Typescript.Transpiler.Builders
                 File.Imports.Add(new Import(relativePath, dependencyNames));
             }
 
-            foreach (var reference in attributeReferences)
+            var attributeReferences = classAttributeReferences.Concat(propertyAttributeReferences);
+
+            foreach (var reference in attributeReferences.Distinct())
             {
                 var source = new Uri(Path.GetFullPath(File.Path));
                 var target = new Uri(Path.GetFullPath(reference.File.Path));
@@ -69,12 +77,17 @@ namespace Audacia.Typescript.Transpiler.Builders
                     relativePath = relativePath.Substring(0, relativePath.Length - 3);
 
                 var includedNames = reference.IncludedTypes.Select(x => x.FullName.SanitizeTypeName());
-                var dependencyNames = ClassAttributeDependencies // Compare by full name so we include generics.
+                var classAttributeDependencyNames = ClassAttributeDependencies // Compare by full name so we include generics.
                     .Where(d => includedNames.Contains(d.FullName.SanitizeTypeName()))
                     .Where(d => reference is DecoratorFileBuilder)
-                    .Select(d => d.DecoratorName());
+                    .Select(d => d.ClassDecoratorName());
 
-                File.Imports.Add(new Import(relativePath, dependencyNames));
+                var propertyAttributeDependencyNames = PropertyAttributeDependencies // Compare by full name so we include generics.
+                    .Where(d => includedNames.Contains(d.FullName.SanitizeTypeName()))
+                    .Where(d => reference is DecoratorFileBuilder)
+                    .Select(d => d.PropertyDecoratorName());
+
+                File.Imports.Add(new Import(relativePath, classAttributeDependencyNames.Concat(propertyAttributeDependencyNames)));
             }
         }
 
@@ -84,6 +97,9 @@ namespace Audacia.Typescript.Transpiler.Builders
             .DistinctBy(result => result.FullName.SanitizeTypeName());
 
         public virtual IEnumerable<Type> ClassAttributeDependencies => TypeMappings.SelectMany(t => t.ClassAttributeDependencies)
+            .DistinctBy(result => result.FullName.SanitizeTypeName());
+
+        public virtual IEnumerable<Type> PropertyAttributeDependencies => TypeMappings.SelectMany(t => t.PropertyAttributeDependencies)
             .DistinctBy(result => result.FullName.SanitizeTypeName());
 
         public virtual IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);

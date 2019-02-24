@@ -44,6 +44,7 @@ namespace Audacia.Typescript.Transpiler
 
             var missingTypes = Inputs.SelectMany(o => o.Dependencies)
                 .Concat(Inputs.SelectMany(i => i.ClassAttributeDependencies))
+                .Concat(Inputs.SelectMany(i => i.PropertyAttributeDependencies))
                 .Declarations()
                 .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                 .Where(type => type.IsGenericType
@@ -62,6 +63,7 @@ namespace Audacia.Typescript.Transpiler
                 count = missingTypes.Count;
                 var dependencies = missingTypes.SelectMany(t => t.Dependencies())
                     .Concat(missingTypes.SelectMany(i => i.ClassAttributeDependencies()))
+                    .Concat(missingTypes.SelectMany(i => i.PropertyAttributeDependencies()))
                     .Where(t => !missingTypes.Contains(t))
                     .Declarations()
                     .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
@@ -84,6 +86,7 @@ namespace Audacia.Typescript.Transpiler
             }
 
             var attributes = Inputs.SelectMany(i => i.ClassAttributeDependencies)
+                .Concat(Inputs.SelectMany(i => i.PropertyAttributeDependencies))
                 .Distinct()
                 .GroupBy(t => t.Assembly);
 
@@ -100,6 +103,7 @@ namespace Audacia.Typescript.Transpiler
 
             Inputs.AddRange(decoratorFiles);
 
+            Console.WriteLine();
             foreach (var builder in Inputs)
             {
                 builder.AddReferences(Inputs);
@@ -108,9 +112,7 @@ namespace Audacia.Typescript.Transpiler
                 File.WriteAllText(builder.File.Path, builder.File.ToString());
 
                 ForegroundColor = ConsoleColor.Green;
-                WriteLine();
                 WriteLine($"Typescript file \"{System.IO.Path.GetFullPath(builder.File.Path)}\" written.");
-                WriteLine();
                 ResetColor();
             }
 

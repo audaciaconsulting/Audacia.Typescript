@@ -22,7 +22,7 @@ namespace Audacia.Typescript.Transpiler
 //                };
 //            }
 
-            return builder.Append("export function ").Append(Name).Append("(args: Partial<").Append(ArgumentsClassName).Append(">) {")
+            return builder.Append("export function ").Append(Identifier).Append("(args: Partial<").Append(ArgumentsClassName).Append(">) {")
                 .Indent().NewLine()
                 .Append("return function<T extends { new (...args: any[]): {} }>(ctor: T) {")
                 .Indent().NewLine()
@@ -36,24 +36,11 @@ namespace Audacia.Typescript.Transpiler
                 .Indent().NewLine()
                 .Append("this.").Append(prefix).Append(" = { };")
                 .Unindent().NewLine()
-                .Append("this.").Append(prefix).Append('.').Append(Name).Append(" = args;")
+                .Append("this.").Append(prefix).Append('.').Append(ShortName).Append(" = args;")
                 .Unindent().NewLine().Append('}')
                 .Unindent().NewLine().Append("}")
                 .Unindent().NewLine().Append("}")
                 .Unindent().NewLine().Append('}');
         }
-    }
-
-    public abstract class DecoratorFunction : Element
-    {
-        protected DecoratorFunction(string name, string argumentsClassName)
-        {
-            Name = name;
-            ArgumentsClassName = argumentsClassName;
-        }
-
-        public string Name { get; set; }
-
-        public string ArgumentsClassName { get; set; }
     }
 }
