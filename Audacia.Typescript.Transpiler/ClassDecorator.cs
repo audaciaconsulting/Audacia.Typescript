@@ -8,7 +8,7 @@ namespace Audacia.Typescript.Transpiler
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
-//            function noun(args: Partial<DisplayNameAttribute>) {
+//            export function noun(args: Partial<DisplayNameAttribute>) {
 //                return function<T extends { new (...args: any[]): {} }>(ctor: T) {
 //                    return class extends ctor {
 //                        ___attributes;

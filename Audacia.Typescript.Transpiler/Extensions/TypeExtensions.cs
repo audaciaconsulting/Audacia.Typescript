@@ -7,6 +7,14 @@ namespace Audacia.Typescript.Transpiler.Extensions
 {
     public static class TypeExtensions
     {
+        public static IEnumerable<Type> ClassAttributeDependencies(this Type type)
+        {
+            var results = new List<Type>();
+
+            results.AddRange(type.GetCustomAttributes(false).Select(a => a.GetType()));
+            return results;
+        }
+
         public static IEnumerable<Type> Dependencies(this Type type)
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
@@ -16,11 +24,10 @@ namespace Audacia.Typescript.Transpiler.Extensions
             var results = new List<Type> { type.BaseType };
             results.AddRange(type.GetGenericDependencies());
             results.AddRange(type.GetDeclaredInterfaces());
-            results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType));
-            results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType)
-                .Where(a => a != type)
-                .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
             results.AddRange(type.GetDeclaredInterfaces().SelectMany(i => i.GetGenericDependencies()));
+            results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType)
+                .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
+                .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
 
             var properties = type
                 .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)

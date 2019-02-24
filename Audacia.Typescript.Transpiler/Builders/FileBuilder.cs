@@ -10,34 +10,6 @@ using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
-    public class DecoratorFileBuilder : FileBuilder
-    {
-        public override void Build(Transpilation context)
-        {
-            if (Assembly == null)
-                throw new InvalidDataException("Please specify an assembly.");
-
-            var name = string.Join(".", Assembly.GetName().Name
-                           .TrimEnd()
-                           .Split('.')
-                           .Select(s => s.CamelCase()))
-                       + ".decorators.ts";
-
-            File = new TypescriptFile { Path = Path.Combine(context.Path, name) };
-            File.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
-
-            foreach (var type in Types)
-            {
-                File.Elements.Add(new ClassDecoratorFunction(type.DecoratorName(),
-                    type.Name));
-            }
-        }
-
-        public override IEnumerable<Type> Dependencies => Types;
-
-        public override IEnumerable<Type> IncludedTypes => Types;
-    }
-
     /// <summary>A transpile operation representing the output to a single typescript file.</summary>
     public class FileBuilder
     {
@@ -66,6 +38,10 @@ namespace Audacia.Typescript.Transpiler.Builders
                 .Except(new[] { this }) // Get files which contain types we depend on
                 .Where(mapping => mapping.IncludedTypes.Any(type => Dependencies.Contains(type)));
 
+            var attributeReferences = outputFiles
+                .Except(new[] { this }) // Get files which contain types we depend on
+                .Where(mapping => mapping.IncludedTypes.Any(type => ClassAttributeDependencies.Contains(type)));
+
             foreach (var reference in references)
             {
                 var source = new Uri(Path.GetFullPath(File.Path));
@@ -77,25 +53,40 @@ namespace Audacia.Typescript.Transpiler.Builders
 
                 var includedNames = reference.IncludedTypes.Select(x => x.FullName.SanitizeTypeName());
                 var dependencyNames = Dependencies // Compare by full name so we include generics.
+                    .Where(d => this is DecoratorFileBuilder || includedNames.Contains(d.FullName.SanitizeTypeName()))
+                    .Select(d => d.Name.SanitizeTypeName());
+
+                File.Imports.Add(new Import(relativePath, dependencyNames));
+            }
+
+            foreach (var reference in attributeReferences)
+            {
+                var source = new Uri(Path.GetFullPath(File.Path));
+                var target = new Uri(Path.GetFullPath(reference.File.Path));
+                var relativePath = "./" + source.MakeRelativeUri(target);
+
+                if (relativePath.EndsWith(".ts"))
+                    relativePath = relativePath.Substring(0, relativePath.Length - 3);
+
+                var includedNames = reference.IncludedTypes.Select(x => x.FullName.SanitizeTypeName());
+                var dependencyNames = ClassAttributeDependencies // Compare by full name so we include generics.
                     .Where(d => includedNames.Contains(d.FullName.SanitizeTypeName()))
-                    .Where(d => reference is DecoratorFileBuilder || !typeof(Attribute).IsAssignableFrom(d) || this is DecoratorFileBuilder)
-                    .Select(d =>
-                    {
-                        return typeof(Attribute).IsAssignableFrom(d) && !(this is DecoratorFileBuilder) // TODO: PROPA HACKY
-                            ? d.DecoratorName()
-                            : d.Name.SanitizeTypeName();
-                    });
+                    .Where(d => reference is DecoratorFileBuilder)
+                    .Select(d => d.DecoratorName());
 
                 File.Imports.Add(new Import(relativePath, dependencyNames));
             }
         }
 
-        public virtual IEnumerable<Type> Dependencies => TypeMappings?.SelectMany(t => t.Dependencies)
+        public virtual IEnumerable<Type> Dependencies => TypeMappings.SelectMany(t => t.Dependencies)
             .Where(result => result != null)
             .Where(result => result.FullName != null)
             .DistinctBy(result => result.FullName.SanitizeTypeName());
 
-        public virtual IEnumerable<Type> IncludedTypes => TypeMappings?.Select(t => t.SourceType);
+        public virtual IEnumerable<Type> ClassAttributeDependencies => TypeMappings.SelectMany(t => t.ClassAttributeDependencies)
+            .DistinctBy(result => result.FullName.SanitizeTypeName());
+
+        public virtual IEnumerable<Type> IncludedTypes => TypeMappings.Select(t => t.SourceType);
 
         public virtual void Build(Transpilation context)
         {

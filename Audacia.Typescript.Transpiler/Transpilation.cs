@@ -43,6 +43,7 @@ namespace Audacia.Typescript.Transpiler
             var includedTypes = Inputs.SelectMany(o => o.IncludedTypes);
 
             var missingTypes = Inputs.SelectMany(o => o.Dependencies)
+                .Concat(Inputs.SelectMany(i => i.ClassAttributeDependencies))
                 .Declarations()
                 .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                 .Where(type => type.IsGenericType
@@ -57,9 +58,10 @@ namespace Audacia.Typescript.Transpiler
 
             while (missingTypes.Count != count)
             {
+                var x =
                 count = missingTypes.Count;
-                var dependencies = missingTypes
-                    .SelectMany(t => t.Dependencies())
+                var dependencies = missingTypes.SelectMany(t => t.Dependencies())
+                    .Concat(missingTypes.SelectMany(i => i.ClassAttributeDependencies()))
                     .Where(t => !missingTypes.Contains(t))
                     .Declarations()
                     .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
@@ -81,9 +83,8 @@ namespace Audacia.Typescript.Transpiler
                 Inputs.Add(output);
             }
 
-            var attributes = Inputs
-                .SelectMany(i => i.Types)
-                .Where(t => typeof(Attribute).IsAssignableFrom(t))
+            var attributes = Inputs.SelectMany(i => i.ClassAttributeDependencies)
+                .Distinct()
                 .GroupBy(t => t.Assembly);
 
             var decoratorFiles = attributes.Select(g =>

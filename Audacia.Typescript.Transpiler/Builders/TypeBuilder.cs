@@ -25,6 +25,8 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public IEnumerable<Type> Dependencies => SourceType.Dependencies();
 
+        public IEnumerable<Type> ClassAttributeDependencies => SourceType.ClassAttributeDependencies();
+
         public Type Inherits => SourceType.BaseType !=  null
             && SourceType.BaseType != typeof(object)
             && !SourceType.BaseType.Namespace.StartsWith(nameof(System)) ? SourceType.BaseType : null;
