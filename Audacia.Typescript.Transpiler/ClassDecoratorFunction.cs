@@ -22,7 +22,7 @@ namespace Audacia.Typescript.Transpiler
 //                };
 //            }
 
-            return builder.Append("export function ").Append(Identifier).Append("(args: Partial<").Append(ArgumentsClassName).Append(">) {")
+            return builder.Append("export function ").Append(Identifier).Append("(params: Partial<").Append(ArgumentsClassName).Append(">) {")
                 .Indent().NewLine()
                 .Append("return function<T extends { new (...args: any[]): {} }>(ctor: T) {")
                 .Indent().NewLine()
@@ -36,7 +36,7 @@ namespace Audacia.Typescript.Transpiler
                 .Indent().NewLine()
                 .Append("this.").Append(prefix).Append(" = { };")
                 .Unindent().NewLine()
-                .Append("this.").Append(prefix).Append('.').Append(ShortName).Append(" = args;")
+                .Append("this.").Append(prefix).Append('.').Append(ShortName).Append(" = params;")
                 .Unindent().NewLine().Append('}')
                 .Unindent().NewLine().Append("}")
                 .Unindent().NewLine().Append("}")

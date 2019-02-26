@@ -21,7 +21,7 @@ namespace Audacia.Typescript.Transpiler
 //                }
 //            }
 
-            return builder.Append("export function ").Append(Identifier).Append("(args: Partial<").Append(ArgumentsClassName).Append(">) {")
+            return builder.Append("export function ").Append(Identifier).Append("(params: Partial<").Append(ArgumentsClassName).Append(">) {")
                 .Indent().NewLine()
                 .Append("return function(target: any, propertyKey: string | symbol) {")
                 .Indent().NewLine()
@@ -37,7 +37,7 @@ namespace Audacia.Typescript.Transpiler
                 .Indent().NewLine()
                 .Append("target.___attributes.properties.").Append(ShortName).Append(" = {};")
                 .Unindent().NewLine()
-                .Append("target.___attributes.properties[propertyKey].").Append(ShortName).Append(" = args;")
+                .Append("target.___attributes.properties[propertyKey].").Append(ShortName).Append(" = params;")
                 .Unindent().NewLine().Append("}")
                 .Unindent().NewLine().Append('}');
         }

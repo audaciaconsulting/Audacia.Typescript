@@ -50,7 +50,15 @@ namespace Audacia.Typescript.Transpiler
                 builder.Append(property.Name.CamelCase())
                     .Append(": ");
 
-                Build(builder, property.GetValue(value));
+                try
+                {
+                    Build(builder, property.GetValue(value));
+                }
+                catch (Exception e)
+                {
+                    // TODO: Log this somewhere
+                    Build(builder, null); 
+                }
 
                 if (properties.Count == 1)
                     return builder.Append('}');
