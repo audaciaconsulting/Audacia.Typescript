@@ -59,7 +59,6 @@ namespace Audacia.Typescript.Transpiler
 
             while (missingTypes.Count != count)
             {
-                var x =
                 count = missingTypes.Count;
                 var dependencies = missingTypes.SelectMany(t => t.Dependencies())
                     .Concat(missingTypes.SelectMany(i => i.ClassAttributeDependencies()))
