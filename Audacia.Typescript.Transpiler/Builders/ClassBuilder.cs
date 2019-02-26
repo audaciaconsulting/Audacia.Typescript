@@ -149,9 +149,12 @@ namespace Audacia.Typescript.Transpiler.Builders
 
                 if (source.PropertyType.IsEnum && source.PropertyType.GetCustomAttribute<FlagsAttribute>() == null)
                 {
-                    target.Value = source.PropertyType
-                                       .Name + "." + System.Enum
-                                       .GetName(source.PropertyType, value)
+                    var name = System.Enum.GetName(source.PropertyType, value);
+                    
+                    // Watch out for enums without a valid default value (i.e. no properties with value "0")
+                    if (string.IsNullOrEmpty(name)) target.Value =  "null";
+                    else target.Value = source.PropertyType
+                                       .Name + "." + name
                                        .CamelCase();
 
                     return;
