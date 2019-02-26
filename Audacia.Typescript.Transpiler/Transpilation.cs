@@ -41,8 +41,10 @@ namespace Audacia.Typescript.Transpiler
             var includedTypes = Inputs.SelectMany(o => o.IncludedTypes);
 
             var missingTypes = Inputs.SelectMany(o => o.Dependencies)
+                .Concat(Inputs.SelectMany(i => i.ClassAttributeDependencies))
+                .Concat(Inputs.SelectMany(i => i.PropertyAttributeDependencies))
                 .Declarations()
-                .Where(type => !Primitive.CanWrite(type))
+                .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                 .Where(type => type.IsGenericType
                     ? !includedTypes.Contains(type.GetGenericTypeDefinition())
                     : !includedTypes.Contains(type))
@@ -55,12 +57,14 @@ namespace Audacia.Typescript.Transpiler
 
             while (missingTypes.Count != count)
             {
+                var x =
                 count = missingTypes.Count;
-                var dependencies = missingTypes
-                    .SelectMany(t => t.Dependencies())
+                var dependencies = missingTypes.SelectMany(t => t.Dependencies())
+                    .Concat(missingTypes.SelectMany(i => i.ClassAttributeDependencies()))
+                    .Concat(missingTypes.SelectMany(i => i.PropertyAttributeDependencies()))
                     .Where(t => !missingTypes.Contains(t))
                     .Declarations()
-                    .Where(type => !Primitive.CanWrite(type))
+                    .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                     .ToList();
 
                 foreach (var dependency in dependencies)
@@ -79,16 +83,34 @@ namespace Audacia.Typescript.Transpiler
                 Inputs.Add(output);
             }
 
+            var attributes = Inputs.SelectMany(i => i.ClassAttributeDependencies)
+                .Concat(Inputs.SelectMany(i => i.PropertyAttributeDependencies))
+                .Distinct()
+                .GroupBy(t => t.Assembly);
+
+            var decoratorFiles = attributes.Select(g =>
+            {
+                var fileBuilder = new DecoratorFileBuilder { Assembly = g.Key };
+
+                foreach (var attribute in g)
+                    fileBuilder.Types.Add(attribute);
+
+                fileBuilder.Build(this);
+                return fileBuilder;
+            });
+
+            Inputs.AddRange(decoratorFiles);
+
+            Console.WriteLine();
             foreach (var builder in Inputs)
             {
                 builder.AddReferences(Inputs);
 
+
                 File.WriteAllText(builder.File.Path, builder.File.ToString());
 
                 ForegroundColor = ConsoleColor.Green;
-                WriteLine();
                 WriteLine($"Typescript file \"{System.IO.Path.GetFullPath(builder.File.Path)}\" written.");
-                WriteLine();
                 ResetColor();
             }
 

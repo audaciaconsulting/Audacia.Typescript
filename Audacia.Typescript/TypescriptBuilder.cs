@@ -81,7 +81,10 @@ namespace Audacia.Typescript
             if(CurrentLine.Blank) _builder.Append(Indentation);
 
             CurrentLine.Blank = false;
-            _builder.Append(s);
+
+            if (s is IElement element)
+                Append(element, null);
+            else _builder.Append(s);
             return this;
         }
 

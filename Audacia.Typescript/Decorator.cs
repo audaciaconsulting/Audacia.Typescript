@@ -13,7 +13,7 @@ namespace Audacia.Typescript
             Name = name;
         }
 
-        public Decorator(string name, string[] arguments)
+        public Decorator(string name, object[] arguments)
         {
             Name = name;
 
@@ -23,7 +23,7 @@ namespace Audacia.Typescript
 
         public string Name { get; set; }
 
-        public IList<string> Arguments { get; set; }
+        public IList<object> Arguments { get; } =  new List<object>();
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) =>
             builder.Append('@')

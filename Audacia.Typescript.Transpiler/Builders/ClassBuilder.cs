@@ -11,7 +11,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         private readonly IEnumerable<Type> _interfaces;
         private readonly IEnumerable<Type> _typeArguments;
         private readonly IEnumerable<PropertyInfo> _properties;
-        private readonly IEnumerable<Type> _attributes;
+        private readonly IList<Attribute> _attributes;
 
         public object Instance { get; }
 
@@ -26,13 +26,17 @@ namespace Audacia.Typescript.Transpiler.Builders
                 .Where(t => !t.Namespace.StartsWith(nameof(System)))
                 .Where(i => input.Namespaces == null
                             || input.Namespaces.Select(n => n.Name).Contains(i.Namespace));
-            _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(p => !p.GetIndexParameters().Any());
+            _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public |
+                                                   BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(p => !p.GetIndexParameters().Any())
+                .Where(p => !p.GetMethod.IsPrivate);
+            _attributes = sourceType.GetCustomAttributes(false).Cast<Attribute>().ToList();
         }
 
         public override Element Build()
         {
             var @class = new Class(SourceType.Name.SanitizeTypeName()) {Modifiers = {Modifier.Export}};
+            WriteLine(ConsoleColor.Green, "class", @class.Name);
 
             if (Inherits != null)
                 @class.Extends = Inherits.TypescriptName();
@@ -50,10 +54,21 @@ namespace Audacia.Typescript.Transpiler.Builders
             foreach (var typeArgument in _typeArguments)
                 @class.TypeArguments.Add(typeArgument.TypescriptName());
 
+            if (!SourceType.IsAbstract)
+            {
+                foreach (var attribute in _attributes)
+                {
+                    var name = attribute.GetType().ClassDecoratorName();
+                    var arguments = new ObjectLiteral(attribute);
+                    @class.Decorators.Add(new Decorator(name, new[] {arguments}));
+                }
+            }
+
             foreach (var source in _properties)
             {
                 var getMethod = source.GetMethod;
                 var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
+                var attributes = source.GetCustomAttributes(false);
 
                 if (getMethod.IsAbstract) target.Modifiers.Add(Modifier.Abstract);
 
@@ -68,6 +83,13 @@ namespace Audacia.Typescript.Transpiler.Builders
                 if (OutputContext.Properties?.Initialize ?? false)
                 {
                     SetDefaultValue(source, target);
+                }
+
+                foreach (var attribute in attributes)
+                {
+                    var name = attribute.GetType().PropertyDecoratorName();
+                    var arguments = new ObjectLiteral(attribute);
+                    target.Decorators.Add(new Decorator(name, new[] {arguments}));
                 }
 
                 @class.Members.Add(target);
@@ -85,8 +107,6 @@ namespace Audacia.Typescript.Transpiler.Builders
                     illegalProp.Name = newName;
                 }
             }
-
-            WriteLine(ConsoleColor.Green, "class", @class.Name);
             return @class;
         }
 
@@ -95,7 +115,10 @@ namespace Audacia.Typescript.Transpiler.Builders
             if (Instance != null)
             {
                 object value = null;
-                try { value = source.GetValue(Instance); }
+                try
+                {
+                    value = source.GetValue(Instance);
+                }
                 catch (TargetInvocationException e) when (e.InnerException != null)
                 {
                     var exception = e.InnerException.GetType().Name;
@@ -124,12 +147,15 @@ namespace Audacia.Typescript.Transpiler.Builders
                     return;
                 }
 
-                if (source.PropertyType.IsEnum)
+                if (source.PropertyType.IsEnum && source.PropertyType.GetCustomAttribute<FlagsAttribute>() == null)
                 {
-                    target.Value = source.PropertyType
-                        .TypescriptName() + "." + System.Enum
-                        .GetName(source.PropertyType, value)
-                        .CamelCase();
+                    var name = System.Enum.GetName(source.PropertyType, value);
+                    
+                    // Watch out for enums without a valid default value (i.e. no properties with value "0")
+                    if (string.IsNullOrEmpty(name)) target.Value =  "null";
+                    else target.Value = source.PropertyType
+                                       .Name + "." + name
+                                       .CamelCase();
 
                     return;
                 }
@@ -151,8 +177,6 @@ namespace Audacia.Typescript.Transpiler.Builders
             }
 
             else target.Value = "null";
-
-
         }
 
         private object CreateInstance()
@@ -164,8 +188,14 @@ namespace Audacia.Typescript.Transpiler.Builders
             {
                 return Activator.CreateInstance(SourceType, true);
             }
-            catch (MissingMethodException) { return null; }
-            catch (NotSupportedException) { return null; }
+            catch (MissingMethodException)
+            {
+                return null;
+            }
+            catch (NotSupportedException)
+            {
+                return null;
+            }
             catch (Exception e)
             {
                 if (e is TargetInvocationException x) e = x;
