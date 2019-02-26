@@ -10,13 +10,15 @@ namespace Audacia.Typescript.Transpiler
 {
     public class ObjectLiteral : Element
     {
+        private int MaxDepth { get; } = 2;
+        
         public ObjectLiteral(object value) => Value = value;
 
         public object Value { get; set; }
 
-        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => Build(builder, Value);
+        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => Build(builder, Value, 0);
 
-        private TypescriptBuilder Build(TypescriptBuilder builder, object value)
+        private TypescriptBuilder Build(TypescriptBuilder builder, object value, int depth)
         {
             if (value == null) return builder.Append("null");
 
@@ -38,13 +40,13 @@ namespace Audacia.Typescript.Transpiler
                 .Where(p => !p.GetMethod.IsPrivate)
                 .ToList();
 
-            if (!properties.Any()) return builder.Append("{}");
+            if (!properties.Any() || depth >= MaxDepth) return builder.Append("{}");
 
             builder.Append('{');
 
             if(properties.Count != 1)
                 builder.Indent().NewLine();
-
+ 
             foreach (var property in properties)
             {
                 builder.Append(property.Name.CamelCase())
@@ -52,12 +54,12 @@ namespace Audacia.Typescript.Transpiler
 
                 try
                 {
-                    Build(builder, property.GetValue(value));
+                    Build(builder, property.GetValue(value), depth + 1);
                 }
                 catch (Exception e)
                 {
                     // TODO: Log this somewhere
-                    Build(builder, null); 
+                    Build(builder, null, depth + 1); 
                 }
 
                 if (properties.Count == 1)
