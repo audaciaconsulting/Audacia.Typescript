@@ -24,7 +24,6 @@ namespace Audacia.Typescript.Transpiler.Extensions
         public static IEnumerable<Type> Dependencies(this Type type)
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
-            if (type == typeof(Attribute)) return Enumerable.Empty<Type>();
             if (type == typeof(System.Enum)) return Enumerable.Empty<Type>();
             if (type.BaseType == typeof(System.Enum)) return Enumerable.Empty<Type>();
 
