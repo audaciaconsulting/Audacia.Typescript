@@ -33,7 +33,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
             results.AddRange(type.GetDeclaredInterfaces().SelectMany(i => i.GetGenericDependencies()));
             results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType)
                 .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
-                .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
+                .SelectMany(a => a.GetProperties().Select(p => p.PropertyType))
+                .Where(d => d.IsEnum));
 
             var properties = type
                 .GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -46,7 +47,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 results.AddRange(property.PropertyType.GetGenericDependencies());
                 results.AddRange(property.GetCustomAttributesData().Select(a => a.AttributeType)
                     .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
-                    .SelectMany(a => a.Dependencies()).Where(d => d.IsEnum));
+                    .SelectMany(a => a.GetProperties().Select(p => p.PropertyType))
+                    .Where(d => d.IsEnum));
             }
 
             return results
