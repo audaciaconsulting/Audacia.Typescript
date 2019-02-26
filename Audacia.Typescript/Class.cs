@@ -48,6 +48,7 @@ namespace Audacia.Typescript
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
             builder.Join(Decorators, b => b.NewLine());
+            if (Decorators.Any()) builder.NewLine();
 
             if (!string.IsNullOrWhiteSpace(Comment))
                 builder.Append(new Comment(Comment), this).NewLine();

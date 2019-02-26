@@ -16,7 +16,7 @@ namespace Audacia.Typescript
             Type = type;
         }
 
-        public IList<Decorator> Decorator { get; } = new List<Decorator>();
+        public IList<Decorator> Decorators { get; } = new List<Decorator>();
 
         public ICollection<IModifier<Property>> Modifiers { get; } = new List<IModifier<Property>>();
 
@@ -40,6 +40,10 @@ namespace Audacia.Typescript
 
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
+            if (Decorators.Any()) builder.NewLine();
+            builder.Join(Decorators, b => b.NewLine());
+            if (Decorators.Any()) builder.NewLine();
+
             if (parent == null)
             {
                 builder.Append("var ").Append(Name);

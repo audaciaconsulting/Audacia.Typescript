@@ -8,6 +8,62 @@ using Audacia.Typescript.Transpiler.Extensions;
 
 namespace Audacia.Typescript.Transpiler
 {
+    public class ObjectLiteral : Element
+    {
+        public ObjectLiteral(object value) => Value = value;
+
+        public object Value { get; set; }
+
+        public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent) => Build(builder, Value);
+
+        private TypescriptBuilder Build(TypescriptBuilder builder, object value)
+        {
+            if (value == null) return builder.Append("null");
+
+            if (Primitive.CanWrite(value.GetType()))
+                return builder.Append(Primitive.Literal(value));
+
+            if (value.GetType().IsEnum)
+                return builder
+                    .Append(value.GetType().Name)
+                    .Append('.')
+                    .Append(System.Enum.GetName(value.GetType(), value).CamelCase());
+
+            var properties = value.GetType()
+                .GetProperties(BindingFlags.NonPublic
+                               | BindingFlags.Public
+                               | BindingFlags.Instance
+                               | BindingFlags.DeclaredOnly)
+                .Where(p => !p.GetIndexParameters().Any())
+                .Where(p => !p.GetMethod.IsPrivate)
+                .ToList();
+
+            if (!properties.Any()) return builder.Append("{}");
+
+            builder.Append('{');
+
+            if(properties.Count != 1)
+                builder.Indent().NewLine();
+
+            foreach (var property in properties)
+            {
+                builder.Append(property.Name.CamelCase())
+                    .Append(": ");
+
+                Build(builder, property.GetValue(value));
+
+                if (properties.Count == 1)
+                    return builder.Append('}');
+
+                if (property == properties.Last())
+                    builder.Unindent().NewLine();
+                else builder.Append(',').NewLine();
+            }
+
+            return builder.Append('}');
+        }
+    }
+
     public abstract class Primitive
     {
         public static Primitive Any { get; } = new AnyPrimitive();
@@ -75,19 +131,58 @@ namespace Audacia.Typescript.Transpiler
 
         private class ArrayPrimitive : Primitive
         {
+            public static List<string> MaskToList(Type type, System.Enum mask)
+            {
+                if (type.IsSubclassOf(typeof(System.Enum)) == false)
+                    throw new ArgumentException();
+
+                if (type.GetCustomAttribute<FlagsAttribute>() == null)
+                    throw new ArgumentException();
+
+                return System.Enum.GetValues(type)
+                    .Cast<System.Enum>()
+                    .Where(mask.HasFlag)
+                    .Select(x => type.Name + "." + x.ToString().CamelCase())
+                    .ToList();
+            }
+
             public override void Literal(TypescriptBuilder builder, object value)
             {
-                var array = ((IEnumerable) value).Cast<object>().ToList();
-                var literals = array.Select(Primitive.Literal);
-                if (!array.Any()) builder.Append("[]");
+                IEnumerable<string> literals;
+                if (value is IEnumerable enumerable)
+                {
+                    var array = enumerable.Cast<object>().ToList();
 
-                else builder.Append('[')
-                    .Indent()
-                    .NewLine()
-                    .Join(literals, b => b.Append(',').NewLine())
-                    .Unindent()
-                    .NewLine()
-                    .Append(']');
+                    if (!array.Any())
+                    {
+                        builder.Append("[]");
+                        return;
+                    }
+
+                    literals = array.Select(Primitive.Literal);
+                }
+                else if (value.GetType().IsEnum)
+                {
+                    literals = MaskToList(value.GetType(), (System.Enum)value);
+
+                    if (!literals.Any())
+                    {
+                        builder.Append("[]");
+                        return;
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+
+                builder.Append("[ ")
+//                    .Indent()
+//                    .NewLine()
+                    .Join(literals, b => b.Append(", "))//.NewLine())
+//                    .Unindent()
+//                    .NewLine()
+                    .Append(" ]");
             }
 
             public override void Identifier(TypescriptBuilder builder, Type source)
@@ -97,6 +192,11 @@ namespace Audacia.Typescript.Transpiler
                         .Append('<')
                         .Append(source.GetElementType().TypescriptName())
                         .Append('>');
+                else if (source.IsEnum)
+                    builder.Append("Array")
+                        .Append('<')
+                        .Append(source.Name)
+                        .Append('>');
                 else
                     builder
                         .Append("Array")
@@ -105,6 +205,8 @@ namespace Audacia.Typescript.Transpiler
 
             public override bool CanWriteValue(Type type)
             {
+                if (type.IsEnum && type.GetCustomAttribute<FlagsAttribute>() != null) return true;
+
                 if (typeof(IDictionary).IsAssignableFrom(type)) return false;
                 if (type.IsArray) return true;
 
