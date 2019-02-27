@@ -23,8 +23,6 @@ namespace Audacia.Typescript.Transpiler.Builders
             File = new TypescriptFile { Path = Path.Combine(context.Path, name) };
             File.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
 
-
-
             foreach (var type in Types)
             {
                 var attributeUsage = type.GetCustomAttribute<AttributeUsageAttribute>();

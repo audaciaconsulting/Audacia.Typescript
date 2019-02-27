@@ -23,14 +23,14 @@ namespace Audacia.Typescript.Transpiler.Builders
 
             _typeArguments = sourceType.GetGenericArguments();
             _interfaces = SourceType.GetDeclaredInterfaces()
-                .Where(t => !t.Namespace.StartsWith(nameof(System)))
-                .Where(i => input.Namespaces == null
-                            || input.Namespaces.Select(n => n.Name).Contains(i.Namespace));
+                .Where(t => t.Namespace == null || !t.Namespace.StartsWith(nameof(System)))
+                .Where(i => !input.Namespaces.Any() || input.Namespaces.Select(n => n.Name).Contains(i.Namespace));
             _properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public |
                                                    BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(p => !p.GetIndexParameters().Any())
-                .Where(p => !p.GetMethod.IsPrivate);
-            _attributes = sourceType.GetCustomAttributes(false).Cast<Attribute>().ToList();
+                .Where(p => !p.GetMethod.IsPrivate)
+                .Where(p => !p.GetMethod.IsAssembly);
+            _attributes = sourceType.GetCustomAttributes(false).Cast<Attribute>().Where(t => t.GetType().IsPublic).ToList();
         }
 
         public override Element Build()
@@ -68,7 +68,7 @@ namespace Audacia.Typescript.Transpiler.Builders
             {
                 var getMethod = source.GetMethod;
                 var target = new Property(source.Name.CamelCase(), source.PropertyType.TypescriptName());
-                var attributes = source.GetCustomAttributes(false);
+                var attributes = source.GetCustomAttributes(false).Where(t => t.GetType().IsPublic);
 
                 if (getMethod.IsAbstract) target.Modifiers.Add(Modifier.Abstract);
 

@@ -31,7 +31,8 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public Type Inherits => SourceType.BaseType !=  null
             && SourceType.BaseType != typeof(object)
-            && !SourceType.BaseType.Namespace.StartsWith(nameof(System)) ? SourceType.BaseType : null;
+            && SourceType.BaseType != typeof(Attribute)
+            && !Primitive.CanWrite(SourceType.BaseType) ? SourceType.BaseType : null;
 
         public abstract Element Build();
 

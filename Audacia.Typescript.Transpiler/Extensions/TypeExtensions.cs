@@ -9,7 +9,9 @@ namespace Audacia.Typescript.Transpiler.Extensions
     {
         public static IEnumerable<Type> ClassAttributeDependencies(this Type type)
         {
-            return type.GetCustomAttributes(false).Select(a => a.GetType());
+            return type.GetCustomAttributes(false)
+                .Where(t => t.GetType().IsPublic)
+                .Select(a => a.GetType());
         }
 
         public static IEnumerable<Type> PropertyAttributeDependencies(this Type type)
@@ -18,9 +20,27 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 .GetProperties()
                 .SelectMany(p => p.GetCustomAttributes(false))
                 .Select(a => a.GetType())
+                .Where(t => t.IsPublic)
                 .Distinct();
         }
 
+        public static bool IsClassAttribute(this Type type)
+        {
+            if (type.BaseType == typeof(Attribute)) return false;
+            var usage = type.GetCustomAttribute<AttributeUsageAttribute>();
+            if (usage == null) return true;
+            return usage.ValidOn.HasFlag(AttributeTargets.Enum)
+                ||usage.ValidOn.HasFlag(AttributeTargets.Class);
+        }
+        
+        public static bool IsPropertyAttribute(this Type type)
+        {
+            if (type.BaseType == typeof(Attribute)) return false;
+            var usage = type.GetCustomAttribute<AttributeUsageAttribute>();
+            if (usage == null) return true;
+            return usage.ValidOn.HasFlag(AttributeTargets.Property);
+        }
+        
         public static IEnumerable<Type> Dependencies(this Type type)
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
@@ -32,6 +52,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             results.AddRange(type.GetDeclaredInterfaces());
             results.AddRange(type.GetDeclaredInterfaces().SelectMany(i => i.GetGenericDependencies()));
             results.AddRange(type.GetCustomAttributesData().Select(a => a.AttributeType)
+                .Where(t => t.IsPublic)
                 .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
                 .SelectMany(a => a.GetProperties().Select(p => p.PropertyType))
                 .Where(d => d.IsEnum));
@@ -46,6 +67,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 results.Add(property.PropertyType);
                 results.AddRange(property.PropertyType.GetGenericDependencies());
                 results.AddRange(property.GetCustomAttributesData().Select(a => a.AttributeType)
+                    .Where(t => t.IsPublic)
                     .Where(a => a != type) // We want to instantiate enums on attributes and need to import them to do it
                     .SelectMany(a => a.GetProperties().Select(p => p.PropertyType))
                     .Where(d => d.IsEnum));
