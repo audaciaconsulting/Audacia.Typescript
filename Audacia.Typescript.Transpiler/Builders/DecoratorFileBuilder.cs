@@ -23,8 +23,6 @@ namespace Audacia.Typescript.Transpiler.Builders
             File = new TypescriptFile { Path = Path.Combine(context.Path, name) };
             File.Elements.Add(new Comment("This file is generated from Audacia.Typescript.Transpiler. Any changes will be overwritten. \n"));
 
-
-
             foreach (var type in Types)
             {
                 var attributeUsage = type.GetCustomAttribute<AttributeUsageAttribute>();
@@ -39,7 +37,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public override IEnumerable<Type> Dependencies => Types;
 
-        public override IEnumerable<Type> IncludedTypes => Types;
+        public override IEnumerable<Type> IncludedTypes => Types;//.Where(t => t.IsClassAttribute() || t.IsPropertyAttribute());
 
         public override IEnumerable<Type> ClassAttributeDependencies => Enumerable.Empty<Type>();
 
