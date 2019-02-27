@@ -4,8 +4,6 @@ namespace Audacia.Typescript.Transpiler
     {
         public PropertyDecoratorFunction(string name, string argumentsClassName) : base(name, argumentsClassName) { }
 
-        private string prefix = "___attributes";
-
         public override TypescriptBuilder Build(TypescriptBuilder builder, IElement parent)
         {
 //            export function displayName(args: Partial<DisplayNameAttribute>)

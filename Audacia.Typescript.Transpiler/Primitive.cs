@@ -11,7 +11,7 @@ namespace Audacia.Typescript.Transpiler
     public class ObjectLiteral : Element
     {
         private int MaxDepth { get; } = 2;
-        
+
         public ObjectLiteral(object value) => Value = value;
 
         public object Value { get; set; }
@@ -33,20 +33,21 @@ namespace Audacia.Typescript.Transpiler
 
             var properties = value.GetType()
                 .GetProperties(BindingFlags.NonPublic
-                               | BindingFlags.Public
-                               | BindingFlags.Instance
-                               | BindingFlags.DeclaredOnly)
+                    | BindingFlags.Public
+                    | BindingFlags.Instance)
                 .Where(p => !p.GetIndexParameters().Any())
                 .Where(p => !p.GetMethod.IsPrivate)
+                .Where(p => p.DeclaringType != typeof(Attribute)) // Exclude attribute props because we ignore that class.
+                .Where(p => !p.GetMethod.IsAssembly)
                 .ToList();
 
-            if (!properties.Any() || depth >= MaxDepth) return builder.Append("{}");
+            if (!properties.Any() || depth >= MaxDepth) return builder.Append("null");
 
             builder.Append('{');
 
-            if(properties.Count != 1)
+            if (properties.Count != 1)
                 builder.Indent().NewLine();
- 
+
             foreach (var property in properties)
             {
                 builder.Append(property.Name.CamelCase())
@@ -59,7 +60,7 @@ namespace Audacia.Typescript.Transpiler
                 catch (Exception e)
                 {
                     // TODO: Log this somewhere
-                    Build(builder, null, depth + 1); 
+                    Build(builder, null, depth + 1);
                 }
 
                 if (properties.Count == 1)
@@ -103,7 +104,7 @@ namespace Audacia.Typescript.Transpiler
         public static ICollection<Primitive> Defaults { get; } = typeof(Primitive)
             .GetProperties(BindingFlags.Public | BindingFlags.Static)
             .Where(p => p.PropertyType == typeof(Primitive))
-            .Select(p => (Primitive)p.GetValue(null))
+            .Select(p => (Primitive) p.GetValue(null))
             .ToList();
 
         public abstract void Literal(TypescriptBuilder builder, object value);
@@ -120,7 +121,7 @@ namespace Audacia.Typescript.Transpiler
 
             var builder = new TypescriptBuilder();
             var match = Defaults.FirstOrDefault(primitive => primitive.CanWriteValue(value.GetType()));
-            if (match == null) return null;
+            if (match == null) return "null";
 
             match.Literal(builder, value);
             return builder.ToString();
@@ -141,7 +142,7 @@ namespace Audacia.Typescript.Transpiler
 
         private class ArrayPrimitive : Primitive
         {
-            public static List<string> MaskToList(Type type, System.Enum mask)
+            public static IEnumerable<string> MaskToList(Type type, System.Enum mask)
             {
                 if (type.IsSubclassOf(typeof(System.Enum)) == false)
                     throw new ArgumentException();
@@ -149,11 +150,28 @@ namespace Audacia.Typescript.Transpiler
                 if (type.GetCustomAttribute<FlagsAttribute>() == null)
                     throw new ArgumentException();
 
-                return System.Enum.GetValues(type)
-                    .Cast<System.Enum>()
-                    .Where(mask.HasFlag)
-                    .Select(x => type.Name + "." + x.ToString().CamelCase())
-                    .ToList();
+                var values = System.Enum.GetValues(type);
+
+                foreach (var value in values)
+                {
+                    var @enum = (System.Enum) value;
+                    if (mask.HasFlag(@enum))
+                    {
+                        // Pretty annoying the weird commas that can sometimes appear here for flag enums.
+                        // Hopefully this doesn't cause problems.
+                        if (!value.ToString().Contains(','))
+                            yield return type.Name + "." + value.ToString().CamelCase();
+                        else
+                        {
+                            var parts = value.ToString().Split(',')
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrWhiteSpace(x));
+                            
+                            foreach (var part in parts)
+                                yield return type.Name + "." + part.CamelCase();
+                        }
+                    }
+                }
             }
 
             public override void Literal(TypescriptBuilder builder, object value)
@@ -173,7 +191,7 @@ namespace Audacia.Typescript.Transpiler
                 }
                 else if (value.GetType().IsEnum)
                 {
-                    literals = MaskToList(value.GetType(), (System.Enum)value);
+                    literals = MaskToList(value.GetType(), (System.Enum) value).Distinct();
 
                     if (!literals.Any())
                     {
@@ -187,11 +205,11 @@ namespace Audacia.Typescript.Transpiler
                 }
 
                 builder.Append("[ ")
-//                    .Indent()
-//                    .NewLine()
-                    .Join(literals, b => b.Append(", "))//.NewLine())
-//                    .Unindent()
-//                    .NewLine()
+                    //                    .Indent()
+                    //                    .NewLine()
+                    .Join(literals, b => b.Append(", ")) //.NewLine())
+                    //                    .Unindent()
+                    //                    .NewLine()
                     .Append(" ]");
             }
 
@@ -208,9 +226,13 @@ namespace Audacia.Typescript.Transpiler
                         .Append(source.Name)
                         .Append('>');
                 else
-                    builder
-                        .Append("Array")
-                        .Append(GenericArguments(source));
+                {
+                    builder.Append("Array");
+
+                    if (source.IsGenericType)
+                        builder.Append(GenericArguments(source));
+                    else builder.Append("<any>");
+                }
             }
 
             public override bool CanWriteValue(Type type)
@@ -260,6 +282,7 @@ namespace Audacia.Typescript.Transpiler
                 type == typeof(string)
                 || type == typeof(char)
                 || type == typeof(Guid)
+                || type == typeof(Type)
                 || type == typeof(TimeSpan);
         }
 
@@ -296,7 +319,8 @@ namespace Audacia.Typescript.Transpiler
             }
 
             public override void Identifier(TypescriptBuilder builder, Type source) => builder.Append("Date" +
-                                                                                                      "");
+                "");
+
             public override bool CanWriteValue(Type type) => type == typeof(DateTime) || type == typeof(DateTimeOffset);
         }
 
