@@ -39,6 +39,9 @@ namespace Audacia.Typescript.Transpiler
                 .Where(p => !p.GetMethod.IsPrivate)
                 .Where(p => p.DeclaringType != typeof(Attribute)) // Exclude attribute props because we ignore that class.
                 .Where(p => !p.GetMethod.IsAssembly)
+                .Where(p => !p.GetMethod.IsFamily)
+                .Where(p => !p.GetMethod.IsFamilyOrAssembly)
+                .Where(p => !p.GetMethod.IsFamilyAndAssembly)
                 .ToList();
 
             if (!properties.Any() || depth >= MaxDepth) return builder.Append("null");
