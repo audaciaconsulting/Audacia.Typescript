@@ -12,7 +12,6 @@ namespace Audacia.Typescript.Transpiler.Extensions
             return type.GetCustomAttributes(false)
                 .Where(t => t.GetType().IsPublic)
                 .Select(a => a.GetType());
-            //.Where(a => a.IsClassAttribute());
         }
 
         public static IEnumerable<Type> PropertyAttributeDependencies(this Type type)
@@ -22,7 +21,6 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 .SelectMany(p => p.GetCustomAttributes(false))
                 .Select(a => a.GetType())
                 .Where(t => t.IsPublic)
-                //.Where(a => a.IsPropertyAttribute())
                 .Distinct();
         }
 

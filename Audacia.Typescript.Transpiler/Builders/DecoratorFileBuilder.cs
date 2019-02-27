@@ -37,7 +37,7 @@ namespace Audacia.Typescript.Transpiler.Builders
 
         public override IEnumerable<Type> Dependencies => Types;
 
-        public override IEnumerable<Type> IncludedTypes => Types;//.Where(t => t.IsClassAttribute() || t.IsPropertyAttribute());
+        public override IEnumerable<Type> IncludedTypes => Types;
 
         public override IEnumerable<Type> ClassAttributeDependencies => Enumerable.Empty<Type>();
 
