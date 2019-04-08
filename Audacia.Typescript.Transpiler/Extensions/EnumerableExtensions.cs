@@ -31,6 +31,18 @@ namespace Audacia.Typescript.Transpiler.Extensions
             }
         }
 
+        public static IEnumerable<Type> Flatten(this Type source)
+        {
+            var result = new List<Type>();
+            
+            if (!source.IsGenericType)
+                result.Add(source);
+            else foreach (var argument in source.GetGenericArguments().Where(a => !a.IsGenericParameter))
+                result.AddRange(argument.Flatten());
+
+            return result;
+        }
+
         /// <summary>
         /// Based on the provided <see cref="FileBuilder"/>, filter by namespaces and specified type names if necessary
         /// </summary>

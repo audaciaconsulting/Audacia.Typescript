@@ -44,6 +44,8 @@ namespace Audacia.Typescript.Transpiler
                 .Concat(Inputs.SelectMany(i => i.ClassAttributeDependencies))
                 .Concat(Inputs.SelectMany(i => i.PropertyAttributeDependencies))
                 .Declarations()
+                .SelectMany(t => t.Flatten())
+                .Distinct()
                 .Where(type => !Primitive.CanWrite(type) || type.IsEnum)
                 .Where(type => type.IsGenericType
                     ? !includedTypes.Contains(type.GetGenericTypeDefinition())
