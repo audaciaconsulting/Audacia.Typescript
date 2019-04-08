@@ -10,6 +10,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         public static IEnumerable<Type> ClassAttributeDependencies(this Type type)
         {
             return type.GetCustomAttributes(false)
+                .Where(t => t.GetType() != type)
                 .Where(t => t.GetType().IsPublic)
                 .Select(a => a.GetType());
         }
