@@ -17,6 +17,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
                 foreach (var element in mappings.OrderBy(m => !(m is EnumBuilder)))
                 {
                     if (mappings.Any(m => element.Inherits == m.SourceType)) continue;
+                    if (mappings.Any(m => element.ClassAttributeDependencies.Contains(m.SourceType))) continue;
+                    if (mappings.Any(m => element.PropertyAttributeDependencies.Contains(m.SourceType))) continue;
 
                     yield return element;
                     removed.Add(element);
@@ -30,7 +32,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
         }
 
         /// <summary>
-        /// Based on the provided <see cref="InputSettings"/>, filter by namespaces and specified type names if necessary
+        /// Based on the provided <see cref="FileBuilder"/>, filter by namespaces and specified type names if necessary
         /// </summary>
         /// <param name="types"></param>
         /// <param name="inputSettings"></param>
