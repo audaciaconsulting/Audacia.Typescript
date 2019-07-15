@@ -1,27 +1,41 @@
-﻿[[_TOC_]]
+# Audacia.Typescript.Transpiler
+
+### Generate typescript modules from .NET assemblies.
+
+## Usage
+
+With the `Audacia.Typescript.Transpiler` package installed in your web project, building the solution will add a `transpiler.config` file at the project root. The build will then fail because the configuration file will be invalid- its up to you to now specify what is to be transpiled, and where.
+
+An example `transpiler.config` would be as follows:
+
+```xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <Transpile path="">
+    <Assembly name="bin/Debug/netcoreapp2.0/Example1.dll" />
+    <Assembly name="bin/Debug/netcoreapp2.0/Example2.dll">
+      <Properties initialize="true"/>
+      <Namespace name="Example2.Models"/>
+    </Assembly>
+  </Transpile>
+</Settings>
+
+```
+
+The `Transpile` element's `path` attribute can be used to specify what filepath the typescript files should be written to, relative to the project root. This element represents a single transpilation job.
+
+Each `Assembly` element specifies an assembly which should be transpiled. In this example, `Example1.dll` will produce a file called `example1.ts`.
+
+The `Properties` element can optionally be used to specify whether each typescript type's properties should be initialized to match their .NET counterparts. Defaults to true.
+
+The `Namespace` element can optionally used to provide specific namespaces to transpile. If not present, all namespaces are included.
 
 
-#Intended use
-- Download the `Audacia.Typescript.Transpiler` nuget package, building the solution should put a `transpiler.config` file at the project root.
-- The contents of that config file are mapped to [`Settings.cs`](https://audacia.visualstudio.com/Audacia/_git/Audacia.Typescript?path=%2FAudacia.Typescript.Transpiler%2FConfiguration%2FSettings.cs&version=GBmaster). The `transpiler.config` is populated with what's found in `Setttings.Default`.
+## Developing
 
-##OutputSettings
-For each item here, a file will be created and placed in the path specified in `OutputSettings.Path`.
+an [example configuration file](https://github.com/audaciaconsulting/Audacia.Typescript/blob/master/Audacia.Typescript.Transpiler/example.config) is included in the repository. To debug the transpilier against it, first set `Audacia.Transcript.Transpiler` as the startup project. 
 
-##InputSettings
-Each output can have many of these. It's assembly-specific `C#` that will be transpiled. You can drill down further, as follows:
-- _Namespaces_: give the `Input` tag a child of `NameSpace` to only transpile code within that namespace
-- _TypeName_: give the `Namespace` tag a child of `TypeName` to only transpile **that type** within the namespace.
+Ensure the working directory is the root directory of the project, and in the debug settings for the project set `example.config` as the single argument in the `Application Arguments` field.
 
-#Debugging
-
-- Set `Audacia.Transcript.Transpiler` as the startup project
-- Edit the above project's properties as follows:
-
-|Name|Value|
-|---|---|
-|Application Arguments|example.config|
-|Working Directory|{localRepoPath}\Audacia.Typescript.Transpiler
-
-**NB** [`example.config`](https://audacia.visualstudio.com/Audacia/_git/Audacia.Typescript?path=%2FAudacia.Typescript.Transpiler%2Fexample.config&version=GBmaster) is checked in to source control for ease, so that there exists an example ready to test with.
-- `F5` - the output file specified in the example config should be dumped to the working directory
+Running or debugging the application now will produce example transpiled versions of the two libraries themselves. In your source folder you will some new typescript files, including `audacia.typescript.ts` and `audacia.typescript.transpiler.ts`.
