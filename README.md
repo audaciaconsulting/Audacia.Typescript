@@ -11,4 +11,4 @@ The base project contains classes for generating typescript programatically in C
 The transpiler project contains classes and tooling for reflecting C# assemblies at build time and generating typescript modules based on them.
 Please follow their respective links above for more information on each.
 
-_Please note: this project is still in its early stages._
+_Please note: this project is still in development and not all CLR features are supported yet._
