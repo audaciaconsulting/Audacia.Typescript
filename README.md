@@ -1,6 +1,6 @@
 # Audacia.Typescript
 
-### Write typescript and generating typescript modules from C# assemblies.
+### Write typescript and generate typescript modules from C# assemblies.
 
 This solution consists of two main projects:
 
