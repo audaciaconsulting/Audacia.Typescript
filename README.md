@@ -2,6 +2,8 @@
 
 ### Write typescript and generate typescript modules from C# assemblies.
 
+![Build Status](https://dev.azure.com/audacia/Audacia/_apis/build/status/Audacia.Typescript?branchName=master)
+
 This solution consists of two main projects:
 
 - [Audacia.Typescript](https://github.com/audaciaconsulting/Audacia.Typescript/tree/master/Audacia.Typescript)
