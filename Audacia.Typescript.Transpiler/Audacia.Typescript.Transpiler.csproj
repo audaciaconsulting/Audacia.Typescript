@@ -8,6 +8,10 @@
 		<Authors>Adam Drewery</Authors>
 		<Company>Audacia</Company>
 		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+		<Description>Tool for transpiling CLR models to typescript ones at build-time.</Description>
+		<PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
+		<RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
+		<Copyright>Copyright © Audacia 2017</Copyright>
 	</PropertyGroup>
 
 	<!-- Pack settings -->

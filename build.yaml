@@ -2,12 +2,7 @@ name: $(Build.BuildId).$(Year:yy)$(DayOfYear)
 
 trigger:
 - master
-- develop
-- dev
 
-pool:
-  vmImage: 'vs2017-win2016'
-  
 resources:
   repositories:
     - repository: templates
@@ -15,4 +10,4 @@ resources:
       name: Audacia/Audacia.Build.Templates
       
 steps:
-- template: build-package.netcore.yaml@templates
+- template: build-signed-package.netcore.yaml@templates
