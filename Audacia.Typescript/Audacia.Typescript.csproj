@@ -6,10 +6,11 @@
     <AssemblyInformationalVersion>3.0.0.0</AssemblyInformationalVersion>
     <Authors>Adam Drewery</Authors>
     <Company>Audacia</Company>
-    <PackageIconUrl>https://girnka-dm2305.files.1drv.com/y4mUfw_5APiy6YhvPidloaNkO5IMUh4GTX222ecazimKACSrlsUoptXi3WHjmHmPtDIxhjfcG0AJHcQ4NDxm4tA13PEBjzjoEnKm5hcoNzxS1i6um3cBaB0o9AMT3PXAULs9utk0wG6YP7tmUmQ_UTSaiG9mNEcXM_t1_Eiguvs1XeaIKBjbb_WF8hTUMzmwY_pGG8BuM9CDcu7tpW2oxK7fw</PackageIconUrl>
+    <PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
     <Description>Utilities for generating typescript types from C# libraries.</Description>
     <Copyright>Copyright © Audacia 2017</Copyright>
     <TargetFramework>netstandard1.1</TargetFramework>
+    <RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
