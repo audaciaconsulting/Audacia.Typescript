@@ -10,4 +10,4 @@ resources:
       name: Audacia/Audacia.Build.Templates
       
 steps:
-- template: build-signed-package.netcore.yaml@templates
+- template: steps/build/netcore/signed-package.yaml@templates
