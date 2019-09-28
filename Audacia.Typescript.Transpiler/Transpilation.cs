@@ -15,9 +15,9 @@ namespace Audacia.Typescript.Transpiler
     public class Transpilation
     {
         public Transpilation() { }
-
+        
         public Transpilation(string path) => Path = path;
-
+        
         [XmlAttribute("path")] public string Path { get; set; }
 
         [XmlElement("Enums")] public EnumSettings EnumSettings { get; set; }
@@ -30,6 +30,8 @@ namespace Audacia.Typescript.Transpiler
         public DependencyResolutionSettings DependencyResolution { get; set; }
 
         [XmlIgnore] private readonly Stopwatch _stopwatch = new Stopwatch();
+
+        public bool Debug { get; set; } = true;
 
         public void Transpile()
         {
@@ -125,6 +127,13 @@ namespace Audacia.Typescript.Transpiler
             WriteLine();
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
 
+            if (args.Length == 2)
+            {
+                if (args[2] == "-debug") Log.Level = LogLevel.Debug;
+                else if (args[2] == "-info") Log.Level = LogLevel.Info;
+                else if (args[2] == "-error") Log.Level = LogLevel.Error;
+            }
+            
             var configFileLocation = args.First();
             var context = Settings.Load(configFileLocation);
 

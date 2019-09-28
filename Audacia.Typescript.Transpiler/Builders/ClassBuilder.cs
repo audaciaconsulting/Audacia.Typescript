@@ -36,7 +36,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         public override Element Build()
         {
             var @class = new Class(SourceType.Name.SanitizeTypeName()) {Modifiers = {Modifier.Export}};
-            WriteLine(ConsoleColor.Green, "class", @class.Name);
+            Log.Class(@class);
 
             if (Inherits != null)
                 @class.Extends = Inherits.TypescriptName();
@@ -121,24 +121,8 @@ namespace Audacia.Typescript.Transpiler.Builders
                 }
                 catch (TargetInvocationException e) when (e.InnerException != null)
                 {
-                    var exception = e.InnerException.GetType().Name;
-                    var nameSpace = SourceType.Namespace;
-                    var className = SourceType.Name;
-                    var propertyName = source.Name;
-
-                    //Console.WriteLine();
-                    WriteLine(ConsoleColor.Red, "warn:", string.Empty);
-                    Write(ConsoleColor.Blue, exception);
-                    Write(" encountered inspecting ");
-                    Write(nameSpace);
-                    Write(".");
-                    Write(ConsoleColor.Blue, className);
-                    Write(".");
-                    Write(propertyName);
-                    WriteLine(ConsoleColor.Red, string.Empty, e.InnerException.Message);
-                    Console.WriteLine();
-                    Write(e.InnerException.StackTrace);
-                    //Console.WriteLine();
+                    var exception = e.InnerException;
+                    Log.Warn(exception, source, target);
                 }
 
                 if (value == null)
@@ -200,21 +184,7 @@ namespace Audacia.Typescript.Transpiler.Builders
             {
                 if (e is TargetInvocationException x) e = x;
 
-                var exception = e.GetType().Name;
-                var nameSpace = SourceType.Namespace;
-                var className = SourceType.Name;
-
-                WriteLine(ConsoleColor.Red, "warn:", string.Empty);
-                Write(ConsoleColor.Blue, exception);
-                Write(" encountered instantiating ");
-                Write(nameSpace);
-                Write(".");
-                Write(ConsoleColor.Blue, className);
-                Console.WriteLine();
-                WriteLine(ConsoleColor.Red, "exception:", e.Message);
-                Console.WriteLine();
-                Write(ConsoleColor.Red, e.StackTrace);
-                Console.WriteLine();
+                Log.Warn(e, SourceType);
 
                 return null;
             }

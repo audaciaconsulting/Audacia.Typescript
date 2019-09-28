@@ -52,7 +52,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @interface.Members.Add(property);
             }
 
-            WriteLine(ConsoleColor.Magenta, "interface", @interface.Name);
+            Log.Interface(@interface);
             return @interface;
         }
     }

@@ -62,7 +62,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @enum.Members.Add(name.CamelCase(), value);
             }
 
-            WriteLine(ConsoleColor.DarkYellow, "enum", @enum.Name);
+            Log.Enum(@enum);
             return @enum;
         }
     }
