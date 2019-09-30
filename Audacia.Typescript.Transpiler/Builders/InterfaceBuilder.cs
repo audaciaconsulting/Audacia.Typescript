@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Extensions;
+using Audacia.Typescript.Transpiler.Logging;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
@@ -52,7 +53,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @interface.Members.Add(property);
             }
 
-            Log.Interface(@interface);
+            Log.Info.Interface(@interface);
             return @interface;
         }
     }

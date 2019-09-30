@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Extensions;
+using Audacia.Typescript.Transpiler.Logging;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
@@ -62,7 +63,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 @enum.Members.Add(name.CamelCase(), value);
             }
 
-            Log.Enum(@enum);
+            Log.Info.Enum(@enum);
             return @enum;
         }
     }

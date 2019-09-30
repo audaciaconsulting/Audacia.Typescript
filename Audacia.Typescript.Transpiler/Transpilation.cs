@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using Audacia.Typescript.Transpiler.Builders;
 using Audacia.Typescript.Transpiler.Configuration;
 using Audacia.Typescript.Transpiler.Extensions;
-using static System.Console;
+using Audacia.Typescript.Transpiler.Logging;
 
 namespace Audacia.Typescript.Transpiler
 {
@@ -57,7 +57,7 @@ namespace Audacia.Typescript.Transpiler
             var count = -1;
 
             foreach (var type in missingTypes)
-                WriteLine("including: " + type.Namespace + "." + type.Name);
+                Log.Debug("including: " + type.Namespace + "." + type.Name);
 
             while (missingTypes.Count != count)
             {
@@ -111,27 +111,22 @@ namespace Audacia.Typescript.Transpiler
 
 
                 File.WriteAllText(builder.File.Path, builder.File.ToString());
-
-                ForegroundColor = ConsoleColor.Green;
-                WriteLine($"Typescript file \"{System.IO.Path.GetFullPath(builder.File.Path)}\" written.");
-                ResetColor();
+                Log.Info.FileWritten(System.IO.Path.GetFullPath(builder.File.Path));
             }
 
-            ForegroundColor = ConsoleColor.Green;
-            WriteLine($"Typescript transpile completed in {_stopwatch.ElapsedMilliseconds}ms.");
-            ResetColor();
+            Log.Info.JobComplete(_stopwatch.ElapsedMilliseconds);
         }
 
         public static void Main(string[] args)
         {
-            WriteLine();
+            Console.WriteLine();
             if (!args.Any()) throw new ArgumentException("Please specify the config file location");
 
             if (args.Length == 2)
             {
-                if (args[2] == "-debug") Log.Level = LogLevel.Debug;
-                else if (args[2] == "-info") Log.Level = LogLevel.Info;
-                else if (args[2] == "-error") Log.Level = LogLevel.Error;
+                if (args[1] == "-debug") Log.Level = LogLevel.Debug;
+                else if (args[1] == "-info") Log.Level = LogLevel.Info;
+                else if (args[1] == "-error") Log.Level = LogLevel.Error;
             }
             
             var configFileLocation = args.First();

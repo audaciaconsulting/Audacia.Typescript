@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Audacia.Typescript.Transpiler.Extensions;
+using Audacia.Typescript.Transpiler.Logging;
 
 namespace Audacia.Typescript.Transpiler.Builders
 {
@@ -36,7 +37,7 @@ namespace Audacia.Typescript.Transpiler.Builders
         public override Element Build()
         {
             var @class = new Class(SourceType.Name.SanitizeTypeName()) {Modifiers = {Modifier.Export}};
-            Log.Class(@class);
+            Log.Info.Class(@class);
 
             if (Inherits != null)
                 @class.Extends = Inherits.TypescriptName();
@@ -122,7 +123,7 @@ namespace Audacia.Typescript.Transpiler.Builders
                 catch (TargetInvocationException e) when (e.InnerException != null)
                 {
                     var exception = e.InnerException;
-                    Log.Warn(exception, source, target);
+                    Log.Warn.FailedToReadProperty(exception, source);
                 }
 
                 if (value == null)
@@ -167,24 +168,26 @@ namespace Audacia.Typescript.Transpiler.Builders
         {
             if (SourceType.IsAbstract) return null;
             if (SourceType.ContainsGenericParameters) return null;
+            if (SourceType.GetConstructors().All(c => c.GetParameters().Length != 0)) return null;
 
             try
             {
                 return Activator.CreateInstance(SourceType, true);
             }
-            catch (MissingMethodException)
+            catch (MissingMethodException e)
             {
+                Log.Warn.FailedToInstantiateType(e, SourceType);
                 return null;
             }
-            catch (NotSupportedException)
+            catch (NotSupportedException e)
             {
+                Log.Warn.FailedToInstantiateType(e, SourceType);
                 return null;
             }
             catch (Exception e)
             {
                 if (e is TargetInvocationException x) e = x;
-
-                Log.Warn(e, SourceType);
+                Log.Warn.FailedToInstantiateType(e, SourceType);
 
                 return null;
             }
