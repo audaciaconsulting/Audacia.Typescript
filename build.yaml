@@ -7,7 +7,7 @@ resources: { repositories: [ { repository: templates, type: git, name: Audacia/A
 stages:
   - stage: Build
     displayName: Build
-    jobs: [ { template: pipelines/build/nuget-package.job.yaml@templates } ]
+    jobs: [ { template: pipelines/build/signed-nuget-package.job.yaml@templates } ]
 
   - stage: Release
     displayName: Release
