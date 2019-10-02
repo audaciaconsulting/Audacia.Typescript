@@ -126,8 +126,16 @@ namespace Audacia.Typescript.Transpiler
             var match = Defaults.FirstOrDefault(primitive => primitive.CanWriteValue(value.GetType()));
             if (match == null) return "null";
 
-            match.Literal(builder, value);
-            return builder.ToString();
+            try
+            {
+                match.Literal(builder, value);
+                return builder.ToString();
+            }
+            catch (Exception e)
+            {
+                builder.Append("null");
+                return builder.ToString();
+            }
         }
 
         public static string Identifier(Type type)
@@ -169,7 +177,7 @@ namespace Audacia.Typescript.Transpiler
                             var parts = value.ToString().Split(',')
                                 .Select(x => x.Trim())
                                 .Where(x => !string.IsNullOrWhiteSpace(x));
-                            
+
                             foreach (var part in parts)
                                 yield return type.Name + "." + part.CamelCase();
                         }
@@ -180,6 +188,12 @@ namespace Audacia.Typescript.Transpiler
             public override void Literal(TypescriptBuilder builder, object value)
             {
                 IEnumerable<string> literals;
+                if (value == null)
+                {
+                    builder.Append("null");
+                    return;
+                }
+
                 if (value is IEnumerable enumerable)
                 {
                     var array = enumerable.Cast<object>().ToList();

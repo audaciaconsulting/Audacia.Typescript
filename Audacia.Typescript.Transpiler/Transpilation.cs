@@ -15,9 +15,9 @@ namespace Audacia.Typescript.Transpiler
     public class Transpilation
     {
         public Transpilation() { }
-        
+
         public Transpilation(string path) => Path = path;
-        
+
         [XmlAttribute("path")] public string Path { get; set; }
 
         [XmlElement("Enums")] public EnumSettings EnumSettings { get; set; }
@@ -57,7 +57,7 @@ namespace Audacia.Typescript.Transpiler
             var count = -1;
 
             foreach (var type in missingTypes)
-                Log.Debug("including: " + type.Namespace + "." + type.Name);
+                Log.Debug.IncludingType(type);
 
             while (missingTypes.Count != count)
             {
@@ -72,7 +72,7 @@ namespace Audacia.Typescript.Transpiler
 
                 foreach (var dependency in dependencies)
                 {
-                    WriteLine("including: " + dependency.Namespace + "." + dependency.Name.SanitizeTypeName());
+                    Log.Debug.IncludingType(dependency);
                     missingTypes.Add(dependency);
                 }
             }
@@ -128,7 +128,7 @@ namespace Audacia.Typescript.Transpiler
                 else if (args[1] == "-info") Log.Level = LogLevel.Info;
                 else if (args[1] == "-error") Log.Level = LogLevel.Error;
             }
-            
+
             var configFileLocation = args.First();
             var context = Settings.Load(configFileLocation);
 
