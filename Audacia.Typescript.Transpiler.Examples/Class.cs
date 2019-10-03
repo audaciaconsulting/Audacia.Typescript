@@ -4,10 +4,17 @@ using System.Threading;
 
 namespace Audacia.Typescript.Transpiler.Examples
 {
+	[Some]
+	public class SomeOtherAttribute : Attribute
+	{
+
+	}
+
+	[SomeOther]
 	public class SomeAttribute : Attribute
 	{
 		public SomeAttribute() { }
-		
+
 		public SomeAttribute(IGenericInterface<AbstractClass> property)
 		{
 			Property = property;
@@ -15,7 +22,7 @@ namespace Audacia.Typescript.Transpiler.Examples
 
 		public IGenericInterface<AbstractClass> Property { get; set; }
 	}
-	
+
 	[SomeAttribute]
 	public interface IGenericInterface<T>
 	{
@@ -36,7 +43,7 @@ namespace Audacia.Typescript.Transpiler.Examples
 	{
 		[SomeAttribute]
 		public Class References { get; set; }
-		
+
 		[SomeAttribute]
 		public IGenericInterface<Class> RecursiveProperty { get; set; }
 
@@ -45,7 +52,7 @@ namespace Audacia.Typescript.Transpiler.Examples
 		public int StupidProperty
 		{
 			get
-			{ 
+			{
 				// todo:
 				//new SemaphoreSlim(0).Wait();
 				return 0;

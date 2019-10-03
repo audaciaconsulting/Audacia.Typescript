@@ -19,15 +19,19 @@ namespace Audacia.Typescript.Transpiler.Builders
             SourceType = sourceType;
             Input = input;
             OutputContext = outputContext;
+            Documentation = Input.Documentation;
+            Dependencies = SourceType.Dependencies();
+            ClassAttributeDependencies = SourceType.ClassAttributeDependencies();
+            PropertyAttributeDependencies = SourceType.PropertyAttributeDependencies();
         }
 
-        public XmlDocumentation Documentation => Input.Documentation;
+        public XmlDocumentation Documentation { get; }
 
-        public IEnumerable<Type> Dependencies => SourceType.Dependencies();
+        public IEnumerable<Type> Dependencies { get; }
 
-        public IEnumerable<Type> ClassAttributeDependencies => SourceType.ClassAttributeDependencies();
+        public IEnumerable<Type> ClassAttributeDependencies { get; }
 
-        public IEnumerable<Type> PropertyAttributeDependencies => SourceType.PropertyAttributeDependencies();
+        public IEnumerable<Type> PropertyAttributeDependencies { get; }
 
         public Type Inherits => SourceType.BaseType !=  null
             && SourceType.BaseType != typeof(object)
