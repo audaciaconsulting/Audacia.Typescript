@@ -109,7 +109,6 @@ namespace Audacia.Typescript.Transpiler
             {
                 builder.AddReferences(Inputs);
 
-
                 File.WriteAllText(builder.File.Path, builder.File.ToString());
                 Log.Info.FileWritten(System.IO.Path.GetFullPath(builder.File.Path));
             }

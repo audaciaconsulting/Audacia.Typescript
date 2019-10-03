@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Audacia.Typescript.Transpiler.Logging;
 
 namespace Audacia.Typescript.Transpiler.Extensions
 {
@@ -9,6 +10,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
     {
         public static IEnumerable<Type> ClassAttributeDependencies(this Type type)
         {
+            Log.Debug.InspectingClassAttributes(type);
+
             return type.GetCustomAttributes(false)
                 .Where(t => t.GetType() != type)
                 .Where(t => t.GetType().IsPublic)
@@ -17,6 +20,8 @@ namespace Audacia.Typescript.Transpiler.Extensions
 
         public static IEnumerable<Type> PropertyAttributeDependencies(this Type type)
         {
+            Log.Debug.InspectingPropertyAttributes(type);
+
             return type
                 .GetProperties()
                 .SelectMany(p => p.GetCustomAttributes(false))
@@ -33,7 +38,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             return usage.ValidOn.HasFlag(AttributeTargets.Enum)
                 ||usage.ValidOn.HasFlag(AttributeTargets.Class);
         }
-        
+
         public static bool IsPropertyAttribute(this Type type)
         {
             if (type.BaseType == typeof(Attribute)) return false;
@@ -41,7 +46,7 @@ namespace Audacia.Typescript.Transpiler.Extensions
             if (usage == null) return true;
             return usage.ValidOn.HasFlag(AttributeTargets.Property);
         }
-        
+
         public static IEnumerable<Type> Dependencies(this Type type)
         {
             if (type == typeof(object)) return Enumerable.Empty<Type>();
