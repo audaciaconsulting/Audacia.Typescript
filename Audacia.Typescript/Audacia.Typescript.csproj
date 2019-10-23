@@ -11,6 +11,7 @@
     <Copyright>Copyright © Audacia 2017</Copyright>
     <TargetFramework>netstandard1.1</TargetFramework>
     <RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
+    <ProjectGuid>{E81506BB-EFDE-4417-A3B0-02299A93C1FC}</ProjectGuid>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

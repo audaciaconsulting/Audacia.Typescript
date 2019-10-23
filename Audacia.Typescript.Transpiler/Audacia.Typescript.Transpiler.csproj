@@ -7,11 +7,12 @@
 		<AssemblyInformationalVersion>2.1.0.0</AssemblyInformationalVersion>
 		<Authors>Adam Drewery</Authors>
 		<Company>Audacia</Company>
-		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
 		<Description>Tool for transpiling CLR models to typescript ones at build-time.</Description>
 		<PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
 		<RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
 		<Copyright>Copyright © Audacia 2017</Copyright>
+		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+		<ProjectGuid>{07AD6E60-F7BA-480B-A71E-F23EC61F4521}</ProjectGuid>
 	</PropertyGroup>
 
 	<!-- Pack settings -->
@@ -31,9 +32,9 @@
 		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="TargetFramework=%(_TargetFramework.Identity)" />
 	</Target>
 
-	
+
 	<ItemGroup>
 	  <ProjectReference Include="..\Audacia.Typescript\Audacia.Typescript.csproj" />
 	</ItemGroup>
-	
+
 </Project>
