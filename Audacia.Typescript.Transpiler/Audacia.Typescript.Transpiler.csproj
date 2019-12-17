@@ -13,6 +13,8 @@
 		<Copyright>Copyright © Audacia 2017</Copyright>
 		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
 		<ProjectGuid>{07AD6E60-F7BA-480B-A71E-F23EC61F4521}</ProjectGuid>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>true</DelaySign>
 	</PropertyGroup>
 
 	<!-- Pack settings -->
