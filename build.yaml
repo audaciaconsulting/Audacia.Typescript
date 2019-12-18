@@ -5,13 +5,13 @@ schedules: [ { cron: "0 0 * * *", displayName: Nightly Build, branches: { includ
 resources: { repositories: [ { repository: templates, type: git, name: Audacia/Audacia.Build } ] }
 
 stages:
-  - stage: Build
-    displayName: Build
-    jobs:
-      - template: pipelines/build/signed-nuget-package.job.yaml@templates
+- stage: Build
+  displayName: Build
+  jobs:
+    - template: pipelines/build/signed-nuget-package.job.yaml@templates
 
-  - stage: Release
-    displayName: Release
-    condition: and(succeeded(), and(not(eq(variables['Build.Reason'], 'PullRequest')), not(eq(variables['Build.Reason'], 'Schedule'))))
-    jobs:
-      - template: pipelines/release/public-nuget-package.job.yaml@templates
+- stage: Release
+  displayName: Release
+  condition: and(succeeded(), and(not(eq(variables['Build.Reason'], 'PullRequest')), not(eq(variables['Build.Reason'], 'Schedule'))))
+  jobs:
+    - template: pipelines/release/public-nuget-package.job.yaml@templates
