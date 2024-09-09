@@ -2,11 +2,9 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<Version>2.1.0.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<AssemblyInformationalVersion>2.1.0.0</AssemblyInformationalVersion>
-		<Authors>Adam Drewery</Authors>
-		<Company>Audacia</Company>
+		<Version>2.2.0.0</Version>
+		<Authors>Audacia</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>Tool for transpiling CLR models to typescript ones at build-time.</Description>
 		<PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
 		<RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
@@ -15,6 +13,7 @@
 		<ProjectGuid>{07AD6E60-F7BA-480B-A71E-F23EC61F4521}</ProjectGuid>
 		<SignAssembly>true</SignAssembly>
 		<DelaySign>true</DelaySign>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<!-- Pack settings -->
@@ -33,7 +32,6 @@
 		</ItemGroup>
 		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="TargetFramework=%(_TargetFramework.Identity)" />
 	</Target>
-
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Audacia.Typescript\Audacia.Typescript.csproj" />
