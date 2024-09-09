@@ -5,10 +5,10 @@
 ![Build Status](https://dev.azure.com/audacia/Audacia/_apis/build/status/Audacia.Typescript?branchName=master)
 [![CodeFactor](https://www.codefactor.io/repository/github/audaciaconsulting/audacia.typescript/badge)](https://www.codefactor.io/repository/github/audaciaconsulting/audacia.typescript)
 
-| NuGet                         |               |
-| ----------------------------- |:-------------:|
-| Audacia.Typescript            | [![NuGet](https://img.shields.io/nuget/v/Audacia.Typescript.svg)](https://www.nuget.org/packages/Audacia.Typescript) |
-| Audacia.Typescript.Transpiler | [![NuGet](https://img.shields.io/nuget/v/Audacia.Typescript.Transpiler.svg)](https://www.nuget.org/packages/Audacia.Typescript.Transpiler) |
+| NuGet                         |                                                                                                                                             |
+|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Audacia.Typescript            | [![NuGet](https://img.shields.io/nuget/v/Audacia.Typescript.svg)](https://www.nuget.org/packages/Audacia.Typescript)                        |
+| Audacia.Typescript.Transpiler | [![NuGet](https://img.shields.io/nuget/v/Audacia.Typescript.Transpiler.svg)](https://www.nuget.org/packages/Audacia.Typescript.Transpiler)  |
 
 This solution consists of two main projects:
 
