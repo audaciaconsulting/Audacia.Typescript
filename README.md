@@ -20,3 +20,8 @@ The transpiler project contains classes and tooling for reflecting C# assemblies
 Please follow their respective links above for more information on each.
 
 _Please note: this project is still in development and not all CLR features are supported yet._
+
+# Change History
+The `Audacia.Typescript` repository change history can be found in the following changelogs:
+- Audacia.Typescript [changelog](Audacia.Typescript/CHANGELOG.md)
+- Audacia.Typescript.Transpiler [changelog](Audacia.Typescript.Transpiler/CHANGELOG.md)
