@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.0.0.0</Version>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <AssemblyInformationalVersion>3.0.0.0</AssemblyInformationalVersion>
-    <Authors>Adam Drewery</Authors>
-    <Company>Audacia</Company>
+    <Version>3.1.0.0</Version>
+    <Authors>Audacia</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
     <Description>Utilities for generating typescript types from C# libraries.</Description>
     <Copyright>Copyright © Audacia 2017</Copyright>

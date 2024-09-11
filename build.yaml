@@ -1,8 +1,9 @@
-name: $(Build.BuildId).$(Year:yy)$(DayOfYear)
+name: $(Year:yy)$(DayOfYear).$(Rev:r)
 trigger: [master]
 pr: { branches: { include: [master] } }
 schedules: [ { cron: "0 0 * * *", displayName: Nightly Build, branches: { include: [ master ] } } ]
 resources: { repositories: [ { repository: templates, type: git, name: Audacia/Audacia.Build } ] }
+pool: { vmImage: windows-2022 }
 
 stages:
 - stage: Build
