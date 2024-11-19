@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>3.1.0.0</Version>
+    <Version>3.1.0</Version>
     <Authors>Audacia</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIconUrl>https://www.audacia.co.uk/media/pkenoobu/audacia-logo-circle-blue.png</PackageIconUrl>
     <Description>Utilities for generating typescript types from C# libraries.</Description>
-    <Copyright>Copyright © Audacia 2017</Copyright>
+    <Copyright>Copyright © Audacia $([System.DateTime]::Now.Year)</Copyright>
     <TargetFramework>netstandard1.1</TargetFramework>
     <RepositoryUrl>https://github.com/audaciaconsulting/Audacia.Typescript</RepositoryUrl>
     <ProjectGuid>{E81506BB-EFDE-4417-A3B0-02299A93C1FC}</ProjectGuid>

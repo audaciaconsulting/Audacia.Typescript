@@ -1,13 +1,13 @@
 # Changelog
 
-## 3.1.0.0 - 2024-09-09
+## 3.1.0 - 2024-11-19
 ### Added
-- No new functionality added.
+- No new functionality added
 
 ### Changed
-- Bug Fix: Fixed build pipeline.
+- Updated version to follow semantic versioning
 
-## 3.0.0.0 - 2019-02-17
+## 3.0.19197.41345 - 2019-02-17
 ### Added
 - No new functionality added
 
@@ -15,7 +15,7 @@
 - Bug Fix: Fixed incorrect naming for enum property names in transpiler.
 - Added option to initialize properties to their default CLR values.
 
-## 2.1.0.0 - 2018-09-14
+## 2.1.19025.30866 - 2018-09-14
 ### Added
 - No new functionality added.
 
