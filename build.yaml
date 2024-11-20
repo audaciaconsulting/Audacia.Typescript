@@ -1,18 +1,33 @@
 name: $(Year:yy)$(DayOfYear).$(Rev:r)
-trigger: [master]
-pr: { branches: { include: [master] } }
-schedules: [ { cron: "0 0 * * *", displayName: Nightly Build, branches: { include: [ master ] } } ]
-resources: { repositories: [ { repository: templates, type: git, name: Audacia/Audacia.Build } ] }
-pool: { vmImage: windows-2022 }
+trigger:
+  - master
+pr:
+  branches:
+    include:
+      - master
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      endpoint: shared-github
+      name: audaciaconsulting/Audacia.Build
+pool:
+  vmImage: windows-2022
 
 stages:
-- stage: Build
+- stage: Stage_Build
   displayName: Build
   jobs:
     - template: src/build/dotnet/jobs/signed-nuget-package.job.yaml@templates
 
-- stage: Release
+- stage: Stage_Release
   displayName: Release
-  condition: and(succeeded(), and(not(eq(variables['Build.Reason'], 'PullRequest')), not(eq(variables['Build.Reason'], 'Schedule'))))
+  dependsOn: Stage_Build
+  condition: >
+    and(
+      succeeded(),
+      notIn(variables['Build.Reason'], 'PullRequest', 'Schedule'),
+      eq(dependencies.Stage_Build.outputs['Job_Build.UpdateVersions.ShouldPublish'], true)
+    )
   jobs:
     - template: src/deployment/nuget/jobs/public-nuget-package.job.yaml@templates
