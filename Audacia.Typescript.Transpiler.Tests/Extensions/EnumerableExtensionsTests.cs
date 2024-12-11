@@ -14,12 +14,7 @@ namespace Audacia.Typescript.Transpiler.Tests.Extensions
     public class EnumerableExtensionsTests
     {
         public class FilterByInputSettingsTests
-        {
-            private readonly Type[] _types;
 
-            public FilterByInputSettingsTests()
-            {
-                this._types = GetTypes();
             }
             [Fact]
             public void NoNamespaces_AllReturned()
